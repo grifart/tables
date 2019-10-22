@@ -9,6 +9,8 @@
             "email": "honza.kuchar@grifart.cz"
         }
     ],
+
+
     "scripts": {
         "verify": [
             "@phpstan",
@@ -17,6 +19,8 @@
         "phpstan": "vendor/bin/phpstan analyze --no-iteraction -l max --error-format compact src",
         "test": "vendor/bin/tester src"
     },
+
+
     "require": {
         "php": "~7.2.0 | ~7.3.0",
         "nette/utils": "^3.0.1",
@@ -33,6 +37,7 @@
         "grifart/class-scaffolder": "⚠️ Install grifart/class-scaffolder as your `-dev` dependency to generate table definitions from your DB automatically."
     },
 
+
     "autoload": {
         "psr-4": {
             "Grifart\\Tables\\": "src"
@@ -41,12 +46,12 @@
             "src/exceptions.php"
         ]
     },
-
     "autoload-dev": {
         "files": [
             "src/exceptions.php"
         ]
     },
+
 
     "repositories": [
         {
