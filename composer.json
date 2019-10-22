@@ -13,7 +13,8 @@
         "verify": [
 
         ],
-        "phpstan": "phpstan -c phpstan.neon -l max"
+        "phpstan": "vendor/bin/phpstan analyze --no-iteraction -l max --error-format compact src",
+        "test": "vendor/bin/tester src"
     },
     "require": {
         "php": "~7.2.0 | ~7.3.0",
