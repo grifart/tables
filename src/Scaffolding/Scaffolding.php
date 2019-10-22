@@ -11,7 +11,6 @@ use Grifart\ClassScaffolder\Decorators\PropertiesDecorator;
 use Grifart\ClassScaffolder\Definition\ClassDefinitionBuilder;
 use Grifart\Tables\Row;
 use Grifart\Tables\TypeMapper;
-use CampApp\Model\Infrastructure\ClassGenerator\PrivateConstructorDecorator;
 use function Grifart\ClassScaffolder\Definition\Types\nullable;
 
 final class Scaffolding
