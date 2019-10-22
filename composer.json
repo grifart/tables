@@ -1,0 +1,59 @@
+{
+    "name": "grifart/tables",
+    "description": "Statically typed table gate with support for composite fields, arrays and more from PostgreSQL.",
+    "type": "library",
+    "license": "proprietary",
+    "authors": [
+        {
+            "name": "Jan Kuchař",
+            "email": "honza.kuchar@grifart.cz"
+        }
+    ],
+    "scripts": {
+        "verify": [
+
+        ],
+        "phpstan": "phpstan -c phpstan.neon -l max"
+    },
+    "require": {
+        "php": "~7.2.0 | ~7.3.0",
+        "nette/utils": "^3.0.1",
+        "dibi/dibi": "^4.0.2"
+    },
+    "require-dev": {
+        "nette/tester": "^2.3",
+        "grifart/class-scaffolder": "^0.1.3",
+        "grifart/phpstan-oneline": "^0.2.2",
+        "phpstan/phpstan": "^0.11.17"
+
+    },
+    "suggest": {
+        "grifart/class-scaffolder": "⚠️ Install grifart/class-scaffolder as your `-dev` dependency to generate table definitions from your DB automatically."
+    },
+
+    "autoload": {
+        "psr-4": {
+            "Grifart\\Tables\\": "src"
+        },
+        "classmap": [
+            "src/exceptions.php"
+        ]
+    },
+
+    "autoload-dev": {
+        "files": [
+            "src/exceptions.php"
+        ]
+    },
+
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "git@gitlab.grifart.local:jkuchar1/assert-function-signature.git"
+        },
+        {
+            "type": "vcs",
+            "url": "git@gitlab.grifart.local:grifart/class-scaffolder.git"
+        }
+    ]
+}

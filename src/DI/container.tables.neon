@@ -1,0 +1,6 @@
+services:
+	tables.manager: Grifart\Tables\TableManager(
+		@Dibi\Connection,
+		@tables.phpToDatabaseMapper,
+		@tables.databaseToPhpMapper
+	)
