@@ -32,6 +32,9 @@ final class Scaffolding
 	): array {
 
 		$columnsNativeTypes = $pgReflector->retrieveColumnInfo($schema, $table);
+		if (\count($columnsNativeTypes) === 0) {
+			throw new \LogicException('No columns found for given configuration. Does referenced table exist?');
+		}
 
 		$location = function(string $column) use ($schema, $table): string {
 			return self::location($schema, $table, $column);
