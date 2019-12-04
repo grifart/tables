@@ -24,7 +24,7 @@
     "require": {
         "php": "^7.2",
         "nette/utils": "^3.0.1",
-        "dibi/dibi": "^4.0.2",
+        "dibi/dibi": "^4.0.2"
     },
     "require-dev": {
         "nette/tester": "^2.3",
