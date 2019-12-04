@@ -6,12 +6,12 @@ final class TypeMapper
 {
 
 	/**
-	 * @var (callable(string $typeName, string $location): ?string>)[]
+	 * @var (callable(string $typeName, string $location): ?string)[]
 	 */
 	private $matchers = [];
 
 	/**
-	 * @var (callable(mixed $value, string $typeName): mixed>)[]
+	 * @var (callable(mixed $value, string $typeName): mixed)[]
 	 */
 	private $mappings = [];
 
