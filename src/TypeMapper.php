@@ -1,30 +1,28 @@
 <?php declare(strict_types=1);
 
-
 namespace Grifart\Tables;
-
-
-use function Grifart\AssertFunction\assertSignature;
-use function Grifart\AssertFunction\nullable;
 
 final class TypeMapper
 {
 
-	private $matchers;
-	private $mappings;
+	/**
+	 * @var (callable(string $typeName, string $location): ?string>)[]
+	 */
+	private $matchers = [];
 
-	public function __construct()
-	{
-		$this->mappings = [];
-		$this->matchers = [];
-	}
+	/**
+	 * @var (callable(mixed $value, string $typeName): mixed>)[]
+	 */
+	private $mappings = [];
 
-	// TODO: isn't it too general? Or just map db-type name to php type and back?
+
+	/**
+	 * @param (callable(string $typeName, string $location): ?string) $typeMatcher
+	 * @param (callable(mixed $value, string $typeName): mixed) $mapper
+	 *
+	 * TODO: isn't it too general? Or just map db-type name to php type and back?
+	 */
 	public function addMapping(callable $typeMatcher, callable $mapper) {
-
-		assertSignature($typeMatcher, ['string', 'string'], nullable('string'));
-		assertSignature($mapper, ['any'], 'mixed');
-
 		$this->matchers[] = $typeMatcher;
 		$this->mappings[] = $mapper;
 	}
@@ -38,12 +36,6 @@ final class TypeMapper
 			$translatingType = $matcher($typeName, $location);
 			if ($translatingType !== NULL) {
 				$mapper = $this->mappings[$idx];
-//				assertSignature(
-//					$mapper, [
-//						$this->getTypeForValue($value)
-//					],
-//					'mixed' // todo: $translatingType does not work for reverse mapping
-//				);
 				return $mapper($value, $typeName);
 			}
 		}
