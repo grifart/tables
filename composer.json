@@ -56,10 +56,6 @@
     "repositories": [
         {
             "type": "vcs",
-            "url": "git@gitlab.grifart.local:jkuchar1/assert-function-signature.git"
-        },
-        {
-            "type": "vcs",
             "url": "git@gitlab.grifart.local:grifart/class-scaffolder.git"
         }
     ]
