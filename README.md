@@ -9,6 +9,12 @@ Idea: make statically typed what is possible and prevent typos.
 - do not write it twice (sync database to database-access-layer classes)
 - do not screw up database - support for rich types as UUID, arrays, ... (easy to add more)
 
+# Docs
+
+- This library currenly missing comprehensive docs.
+- [Cook book](docs/cookbook) – contains useful solutions for situations we have been facing in practise.
+
+
 ## Installation
 
 This is private repo, so you have to add repositories to you `composer.json` manually. This tells composer where to find our packages.
@@ -46,3 +52,4 @@ composer require grifart/tables:dev-master
 # 2. install grifart/class-scaffolder for automatic defintions generation:
 composer require grifart/class-scaffolder
 ````
+
