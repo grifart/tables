@@ -93,10 +93,10 @@ final class ModificationsDecorator implements ClassDecorator
 				$docCommentType = $type->getDocCommentType($namespace);
 
 				$modifier->addComment(\sprintf(
-					'@param $%s %s%s',
-					$fieldName,
+					'@param %s $%s%s',
 					$docCommentType,
-					$type->hasComment() ? ' ' . $type->getComment($namespace) : ''
+					$fieldName,
+					$type->hasComment() ? ' ' . $type->getComment($namespace) : '',
 				));
 			}
 		}

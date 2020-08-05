@@ -2,11 +2,13 @@
 
 namespace Grifart\Tables;
 
+use Grifart\ClassScaffolder\Definition\Types\Type;
+
 final class TypeMapper
 {
 
 	/**
-	 * @var (callable(string $typeName, string $location): ?string)[]
+	 * @var (callable(string $typeName, string $location): (string|Type|null))[]
 	 */
 	private $matchers = [];
 
@@ -17,7 +19,7 @@ final class TypeMapper
 
 
 	/**
-	 * @param (callable(string $typeName, string $location): ?string) $typeMatcher
+	 * @param (callable(string $typeName, string $location): (string|Type|null)) $typeMatcher
 	 * @param (callable(mixed $value, string $typeName): mixed) $mapper
 	 *
 	 * TODO: isn't it too general? Or just map db-type name to php type and back?
@@ -46,7 +48,10 @@ final class TypeMapper
 		return !\is_object($value) ? \gettype($value) : \get_class($value);
 	}
 
-	public function mapType(string $location, string $typeName): string
+	/**
+	 * @return string|Type
+	 */
+	public function mapType(string $location, string $typeName)
 	{
 		foreach($this->matchers as $idx => $matcher) {
 			if ( ($translatingType = $matcher($typeName, $location)) !== NULL) {
