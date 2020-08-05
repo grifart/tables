@@ -12,17 +12,6 @@ stages:
     - composer run verify
 
 
-test.verify.php72:
-  <<: *test-verify-template
-  image: grifart/php7.2-with-gulp-and-all-php-modules
-
-
-
-test.verify.php73:
-  <<: *test-verify-template
-  image: grifart/php7.3-with-gulp-and-all-php-modules
-
-
 test.verify.php74:
   <<: *test-verify-template
   image: grifart/php7.4-with-gulp-and-all-php-modules

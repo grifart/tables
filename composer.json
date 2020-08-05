@@ -22,19 +22,16 @@
 
 
     "require": {
-        "php": "^7.2",
-        "nette/utils": "^3.0.1",
-        "dibi/dibi": "^4.0.2"
+        "php": "^7.4",
+        "dibi/dibi": "^4.0.2",
+        "grifart/class-scaffolder": "^0.2.0",
+        "nette/utils": "^3.0.1"
     },
     "require-dev": {
         "nette/tester": "^2.3",
-        "grifart/class-scaffolder": "^0.1.3",
         "grifart/phpstan-oneline": "^0.2.2",
         "phpstan/phpstan": "^0.11.17"
 
-    },
-    "suggest": {
-        "grifart/class-scaffolder": "⚠️ Install grifart/class-scaffolder as your `-dev` dependency to generate table definitions from your DB automatically."
     },
 
 
