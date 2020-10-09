@@ -64,7 +64,7 @@ final class Scaffolding
 
 			// row modification class
 			$addTableFields(new ClassDefinitionBuilder($modificationClass))
-				->decorate(new ModificationsDecorator($tableClass, $primaryKeyClass))
+				->decorate(new ModificationsDecorator($tableClass, $primaryKeyClass, $columnsNativeTypes))
 				->build(),
 
 			// table class

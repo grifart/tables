@@ -26,7 +26,8 @@ final class PostgresReflector
 	SELECT
 	`pg_attribute`.attname                                                    as `name`,
 	pg_catalog.format_type(`pg_attribute`.atttypid, `pg_attribute`.atttypmod) as `type`,
-	not(`pg_attribute`.attnotnull) AS `nullable`
+	not(`pg_attribute`.attnotnull) AS `nullable`,
+	`pg_attribute`.atthasdef AS `hasDefaultValue`
 FROM
 	pg_catalog.pg_attribute `pg_attribute`
 WHERE
@@ -45,7 +46,7 @@ SQL
 		$results = [];
 		foreach($result->fetchAssoc('name') as $columnName => $columnInfo) {
 			\assert($columnInfo instanceof \Dibi\Row);
-			$results[$columnName] = new Column($columnInfo['name'], $columnInfo['type'], $columnInfo['nullable']);
+			$results[$columnName] = new Column($columnInfo['name'], $columnInfo['type'], $columnInfo['nullable'], $columnInfo['hasDefaultValue']);
 		}
 		return $results;
 	}
