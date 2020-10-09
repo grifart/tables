@@ -7,20 +7,20 @@ namespace Grifart\Tables\Scaffolding;
 final class Column
 {
 
-	/** @var string */
-	private $name;
+	private string $name;
 
-	/** @var string */
-	private $type;
+	private string $type;
 
-	/** @var bool */
-	private $nullable;
+	private bool $nullable;
 
-	public function __construct(string $name, string $type, bool $nullable)
+	private bool $hasDefaultValue;
+
+	public function __construct(string $name, string $type, bool $nullable, bool $hasDefaultValue)
 	{
 		$this->name = $name;
 		$this->type = $type;
 		$this->nullable = $nullable;
+		$this->hasDefaultValue = $hasDefaultValue;
 	}
 
 	public function getName(): string
@@ -38,6 +38,9 @@ final class Column
 		return $this->nullable;
 	}
 
-
+	public function hasDefaultValue(): bool
+	{
+		return $this->hasDefaultValue;
+	}
 
 }

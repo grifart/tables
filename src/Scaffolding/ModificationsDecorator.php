@@ -14,20 +14,23 @@ use Nette\PhpGenerator\PhpLiteral;
 final class ModificationsDecorator implements ClassDecorator
 {
 
-	/** @var string */
-	private $modificationsStorage;
+	private string $modificationsStorage;
 
-	/** @var string */
-	private $relatedTableClass;
+	private string $relatedTableClass;
 
-	/** @var string */
-	private $primaryKeyClass;
+	private string $primaryKeyClass;
 
-	public function __construct(string $relatedTable, string $primaryKeyClass)
+	private array $columnInfo;
+
+	/**
+	 * @param Column[] $columnInfo
+	 */
+	public function __construct(string $relatedTable, string $primaryKeyClass, array $columnInfo)
 	{
 		$this->modificationsStorage = '$this->modifications';
 		$this->relatedTableClass = $relatedTable;
 		$this->primaryKeyClass = $primaryKeyClass;
+		$this->columnInfo = $columnInfo;
 	}
 
 
@@ -54,11 +57,34 @@ final class ModificationsDecorator implements ClassDecorator
 			])
 			->setBody('return self::_update($primaryKey);');
 
-		$classType->addMethod('new')
+		$newMethod = $classType->addMethod('new')
 			->setStatic()
 			->setVisibility('public')
 			->setReturnType('self')
-			->setBody('return self::_new();');
+			->addBody('$self = self::_new();');
+		foreach ($definition->getFields() as $fieldName => $fieldType) {
+			$columnInfo = $this->columnInfo[$fieldName];
+			if ( ! $columnInfo->hasDefaultValue()) {
+				$newMethod->addParameter($fieldName)
+					->setTypeHint($fieldType->getTypeHint())
+					->setNullable($fieldType->isNullable());
+
+				if ($fieldType->requiresDocComment()) {
+					$newMethod->addComment(\sprintf(
+						'@param %s $%s%s',
+						$fieldType->getDocCommentType($namespace),
+						$fieldName,
+						$fieldType->hasComment() ? ' ' . $fieldType->getComment($namespace) : '',
+					));
+				}
+
+				$newMethod->addBody('$self->modifications[?] = ?;', [
+					$fieldName,
+					new PhpLiteral('$' . $fieldName),
+				]);
+			}
+		}
+		$newMethod->addBody('return $self;');
 
 		// implement forTable method
 		$namespace->addUse($this->relatedTableClass);
