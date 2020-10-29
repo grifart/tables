@@ -7,6 +7,7 @@ namespace Grifart\Tables\Scaffolding;
 use Grifart\ClassScaffolder\Decorators\ClassDecorator;
 use Grifart\ClassScaffolder\Decorators\DecoratorTools;
 use Grifart\ClassScaffolder\Definition\ClassDefinition;
+use Grifart\ClassScaffolder\Definition\Types\Type;
 use Grifart\Tables\CaseConvertion;
 use Grifart\Tables\RowNotFound;
 use Grifart\Tables\Table;
@@ -35,7 +36,13 @@ final class TableDecorator implements ClassDecorator
 	/** @var Column[] */
 	private $columnInfo;
 
-	public function __construct(string $schema, string $tableName, string $primaryKeyClass, string $rowClass, string $modificationClass, array $columnInfo)
+	/** @var array<string, Type> */
+	private $columnPhpTypes;
+
+	/**
+	 * @param array<string, Type> $columnPhpTypes
+	 */
+	public function __construct(string $schema, string $tableName, string $primaryKeyClass, string $rowClass, string $modificationClass, array $columnInfo, array $columnPhpTypes)
 	{
 		$this->schema = $schema;
 		$this->tableName = $tableName;
@@ -46,6 +53,7 @@ final class TableDecorator implements ClassDecorator
 
 		Assert::allIsInstanceOf($columnInfo, Column::class);
 		$this->columnInfo = $columnInfo;
+		$this->columnPhpTypes = $columnPhpTypes;
 	}
 
 
@@ -139,12 +147,41 @@ final class TableDecorator implements ClassDecorator
 				]
 			);
 
-		$classType->addMethod('add')
-			->setReturnType($this->modificationClass)
-			->setBody(
-				'return ?::new();',
-				[new Code\PhpLiteral($namespace->unresolveName($this->modificationClass))]
+		foreach (['add', 'new'] as $methodName) {
+			$addMethod = $classType->addMethod($methodName)
+				->setReturnType($this->modificationClass);
+
+			$fieldNames = [];
+			foreach ($this->columnInfo as $columnInfo) {
+				if ( ! $columnInfo->hasDefaultValue()) {
+					$fieldName = $columnInfo->getName();
+					$fieldType = $this->columnPhpTypes[$fieldName];
+
+					$addMethod->addParameter($fieldName)
+						->setTypeHint($fieldType->getTypeHint())
+						->setNullable($fieldType->isNullable());
+
+					if ($fieldType->requiresDocComment()) {
+						$addMethod->addComment(\sprintf(
+							'@param %s $%s%s',
+							$fieldType->getDocCommentType($namespace),
+							$fieldName,
+							$fieldType->hasComment() ? ' ' . $fieldType->getComment($namespace) : '',
+						));
+					}
+
+					$fieldNames[] = new Code\PhpLiteral('$' . $fieldName);
+				}
+			}
+
+			$addMethod->setBody(
+				'return ?::new(...?);',
+				[
+					new Code\PhpLiteral($namespace->unresolveName($this->modificationClass)),
+					$fieldNames,
+				]
 			);
+		}
 
 
 		$classType->addMethod('edit')
@@ -204,15 +241,6 @@ final class TableDecorator implements ClassDecorator
 			->setBody(
 				'$this->tableManager = $tableManager;'
 			);
-
-		$classType->addMethod('new')
-			->setBody(
-				'return ?::new();',
-				[
-					new Code\PhpLiteral($namespace->unresolveName($this->modificationClass)),
-				]
-			)
-			->setReturnType($this->modificationClass);
 
 
 

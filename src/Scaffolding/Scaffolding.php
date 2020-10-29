@@ -9,9 +9,12 @@ use Grifart\ClassScaffolder\Decorators\GettersDecorator;
 use Grifart\ClassScaffolder\Decorators\InitializingConstructorDecorator;
 use Grifart\ClassScaffolder\Decorators\PropertiesDecorator;
 use Grifart\ClassScaffolder\Definition\ClassDefinitionBuilder;
+use Grifart\ClassScaffolder\Definition\Types\Type;
 use Grifart\Tables\Row;
 use Grifart\Tables\TypeMapper;
 use function Grifart\ClassScaffolder\Definition\Types\nullable;
+use function Grifart\ClassScaffolder\Definition\Types\resolve;
+
 
 final class Scaffolding
 {
@@ -40,13 +43,15 @@ final class Scaffolding
 			return self::location($schema, $table, $column);
 		};
 
-		$addTableFields = function (ClassDefinitionBuilder $builder) use ($columnsNativeTypes, $mapper, $location): ClassDefinitionBuilder {
-			foreach ($columnsNativeTypes as $column) {
-				$phpType = $mapper->mapType($location($column->getName()), $column->getType());
-				$builder->field(
-					$column->getName(),
-					$column->isNullable() ? nullable($phpType): $phpType
-				);
+		$columnsPhpTypes = [];
+		foreach ($columnsNativeTypes as $column) {
+			$phpType = resolve($mapper->mapType($location($column->getName()), $column->getType()));
+			$columnsPhpTypes[$column->getName()] = $column->isNullable() ? nullable($phpType) : $phpType;
+		}
+
+		$addTableFields = function (ClassDefinitionBuilder $builder) use ($columnsPhpTypes): ClassDefinitionBuilder {
+			foreach ($columnsPhpTypes as $name => $type) {
+				$builder->field($name, $type);
 			}
 			return $builder;
 		};
@@ -75,7 +80,8 @@ final class Scaffolding
 					$primaryKeyClass,
 					$rowClass,
 					$modificationClass,
-					$columnsNativeTypes
+					$columnsNativeTypes,
+					$columnsPhpTypes,
 				))
 				->build(),
 
