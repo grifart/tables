@@ -148,48 +148,46 @@ final class TableDecorator implements ClassDecorator
 				]
 			);
 
-		foreach (['add', 'new'] as $methodName) {
-			$classType->addMethod("${methodName}Empty")
-				->setReturnType($this->modificationClass)
-				->setBody(
-					'return ?::new();',
-					[new Code\PhpLiteral($namespace->unresolveName($this->modificationClass))],
-				);
+		$classType->addMethod('newEmpty')
+			->setReturnType($this->modificationClass)
+			->setBody(
+				'return ?::new();',
+				[new Code\PhpLiteral($namespace->unresolveName($this->modificationClass))],
+			);
 
-			$addMethod = $classType->addMethod($methodName)
-				->setReturnType($this->modificationClass)
-				->addBody(
-					'$modifications = ?::new();',
-					[new Code\PhpLiteral($namespace->unresolveName($this->modificationClass))],
-				);
+		$newMethod = $classType->addMethod('new')
+			->setReturnType($this->modificationClass)
+			->addBody(
+				'$modifications = ?::new();',
+				[new Code\PhpLiteral($namespace->unresolveName($this->modificationClass))],
+			);
 
-			foreach ($this->columnInfo as $columnInfo) {
-				if ( ! $columnInfo->hasDefaultValue()) {
-					$fieldName = $columnInfo->getName();
-					$fieldType = $this->columnPhpTypes[$fieldName];
+		foreach ($this->columnInfo as $columnInfo) {
+			if ( ! $columnInfo->hasDefaultValue()) {
+				$fieldName = $columnInfo->getName();
+				$fieldType = $this->columnPhpTypes[$fieldName];
 
-					$addMethod->addParameter($fieldName)
-						->setTypeHint($fieldType->getTypeHint())
-						->setNullable($fieldType->isNullable());
+				$newMethod->addParameter($fieldName)
+					->setTypeHint($fieldType->getTypeHint())
+					->setNullable($fieldType->isNullable());
 
-					if ($fieldType->requiresDocComment()) {
-						$addMethod->addComment(\sprintf(
-							'@param %s $%s%s',
-							$fieldType->getDocCommentType($namespace),
-							$fieldName,
-							$fieldType->hasComment() ? ' ' . $fieldType->getComment($namespace) : '',
-						));
-					}
-
-					$addMethod->addBody(
-						'$modifications->modify' . \ucfirst($fieldName) . '(?);',
-						[new Code\PhpLiteral('$' . $fieldName)],
-					);
+				if ($fieldType->requiresDocComment()) {
+					$newMethod->addComment(\sprintf(
+						'@param %s $%s%s',
+						$fieldType->getDocCommentType($namespace),
+						$fieldName,
+						$fieldType->hasComment() ? ' ' . $fieldType->getComment($namespace) : '',
+					));
 				}
-			}
 
-			$addMethod->addBody('return $modifications;');
+				$newMethod->addBody(
+					'$modifications->modify' . \ucfirst($fieldName) . '(?);',
+					[new Code\PhpLiteral('$' . $fieldName)],
+				);
+			}
 		}
+
+		$newMethod->addBody('return $modifications;');
 
 
 		$classType->addMethod('edit')
