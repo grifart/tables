@@ -78,11 +78,12 @@ final class TableDecorator implements ClassDecorator
 		$columnsDefinitions = []; // name => PhpLiteral
 		$columnsArrayTemplate = [];
 		foreach($this->columnInfo as $column) {
-			$columnsArrayTemplate[] = "\t? => new Column(?, ?, ?)";
+			$columnsArrayTemplate[] = "\t? => new Column(?, ?, ?, ?)";
 			$columnsDefinitions[] = $column->getName();
 			$columnsDefinitions[] = $column->getName();
 			$columnsDefinitions[] = $column->getType();
 			$columnsDefinitions[] = $column->isNullable();
+			$columnsDefinitions[] = $column->hasDefaultValue();
 		}
 		$columnsArrayTemplate = \implode(",\n", $columnsArrayTemplate);
 
