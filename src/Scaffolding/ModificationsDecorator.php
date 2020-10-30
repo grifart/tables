@@ -20,17 +20,11 @@ final class ModificationsDecorator implements ClassDecorator
 
 	private string $primaryKeyClass;
 
-	private array $columnInfo;
-
-	/**
-	 * @param Column[] $columnInfo
-	 */
-	public function __construct(string $relatedTable, string $primaryKeyClass, array $columnInfo)
+	public function __construct(string $relatedTable, string $primaryKeyClass)
 	{
 		$this->modificationsStorage = '$this->modifications';
 		$this->relatedTableClass = $relatedTable;
 		$this->primaryKeyClass = $primaryKeyClass;
-		$this->columnInfo = $columnInfo;
 	}
 
 
@@ -57,34 +51,11 @@ final class ModificationsDecorator implements ClassDecorator
 			])
 			->setBody('return self::_update($primaryKey);');
 
-		$newMethod = $classType->addMethod('new')
+		$classType->addMethod('new')
 			->setStatic()
 			->setVisibility('public')
 			->setReturnType('self')
-			->addBody('$self = self::_new();');
-		foreach ($definition->getFields() as $fieldName => $fieldType) {
-			$columnInfo = $this->columnInfo[$fieldName];
-			if ( ! $columnInfo->hasDefaultValue()) {
-				$newMethod->addParameter($fieldName)
-					->setTypeHint($fieldType->getTypeHint())
-					->setNullable($fieldType->isNullable());
-
-				if ($fieldType->requiresDocComment()) {
-					$newMethod->addComment(\sprintf(
-						'@param %s $%s%s',
-						$fieldType->getDocCommentType($namespace),
-						$fieldName,
-						$fieldType->hasComment() ? ' ' . $fieldType->getComment($namespace) : '',
-					));
-				}
-
-				$newMethod->addBody('$self->modifications[?] = ?;', [
-					$fieldName,
-					new PhpLiteral('$' . $fieldName),
-				]);
-			}
-		}
-		$newMethod->addBody('return $self;');
+			->setBody('return self::_new();');
 
 		// implement forTable method
 		$namespace->addUse($this->relatedTableClass);
