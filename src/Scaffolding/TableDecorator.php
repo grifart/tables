@@ -148,10 +148,20 @@ final class TableDecorator implements ClassDecorator
 			);
 
 		foreach (['add', 'new'] as $methodName) {
-			$addMethod = $classType->addMethod($methodName)
-				->setReturnType($this->modificationClass);
+			$classType->addMethod("${methodName}Empty")
+				->setReturnType($this->modificationClass)
+				->setBody(
+					'return ?::new();',
+					[new Code\PhpLiteral($namespace->unresolveName($this->modificationClass))],
+				);
 
-			$fieldNames = [];
+			$addMethod = $classType->addMethod($methodName)
+				->setReturnType($this->modificationClass)
+				->addBody(
+					'$modifications = ?::new();',
+					[new Code\PhpLiteral($namespace->unresolveName($this->modificationClass))],
+				);
+
 			foreach ($this->columnInfo as $columnInfo) {
 				if ( ! $columnInfo->hasDefaultValue()) {
 					$fieldName = $columnInfo->getName();
@@ -170,17 +180,14 @@ final class TableDecorator implements ClassDecorator
 						));
 					}
 
-					$fieldNames[] = new Code\PhpLiteral('$' . $fieldName);
+					$addMethod->addBody(
+						'$modifications->modify' . \ucfirst($fieldName) . '(?);',
+						[new Code\PhpLiteral('$' . $fieldName)],
+					);
 				}
 			}
 
-			$addMethod->setBody(
-				'return ?::new(...?);',
-				[
-					new Code\PhpLiteral($namespace->unresolveName($this->modificationClass)),
-					$fieldNames,
-				]
-			);
+			$addMethod->addBody('return $modifications;');
 		}
 
 
