@@ -15,21 +15,11 @@ use Dibi\Connection;
 final class TableManager
 {
 
-	/** @var Connection */
-	private $connection;
-
-	/** @var TypeMapper */
-	private $phpToDatabaseMapper;
-
-	/** @var TypeMapper */
-	private $databaseToPhpMapper;
-
-	public function __construct(Connection $connection, TypeMapper $phpToDatabaseMapper, TypeMapper $databaseToPhpMapper)
-	{
-		$this->connection = $connection;
-		$this->phpToDatabaseMapper = $phpToDatabaseMapper;
-		$this->databaseToPhpMapper = $databaseToPhpMapper;
-	}
+	public function __construct(
+		private Connection $connection,
+		private TypeMapper $phpToDatabaseMapper,
+		private TypeMapper $databaseToPhpMapper,
+	) {}
 
 
 	public function insert(Table $table, Modifications $changes): void

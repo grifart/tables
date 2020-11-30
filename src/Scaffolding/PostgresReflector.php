@@ -9,13 +9,9 @@ use Dibi\Connection;
 final class PostgresReflector
 {
 
-	/** @var Connection */
-	private $connection;
-
-	public function __construct(Connection $connection)
-	{
-		$this->connection = $connection;
-	}
+	public function __construct(
+		private Connection $connection
+	) {}
 
 	/**
 	 * source: https://stackoverflow.com/a/51897900/631369

@@ -10,12 +10,12 @@ final class TypeMapper
 	/**
 	 * @var (callable(string $typeName, string $location): (string|Type|null))[]
 	 */
-	private $matchers = [];
+	private array $matchers = [];
 
 	/**
 	 * @var (callable(mixed $value, string $typeName): mixed)[]
 	 */
-	private $mappings = [];
+	private array $mappings = [];
 
 
 	/**
@@ -29,11 +29,7 @@ final class TypeMapper
 		$this->mappings[] = $mapper;
 	}
 
-	/**
-	 * @param mixed $value
-	 * @return mixed
-	 */
-	public function map(string $location, string $typeName, $value) {
+	public function map(string $location, string $typeName, mixed $value): mixed {
 		if ($value === NULL) {
 			return NULL; // todo: really do not translate?
 		}
@@ -48,17 +44,7 @@ final class TypeMapper
 		throw CouldNotMapTypeException::didYouRegisterTypeMapperFor($typeName, $value);
 	}
 
-	/**
-	 * @param mixed $value
-	 */
-	private function getTypeForValue($value): string {
-		return !\is_object($value) ? \gettype($value) : \get_class($value);
-	}
-
-	/**
-	 * @return string|Type
-	 */
-	public function mapType(string $location, string $typeName)
+	public function mapType(string $location, string $typeName): string|Type
 	{
 		foreach($this->matchers as $idx => $matcher) {
 			if ( ($translatingType = $matcher($typeName, $location)) !== NULL) {

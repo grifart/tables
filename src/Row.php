@@ -9,8 +9,7 @@ interface Row
 
 	/**
 	 * @param mixed[] $values
-	 * @return self
 	 */
-	public static function reconstitute(array $values);
+	public static function reconstitute(array $values): static;
 
 }
