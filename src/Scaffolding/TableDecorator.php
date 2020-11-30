@@ -40,6 +40,7 @@ final class TableDecorator implements ClassDecorator
 	private $columnPhpTypes;
 
 	/**
+	 * @param array<string, Column> $columnInfo
 	 * @param array<string, Type> $columnPhpTypes
 	 */
 	public function __construct(string $schema, string $tableName, string $primaryKeyClass, string $rowClass, string $modificationClass, array $columnInfo, array $columnPhpTypes)
@@ -269,6 +270,9 @@ final class TableDecorator implements ClassDecorator
 		$this->implementConfigMethod($classType, $name, new Code\PhpLiteral($namespace->unresolveName($class) . '::class'));
 	}
 
+	/**
+	 * @param mixed $value
+	 */
 	private function implementConfigMethod(Code\ClassType $classType, string $name, $value): void
 	{
 		$classType->addMethod($name)

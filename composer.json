@@ -29,8 +29,8 @@
     },
     "require-dev": {
         "nette/tester": "^2.3",
-        "grifart/phpstan-oneline": "^0.2.2",
-        "phpstan/phpstan": "^0.11.17"
+        "grifart/phpstan-oneline": "^0.3",
+        "phpstan/phpstan": "^0.12"
 
     },
 

@@ -55,7 +55,10 @@ final class TableManager
 		return NULL;
 	}
 
-	/** @return Row[] (subclass of row) */
+	/**
+	 * @param array<string, mixed> $conditions
+	 * @return Row[] (subclass of row)
+	 */
 	public function findBy(Table $table, array $conditions): array
 	{
 		$result = $this->connection->query(
@@ -114,6 +117,10 @@ final class TableManager
 	}
 
 
+	/**
+	 * @param array<string, mixed> $values
+	 * @return array<string, mixed>
+	 */
 	private static function mapTypes(TypeMapper $mapper, array $values, Table $table): array
 	{
 		// could not use array_map as it does not preserve indexes

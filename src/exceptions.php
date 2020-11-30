@@ -21,6 +21,9 @@ final class ProbablyBrokenPrimaryIndexImplementation extends UsageException {
 final class CouldNotMapTypeException extends UsageException
 {
 
+	/**
+	 * @param mixed $value
+	 */
 	public static function didYouRegisterTypeMapperFor(string $typeName, $value): self
 	{
 		return new self(

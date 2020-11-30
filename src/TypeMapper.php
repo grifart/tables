@@ -24,11 +24,15 @@ final class TypeMapper
 	 *
 	 * TODO: isn't it too general? Or just map db-type name to php type and back?
 	 */
-	public function addMapping(callable $typeMatcher, callable $mapper) {
+	public function addMapping(callable $typeMatcher, callable $mapper): void {
 		$this->matchers[] = $typeMatcher;
 		$this->mappings[] = $mapper;
 	}
 
+	/**
+	 * @param mixed $value
+	 * @return mixed
+	 */
 	public function map(string $location, string $typeName, $value) {
 		if ($value === NULL) {
 			return NULL; // todo: really do not translate?
@@ -44,6 +48,9 @@ final class TypeMapper
 		throw CouldNotMapTypeException::didYouRegisterTypeMapperFor($typeName, $value);
 	}
 
+	/**
+	 * @param mixed $value
+	 */
 	private function getTypeForValue($value): string {
 		return !\is_object($value) ? \gettype($value) : \get_class($value);
 	}
