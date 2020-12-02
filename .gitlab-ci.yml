@@ -1,8 +1,9 @@
 stages:
   - test
 
-.test-verify-template: &test-verify-template
+test-verify:
   stage: test
+  image: grifart/php8.0-with-all-modules-and-various-tools
   interruptible: true
 
   before_script:
@@ -10,8 +11,3 @@ stages:
 
   script:
     - composer run verify
-
-
-test.verify.php74:
-  <<: *test-verify-template
-  image: grifart/php7.4-with-gulp-and-all-php-modules

@@ -18,28 +18,24 @@ use Webmozart\Assert\Assert;
 final class TableDecorator implements ClassDecorator
 {
 
-	/** @var string */
-	private $schema;
+	private string $schema;
 
-	/** @var string */
-	private $tableName;
+	private string $tableName;
 
-	/** @var string */
-	private $primaryKeyClass;
+	private string $primaryKeyClass;
 
-	/** @var string */
-	private $rowClass;
+	private string $rowClass;
 
-	/** @var string */
-	private $modificationClass;
+	private string $modificationClass;
 
 	/** @var Column[] */
-	private $columnInfo;
+	private array $columnInfo;
 
 	/** @var array<string, Type> */
-	private $columnPhpTypes;
+	private array $columnPhpTypes;
 
 	/**
+	 * @param array<string, Column> $columnInfo
 	 * @param array<string, Type> $columnPhpTypes
 	 */
 	public function __construct(string $schema, string $tableName, string $primaryKeyClass, string $rowClass, string $modificationClass, array $columnInfo, array $columnPhpTypes)
@@ -269,7 +265,7 @@ final class TableDecorator implements ClassDecorator
 		$this->implementConfigMethod($classType, $name, new Code\PhpLiteral($namespace->unresolveName($class) . '::class'));
 	}
 
-	private function implementConfigMethod(Code\ClassType $classType, string $name, $value): void
+	private function implementConfigMethod(Code\ClassType $classType, string $name, mixed $value): void
 	{
 		$classType->addMethod($name)
 			->setStatic()

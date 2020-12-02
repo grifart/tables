@@ -8,7 +8,10 @@ interface Modifications
 {
 
 
-	/** @internal used by {@see AccountsTable} */
+	/**
+	 * @internal used by {@see AccountsTable}
+	 * @return mixed[]
+	 */
 	public function getModifications(): array;
 
 	/** @return null|PrimaryKey if null it means, that row is new (do INSERT) */

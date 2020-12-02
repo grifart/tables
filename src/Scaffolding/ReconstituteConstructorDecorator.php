@@ -14,7 +14,7 @@ final class ReconstituteConstructorDecorator implements ClassDecorator
 	public function decorate(ClassType $classType, ClassDefinition $definition): void
 	{
 		$reconstitute = $classType->addMethod('reconstitute')
-			->setReturnType('self')
+			->setReturnType('static')
 			->setParameters([(new Code\Parameter('values'))->setTypeHint('array')])
 			->setStatic();
 
@@ -25,6 +25,6 @@ final class ReconstituteConstructorDecorator implements ClassDecorator
 
 		// todo: add array_keys that it contains just keys that are necessary
 
-		$reconstitute->addBody("return new self($questionMarks);", \array_values($literals));
+		$reconstitute->addBody("return new static($questionMarks);", \array_values($literals));
 	}
 }

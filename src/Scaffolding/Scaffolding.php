@@ -8,8 +8,8 @@ namespace Grifart\Tables\Scaffolding;
 use Grifart\ClassScaffolder\Decorators\GettersDecorator;
 use Grifart\ClassScaffolder\Decorators\InitializingConstructorDecorator;
 use Grifart\ClassScaffolder\Decorators\PropertiesDecorator;
+use Grifart\ClassScaffolder\Definition\ClassDefinition;
 use Grifart\ClassScaffolder\Definition\ClassDefinitionBuilder;
-use Grifart\ClassScaffolder\Definition\Types\Type;
 use Grifart\Tables\Row;
 use Grifart\Tables\TypeMapper;
 use function Grifart\ClassScaffolder\Definition\Types\nullable;
@@ -23,6 +23,9 @@ final class Scaffolding
 		return "$schema.$table.$column";
 	}
 
+	/**
+	 * @return ClassDefinition[]
+	 */
 	public static function definitionsForPgTable(
 		PostgresReflector $pgReflector,
 		TypeMapper $mapper,

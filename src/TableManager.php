@@ -15,21 +15,11 @@ use Dibi\Connection;
 final class TableManager
 {
 
-	/** @var Connection */
-	private $connection;
-
-	/** @var TypeMapper */
-	private $phpToDatabaseMapper;
-
-	/** @var TypeMapper */
-	private $databaseToPhpMapper;
-
-	public function __construct(Connection $connection, TypeMapper $phpToDatabaseMapper, TypeMapper $databaseToPhpMapper)
-	{
-		$this->connection = $connection;
-		$this->phpToDatabaseMapper = $phpToDatabaseMapper;
-		$this->databaseToPhpMapper = $databaseToPhpMapper;
-	}
+	public function __construct(
+		private Connection $connection,
+		private TypeMapper $phpToDatabaseMapper,
+		private TypeMapper $databaseToPhpMapper,
+	) {}
 
 
 	public function insert(Table $table, Modifications $changes): void
@@ -55,7 +45,13 @@ final class TableManager
 		return NULL;
 	}
 
-	/** @return Row[] (subclass of row) */
+	/**
+	 * @param array<string, mixed> $conditions Conditions provides low-level access to "where" clause concatenated by %and. 
+	 *                                         More: https://dibiphp.com/en/documentation
+	 *                                         Note! Types and names are currently NOT mapped.
+	 *                                         Please follow https://gitlab.grifart.cz/grifart/tables/-/issues/2 on progress.
+	 * @return Row[] (subclass of row)
+	 */
 	public function findBy(Table $table, array $conditions): array
 	{
 		$result = $this->connection->query(
@@ -114,6 +110,10 @@ final class TableManager
 	}
 
 
+	/**
+	 * @param array<string, mixed> $values
+	 * @return array<string, mixed>
+	 */
 	private static function mapTypes(TypeMapper $mapper, array $values, Table $table): array
 	{
 		// could not use array_map as it does not preserve indexes

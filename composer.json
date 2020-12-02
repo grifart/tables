@@ -22,15 +22,15 @@
 
 
     "require": {
-        "php": "^7.4",
+        "php": "^8.0",
         "dibi/dibi": "^4.0.2",
-        "grifart/class-scaffolder": "^0.2.0|^0.3.0",
+        "grifart/class-scaffolder": "^0.4.0",
         "nette/utils": "^3.0.1"
     },
     "require-dev": {
         "nette/tester": "^2.3",
-        "grifart/phpstan-oneline": "^0.2.2",
-        "phpstan/phpstan": "^0.11.17"
+        "grifart/phpstan-oneline": "^0.4.0",
+        "phpstan/phpstan": "^0.12"
 
     },
 

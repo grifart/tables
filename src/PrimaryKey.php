@@ -7,7 +7,7 @@ interface PrimaryKey
 {
 
 	/**
-	 * @return array query used in WHERE to narrow down results into one record
+	 * @return array<string, mixed> query used in WHERE to narrow down results into one record
 	 */
 	public function getQuery(): array;
 

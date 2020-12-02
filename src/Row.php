@@ -7,7 +7,9 @@ namespace Grifart\Tables;
 interface Row
 {
 
-	/** @return self */
-	public static function reconstitute(array $values);
+	/**
+	 * @param mixed[] $values
+	 */
+	public static function reconstitute(array $values): static;
 
 }

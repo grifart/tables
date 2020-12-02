@@ -11,6 +11,6 @@ final class PrivateConstructorDecorator implements ClassDecorator
 
 	public function decorate(ClassType $classType, ClassDefinition $definition): void
 	{
-		$classType->getMethod('__construct')->setVisibility('private');
+		$classType->getMethod('__construct')->setPrivate();
 	}
 }
