@@ -28,10 +28,6 @@ This is private repo, so you have to add repositories to you `composer.json` man
 		},
         {
             "type": "vcs",
-            "url": "git@gitlab.grifart.local:jkuchar1/assert-function-signature.git"
-        },
-        {
-            "type": "vcs",
             "url": "git@gitlab.grifart.local:grifart/class-scaffolder.git"
         }
     ]
