@@ -27,7 +27,7 @@ ALTER TABLE "clinic"."patient"
 	DROP COLUMN "createdBy";
 ```
 
-### 2. Mapper
+### 2. Mapper
 
 And add mapping of new field. It is useful to use PostgreSQL tools for composite & array types. This helper class will provide you logic for (de)serializing these composite types into standard SQL query.
 
