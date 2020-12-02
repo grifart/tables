@@ -46,7 +46,10 @@ final class TableManager
 	}
 
 	/**
-	 * @param array<string, mixed> $conditions
+	 * @param array<string, mixed> $conditions Conditions provides low-level access to "where" clause concatenated by %and. 
+	 *                                         More: https://dibiphp.com/en/documentation
+	 *                                         Note! Types and names are currently NOT mapped.
+	 *                                         Please follow https://gitlab.grifart.cz/grifart/tables/-/issues/2 on progress.
 	 * @return Row[] (subclass of row)
 	 */
 	public function findBy(Table $table, array $conditions): array
