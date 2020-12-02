@@ -2,7 +2,7 @@
 
 Sometimes you start with table containing values, which you then see have dependency on each other. As happened with [Stamp object](https://gitlab.grifart.cz/ivy/server/-/merge_requests/222/diffs#note_69354) (originally named `auditTrail`).
 
-## 1. migrating database
+### 1. migrating database
 
 ```sql
 -- prepare new data type in PostgreSQL
@@ -26,6 +26,8 @@ ALTER TABLE "clinic"."patient"
 	DROP COLUMN "createdAt",
 	DROP COLUMN "createdBy";
 ```
+
+### 2. Mapper
 
 And add mapping of new field. It is useful to use PostgreSQL tools for composite & array types. This helper class will provide you logic for (de)serializing these composite types into standard SQL query.
 
