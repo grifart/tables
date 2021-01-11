@@ -24,7 +24,7 @@
     "require": {
         "php": "^8.0",
         "dibi/dibi": "^4.0.2",
-        "grifart/class-scaffolder": "^0.4.0",
+        "grifart/scaffolder": "^0.4.0",
         "nette/utils": "^3.0.1"
     },
     "require-dev": {
@@ -47,13 +47,5 @@
         "files": [
             "src/exceptions.php"
         ]
-    },
-
-
-    "repositories": [
-        {
-            "type": "vcs",
-            "url": "git@gitlab.grifart.local:grifart/class-scaffolder.git"
-        }
-    ]
+    }
 }
