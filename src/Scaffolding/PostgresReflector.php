@@ -42,7 +42,12 @@ SQL
 		$results = [];
 		foreach($result->fetchAssoc('name') as $columnName => $columnInfo) {
 			\assert($columnInfo instanceof \Dibi\Row);
-			$results[$columnName] = new Column($columnInfo['name'], $columnInfo['type'], $columnInfo['nullable'], $columnInfo['hasDefaultValue']);
+			$results[$columnName] = new Column(
+				$columnInfo['name'],
+				$columnInfo['type'],
+				$columnInfo['nullable'],
+				$columnInfo['hasDefaultValue'] xor $columnInfo['nullable'], // it has explicit default value or it has not, but it is nullable so `null` is its implicit default value – see https://gitlab.grifart.cz/grifart/tables/-/issues/9
+			);
 		}
 		return $results;
 	}
