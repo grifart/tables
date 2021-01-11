@@ -47,13 +47,5 @@
         "files": [
             "src/exceptions.php"
         ]
-    },
-
-
-    "repositories": [
-        {
-            "type": "vcs",
-            "url": "git@gitlab.grifart.local:grifart/class-scaffolder.git"
-        }
-    ]
+    }
 }
