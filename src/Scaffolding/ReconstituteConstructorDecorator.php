@@ -11,7 +11,7 @@ use Nette\PhpGenerator\Property;
 final class ReconstituteConstructorDecorator implements ClassDecorator
 {
 
-	public function decorate(ClassType $classType, ClassDefinition $definition): void
+	public function decorate(Code\PhpNamespace $namespace, ClassType $classType, ClassDefinition $definition): void
 	{
 		$reconstitute = $classType->addMethod('reconstitute')
 			->setReturnType('static')
