@@ -5,7 +5,6 @@ namespace Grifart\Tables\Scaffolding;
 
 
 use Grifart\ClassScaffolder\Decorators\ClassDecorator;
-use Grifart\ClassScaffolder\Decorators\DecoratorTools;
 use Grifart\ClassScaffolder\Definition\ClassDefinition;
 use Grifart\ClassScaffolder\Definition\Types\Type;
 use Grifart\Tables\CaseConvertion;
@@ -53,10 +52,8 @@ final class TableDecorator implements ClassDecorator
 	}
 
 
-	public function decorate(Code\ClassType $classType, ClassDefinition $definition): void
+	public function decorate(Code\PhpNamespace $namespace, Code\ClassType $classType, ClassDefinition $definition): void
 	{
-		$namespace = DecoratorTools::extractNamespace($classType);
-
 		// implements table
 		$namespace->addUse(Table::class);
 		$classType->addImplement(Table::class);
@@ -101,7 +98,7 @@ final class TableDecorator implements ClassDecorator
 		$classType->addMethod('find')
 			->setParameters([
 				(new Code\Parameter('primaryKey'))
-					->setTypeHint($this->primaryKeyClass)
+					->setType($this->primaryKeyClass)
 			])
 			->setReturnType($this->rowClass)
 			->setReturnNullable()
@@ -116,7 +113,7 @@ final class TableDecorator implements ClassDecorator
 		$classType->addMethod('get')
 			->setParameters([
 				(new Code\Parameter('primaryKey'))
-					->setTypeHint($this->primaryKeyClass)
+					->setType($this->primaryKeyClass)
 			])
 			->setReturnType($this->rowClass)
 			->addComment('@throws RowNotFound')
@@ -131,7 +128,7 @@ final class TableDecorator implements ClassDecorator
 		$classType->addMethod('findBy')
 			->setParameters([
 				(new Code\Parameter('conditions'))
-					->setTypeHint('array')
+					->setType('array')
 			])
 			->setComment('@return ' . $namespace->unresolveName($this->rowClass) . '[]')
 			->setReturnType('array')
@@ -169,10 +166,9 @@ final class TableDecorator implements ClassDecorator
 
 				if ($fieldType->requiresDocComment()) {
 					$newMethod->addComment(\sprintf(
-						'@param %s $%s%s',
+						'@param %s $%s',
 						$fieldType->getDocCommentType($namespace),
 						$fieldName,
-						$fieldType->hasComment() ? ' ' . $fieldType->getComment($namespace) : '',
 					));
 				}
 

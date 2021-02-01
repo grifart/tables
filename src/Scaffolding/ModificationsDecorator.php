@@ -10,6 +10,7 @@ use Grifart\Tables\ModificationsTrait;
 use Nette\PhpGenerator\ClassType;
 use Nette\PhpGenerator\Parameter;
 use Nette\PhpGenerator\PhpLiteral;
+use Nette\PhpGenerator\PhpNamespace;
 
 final class ModificationsDecorator implements ClassDecorator
 {
@@ -28,11 +29,8 @@ final class ModificationsDecorator implements ClassDecorator
 	}
 
 
-	public function decorate(ClassType $classType, ClassDefinition $definition): void
+	public function decorate(PhpNamespace $namespace, ClassType $classType, ClassDefinition $definition): void
 	{
-		$namespace = $classType->getNamespace();
-		\assert($namespace !== NULL, 'Class Generator always generate class in namespace.');
-
 		$namespace->addUse(ModificationsTrait::class);
 		$classType->addTrait(ModificationsTrait::class);
 
@@ -47,7 +45,7 @@ final class ModificationsDecorator implements ClassDecorator
 			->setReturnType('self')
 			->setParameters([
 				(new Parameter('primaryKey'))
-					->setTypeHint($this->primaryKeyClass)
+					->setType($this->primaryKeyClass)
 			])
 			->setBody('return self::_update($primaryKey);');
 
@@ -68,7 +66,10 @@ final class ModificationsDecorator implements ClassDecorator
 			]);
 
 		// modify*() methods
-		foreach ($definition->getFields() as $fieldName => $type) {
+		foreach ($definition->getFields() as $field) {
+			$fieldName = $field->getName();
+			$type = $field->getType();
+
 			// add getter
 			$modifier = $classType->addMethod('modify' . \ucfirst($fieldName))
 				->setVisibility('public')
@@ -90,10 +91,9 @@ final class ModificationsDecorator implements ClassDecorator
 				$docCommentType = $type->getDocCommentType($namespace);
 
 				$modifier->addComment(\sprintf(
-					'@param %s $%s%s',
+					'@param %s $%s',
 					$docCommentType,
 					$fieldName,
-					$type->hasComment() ? ' ' . $type->getComment($namespace) : '',
 				));
 			}
 		}
