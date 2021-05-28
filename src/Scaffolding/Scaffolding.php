@@ -1,9 +1,6 @@
 <?php declare(strict_types=1);
 
-
 namespace Grifart\Tables\Scaffolding;
-
-/** @var \Nette\DI\Container $container */
 
 use Grifart\ClassScaffolder\Decorators\GettersDecorator;
 use Grifart\ClassScaffolder\Decorators\InitializingConstructorDecorator;
