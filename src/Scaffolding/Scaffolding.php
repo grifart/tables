@@ -23,6 +23,10 @@ final class Scaffolding
 
 
 	/**
+	 * Usage:
+	 * ```php
+	 * return Scaffolding::definitionsForPgTable(...);
+	 * ```
 	 * @return ClassDefinition[]
 	 */
 	public static function definitionsForPgTable(
@@ -49,6 +53,14 @@ final class Scaffolding
 	}
 
 
+	/**
+	 * Usage:
+	 * ```php
+	 * $builders = Scaffolding::buildersForPgTable(...);
+	 * $builders->row()->decorate(...);
+	 * return $builders->buildAll();
+	 * ```
+	 */
 	public static function buildersForPgTable(
 		PostgresReflector $pgReflector,
 		TypeMapper $mapper,
