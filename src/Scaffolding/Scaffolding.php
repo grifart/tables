@@ -34,9 +34,9 @@ final class Scaffolding
 		TypeMapper $mapper,
 		string $schema,
 		string $table,
-		string $rowClass,
-		string $modificationClass,
-		string $tableClass,
+		string $rowClassName,
+		string $modificationsClassName,
+		string $tableClassName,
 		string $primaryKeyClass
 	): array
 	{
@@ -45,9 +45,9 @@ final class Scaffolding
 			$mapper,
 			$schema,
 			$table,
-			$rowClass,
-			$modificationClass,
-			$tableClass,
+			$rowClassName,
+			$modificationsClassName,
+			$tableClassName,
 			$primaryKeyClass,
 		)->buildAll();
 	}
@@ -57,7 +57,7 @@ final class Scaffolding
 	 * Usage:
 	 * ```php
 	 * $builders = Scaffolding::buildersForPgTable(...);
-	 * $builders->row()->decorate(...);
+	 * $builders->getRowClass()->decorate(...);
 	 * return $builders->buildAll();
 	 * ```
 	 */
@@ -65,20 +65,20 @@ final class Scaffolding
 		PostgresReflector $pgReflector,
 		TypeMapper $mapper,
 		string $schema,
-		string $table,
-		string $rowClass,
-		string $modificationClass,
 		string $tableClass,
+		string $rowClassName,
+		string $modificationsClassName,
+		string $tableClassName,
 		string $primaryKeyClass
 	): Builders
 	{
-		$columnsNativeTypes = $pgReflector->retrieveColumnInfo($schema, $table);
+		$columnsNativeTypes = $pgReflector->retrieveColumnInfo($schema, $tableClass);
 		if (\count($columnsNativeTypes) === 0) {
 			throw new \LogicException('No columns found for given configuration. Does referenced table exist?');
 		}
 
-		$location = function(string $column) use ($schema, $table): string {
-			return self::location($schema, $table, $column);
+		$location = function(string $column) use ($schema, $tableClass): string {
+			return self::location($schema, $tableClass, $column);
 		};
 
 		$columnsPhpTypes = [];
@@ -96,7 +96,7 @@ final class Scaffolding
 
 
 		// row class
-		$row = $addTableFields(new ClassDefinitionBuilder($rowClass))
+		$rowClass = $addTableFields(new ClassDefinitionBuilder($rowClassName))
 			->implement(Row::class)
 			->decorate(new PropertiesDecorator())
 			->decorate(new InitializingConstructorDecorator())
@@ -105,22 +105,22 @@ final class Scaffolding
 			->decorate(new ReconstituteConstructorDecorator());
 
 		// row modification class
-		$modifications = $addTableFields(new ClassDefinitionBuilder($modificationClass))
-			->decorate(new ModificationsDecorator($tableClass, $primaryKeyClass));
+		$modificationsClass = $addTableFields(new ClassDefinitionBuilder($modificationsClassName))
+			->decorate(new ModificationsDecorator($tableClassName, $primaryKeyClass));
 
 		// table class
-		$table = (new ClassDefinitionBuilder($tableClass))
+		$tableClass = (new ClassDefinitionBuilder($tableClassName))
 			->decorate(new TableDecorator(
 				$schema,
-				$table,
+				$tableClass,
 				$primaryKeyClass,
-				$rowClass,
-				$modificationClass,
+				$rowClassName,
+				$modificationsClassName,
 				$columnsNativeTypes,
 				$columnsPhpTypes,
 			));
 
-		return Builders::from($row, $modifications, $table);
+		return Builders::from($rowClass, $modificationsClass, $tableClass);
 	}
 
 }
