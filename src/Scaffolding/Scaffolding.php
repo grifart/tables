@@ -1,9 +1,6 @@
 <?php declare(strict_types=1);
 
-
 namespace Grifart\Tables\Scaffolding;
-
-/** @var \Nette\DI\Container $container */
 
 use Grifart\ClassScaffolder\Decorators\GettersDecorator;
 use Grifart\ClassScaffolder\Decorators\InitializingConstructorDecorator;
@@ -19,31 +16,68 @@ use function Grifart\ClassScaffolder\Definition\Types\resolve;
 final class Scaffolding
 {
 
-	private static function location(string $schema, string $table, string $column): string {
+	private static function location(string $schema, string $table, string $column): string
+	{
 		return "$schema.$table.$column";
 	}
 
+
 	/**
-	 * @return ClassDefinition[]
+	 * Usage:
+	 * ```php
+	 * return Scaffolding::definitionsForPgTable(...);
+	 * ```
 	 */
 	public static function definitionsForPgTable(
 		PostgresReflector $pgReflector,
 		TypeMapper $mapper,
 		string $schema,
 		string $table,
-		string $rowClass,
-		string $modificationClass,
-		string $tableClass,
+		string $rowClassName,
+		string $modificationsClassName,
+		string $tableClassName,
 		string $primaryKeyClass
-	): array {
+	): Builders
+	{
+		return self::buildersForPgTable(
+			$pgReflector,
+			$mapper,
+			$schema,
+			$table,
+			$rowClassName,
+			$modificationsClassName,
+			$tableClassName,
+			$primaryKeyClass,
+		);
+	}
 
-		$columnsNativeTypes = $pgReflector->retrieveColumnInfo($schema, $table);
+
+	/**
+	 * Usage:
+	 * ```php
+	 * $builders = Scaffolding::buildersForPgTable(...);
+	 * $builders->getRowClass()->decorate(...);
+	 * return $builders;
+	 * ```
+	 */
+	public static function buildersForPgTable(
+		PostgresReflector $pgReflector,
+		TypeMapper $mapper,
+		string $schema,
+		string $tableClass,
+		string $rowClassName,
+		string $modificationsClassName,
+		string $tableClassName,
+		string $primaryKeyClass
+	): Builders
+	{
+		$columnsNativeTypes = $pgReflector->retrieveColumnInfo($schema, $tableClass);
 		if (\count($columnsNativeTypes) === 0) {
 			throw new \LogicException('No columns found for given configuration. Does referenced table exist?');
 		}
 
-		$location = function(string $column) use ($schema, $table): string {
-			return self::location($schema, $table, $column);
+		$location = function(string $column) use ($schema, $tableClass): string {
+			return self::location($schema, $tableClass, $column);
 		};
 
 		$columnsPhpTypes = [];
@@ -59,36 +93,33 @@ final class Scaffolding
 			return $builder;
 		};
 
-		return [
-			// row class
-			$addTableFields(new ClassDefinitionBuilder($rowClass))
-				->implement(Row::class)
-				->decorate(new PropertiesDecorator())
-				->decorate(new InitializingConstructorDecorator())
-				->decorate(new GettersDecorator())
-				->decorate(new PrivateConstructorDecorator())
-				->decorate(new ReconstituteConstructorDecorator())
-				->build(),
 
-			// row modification class
-			$addTableFields(new ClassDefinitionBuilder($modificationClass))
-				->decorate(new ModificationsDecorator($tableClass, $primaryKeyClass))
-				->build(),
+		// row class
+		$rowClass = $addTableFields(new ClassDefinitionBuilder($rowClassName))
+			->implement(Row::class)
+			->decorate(new PropertiesDecorator())
+			->decorate(new InitializingConstructorDecorator())
+			->decorate(new GettersDecorator())
+			->decorate(new PrivateConstructorDecorator())
+			->decorate(new ReconstituteConstructorDecorator());
 
-			// table class
-			(new ClassDefinitionBuilder($tableClass))
-				->decorate(new TableDecorator(
-					$schema,
-					$table,
-					$primaryKeyClass,
-					$rowClass,
-					$modificationClass,
-					$columnsNativeTypes,
-					$columnsPhpTypes,
-				))
-				->build(),
+		// row modification class
+		$modificationsClass = $addTableFields(new ClassDefinitionBuilder($modificationsClassName))
+			->decorate(new ModificationsDecorator($tableClassName, $primaryKeyClass));
 
-		];
+		// table class
+		$tableClass = (new ClassDefinitionBuilder($tableClassName))
+			->decorate(new TableDecorator(
+				$schema,
+				$tableClass,
+				$primaryKeyClass,
+				$rowClassName,
+				$modificationsClassName,
+				$columnsNativeTypes,
+				$columnsPhpTypes,
+			));
+
+		return Builders::from($rowClass, $modificationsClass, $tableClass);
 	}
 
 }
