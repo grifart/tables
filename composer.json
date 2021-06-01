@@ -16,8 +16,8 @@
             "@phpstan",
             "@test"
         ],
-        "phpstan": "vendor/bin/phpstan analyze --no-interaction -l max --error-format compact src",
-        "test": "vendor/bin/tester src"
+        "phpstan": "phpstan analyze --no-interaction -l max --error-format compact src",
+        "test": "tester src"
     },
 
 
