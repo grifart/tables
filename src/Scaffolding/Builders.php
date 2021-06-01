@@ -27,17 +27,17 @@ final class Builders
 		);
 	}
 
-	public function row(): ClassDefinitionBuilder
+	public function getRowClass(): ClassDefinitionBuilder
 	{
 		return $this->rowClass;
 	}
 
-	public function modifications(): ClassDefinitionBuilder
+	public function getModificationsClass(): ClassDefinitionBuilder
 	{
 		return $this->modificationsClass;
 	}
 
-	public function table(): ClassDefinitionBuilder
+	public function getTableClass(): ClassDefinitionBuilder
 	{
 		return $this->tableClass;
 	}
