@@ -27,7 +27,6 @@ final class Scaffolding
 	 * ```php
 	 * return Scaffolding::definitionsForPgTable(...);
 	 * ```
-	 * @return ClassDefinition[]
 	 */
 	public static function definitionsForPgTable(
 		PostgresReflector $pgReflector,
@@ -38,7 +37,7 @@ final class Scaffolding
 		string $modificationsClassName,
 		string $tableClassName,
 		string $primaryKeyClass
-	): array
+	): Builders
 	{
 		return self::buildersForPgTable(
 			$pgReflector,
@@ -49,7 +48,7 @@ final class Scaffolding
 			$modificationsClassName,
 			$tableClassName,
 			$primaryKeyClass,
-		)->buildAll();
+		);
 	}
 
 
@@ -58,7 +57,7 @@ final class Scaffolding
 	 * ```php
 	 * $builders = Scaffolding::buildersForPgTable(...);
 	 * $builders->getRowClass()->decorate(...);
-	 * return $builders->buildAll();
+	 * return $builders;
 	 * ```
 	 */
 	public static function buildersForPgTable(

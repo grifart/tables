@@ -6,7 +6,10 @@ use Grifart\ClassScaffolder\Definition\ClassDefinition;
 use Grifart\ClassScaffolder\Definition\ClassDefinitionBuilder;
 
 
-final class Builders
+/**
+ * @implements \IteratorAggregate<ClassDefinition>
+ */
+final class Builders implements \IteratorAggregate
 {
 	private function __construct(
 		private ClassDefinitionBuilder $rowClass,
@@ -43,16 +46,11 @@ final class Builders
 	}
 
 
-	/**
-	 * @return ClassDefinition[]
-	 */
-	public function buildAll(): array
+	public function getIterator(): \Traversable
 	{
-		return [
-			$this->rowClass->build(),
-			$this->modificationsClass->build(),
-			$this->tableClass->build(),
-		];
+		yield $this->rowClass->build();
+		yield $this->modificationsClass->build();
+		yield $this->tableClass->build();
 	}
 
 }
