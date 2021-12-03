@@ -24,7 +24,7 @@
     "require": {
         "php": "^8.0",
         "dibi/dibi": "^4.0.2",
-        "grifart/scaffolder": "^0.5.3",
+        "grifart/scaffolder": "^0.6.0",
         "nette/utils": "^3.0.1"
     },
     "require-dev": {

@@ -2,13 +2,13 @@
 
 namespace Grifart\Tables\Scaffolding;
 
-use Grifart\ClassScaffolder\Decorators\GettersDecorator;
-use Grifart\ClassScaffolder\Decorators\InitializingConstructorDecorator;
-use Grifart\ClassScaffolder\Decorators\PropertiesDecorator;
 use Grifart\ClassScaffolder\Definition\ClassDefinition;
-use Grifart\ClassScaffolder\Definition\ClassDefinitionBuilder;
 use Grifart\Tables\Row;
 use Grifart\Tables\TypeMapper;
+use function Grifart\ClassScaffolder\Capabilities\constructorWithPromotedProperties;
+use function Grifart\ClassScaffolder\Capabilities\getters;
+use function Grifart\ClassScaffolder\Capabilities\implementedInterface;
+use function Grifart\ClassScaffolder\Capabilities\privatizedConstructor;
 use function Grifart\ClassScaffolder\Definition\Types\nullable;
 use function Grifart\ClassScaffolder\Definition\Types\resolve;
 
@@ -37,7 +37,7 @@ final class Scaffolding
 		string $modificationsClassName,
 		string $tableClassName,
 		string $primaryKeyClass
-	): Builders
+	): Definitions
 	{
 		return self::buildersForPgTable(
 			$pgReflector,
@@ -69,7 +69,7 @@ final class Scaffolding
 		string $modificationsClassName,
 		string $tableClassName,
 		string $primaryKeyClass
-	): Builders
+	): Definitions
 	{
 		$columnsNativeTypes = $pgReflector->retrieveColumnInfo($schema, $tableClass);
 		if (\count($columnsNativeTypes) === 0) {
@@ -86,30 +86,28 @@ final class Scaffolding
 			$columnsPhpTypes[$column->getName()] = $column->isNullable() ? nullable($phpType) : $phpType;
 		}
 
-		$addTableFields = function (ClassDefinitionBuilder $builder) use ($columnsPhpTypes): ClassDefinitionBuilder {
-			foreach ($columnsPhpTypes as $name => $type) {
-				$builder->field($name, $type);
-			}
-			return $builder;
+		$addTableFields = function (ClassDefinition $definition) use ($columnsPhpTypes): ClassDefinition {
+			return $definition->withFields($columnsPhpTypes);
 		};
 
 
 		// row class
-		$rowClass = $addTableFields(new ClassDefinitionBuilder($rowClassName))
-			->implement(Row::class)
-			->decorate(new PropertiesDecorator())
-			->decorate(new InitializingConstructorDecorator())
-			->decorate(new GettersDecorator())
-			->decorate(new PrivateConstructorDecorator())
-			->decorate(new ReconstituteConstructorDecorator());
+		$rowClass = $addTableFields(new ClassDefinition($rowClassName))
+			->with(
+				implementedInterface(Row::class),
+				constructorWithPromotedProperties(),
+				privatizedConstructor(),
+				getters(),
+				new ReconstituteConstructor(),
+			);
 
 		// row modification class
-		$modificationsClass = $addTableFields(new ClassDefinitionBuilder($modificationsClassName))
-			->decorate(new ModificationsDecorator($tableClassName, $primaryKeyClass));
+		$modificationsClass = $addTableFields(new ClassDefinition($modificationsClassName))
+			->with(new ModificationsImplementation($tableClassName, $primaryKeyClass));
 
 		// table class
-		$tableClass = (new ClassDefinitionBuilder($tableClassName))
-			->decorate(new TableDecorator(
+		$tableClass = (new ClassDefinition($tableClassName))
+			->with(new TableImplementation(
 				$schema,
 				$tableClass,
 				$primaryKeyClass,
@@ -119,7 +117,7 @@ final class Scaffolding
 				$columnsPhpTypes,
 			));
 
-		return Builders::from($rowClass, $modificationsClass, $tableClass);
+		return Definitions::from($rowClass, $modificationsClass, $tableClass);
 	}
 
 }

@@ -3,16 +3,15 @@
 
 namespace Grifart\Tables\Scaffolding;
 
-use Grifart\ClassScaffolder\Decorators\ClassDecorator;
+use Grifart\ClassScaffolder\Capabilities\Capability;
+use Grifart\ClassScaffolder\ClassInNamespace;
 use Grifart\ClassScaffolder\Definition\ClassDefinition;
 use Grifart\Tables\Modifications;
 use Grifart\Tables\ModificationsTrait;
-use Nette\PhpGenerator\ClassType;
 use Nette\PhpGenerator\Parameter;
 use Nette\PhpGenerator\PhpLiteral;
-use Nette\PhpGenerator\PhpNamespace;
 
-final class ModificationsDecorator implements ClassDecorator
+final class ModificationsImplementation implements Capability
 {
 
 	private string $modificationsStorage;
@@ -29,8 +28,15 @@ final class ModificationsDecorator implements ClassDecorator
 	}
 
 
-	public function decorate(PhpNamespace $namespace, ClassType $classType, ClassDefinition $definition): void
+	public function applyTo(
+		ClassDefinition $definition,
+		ClassInNamespace $draft,
+		?ClassInNamespace $current,
+	): void
 	{
+		$namespace = $draft->getNamespace();
+		$classType = $draft->getClassType();
+
 		$namespace->addUse(ModificationsTrait::class);
 		$classType->addTrait(ModificationsTrait::class);
 

@@ -4,7 +4,8 @@
 namespace Grifart\Tables\Scaffolding;
 
 
-use Grifart\ClassScaffolder\Decorators\ClassDecorator;
+use Grifart\ClassScaffolder\Capabilities\Capability;
+use Grifart\ClassScaffolder\ClassInNamespace;
 use Grifart\ClassScaffolder\Definition\ClassDefinition;
 use Grifart\ClassScaffolder\Definition\Types\Type;
 use Grifart\Tables\CaseConvertion;
@@ -12,9 +13,8 @@ use Grifart\Tables\RowNotFound;
 use Grifart\Tables\Table;
 use Grifart\Tables\TableManager;
 use Nette\PhpGenerator as Code;
-use Webmozart\Assert\Assert;
 
-final class TableDecorator implements ClassDecorator
+final class TableImplementation implements Capability
 {
 
 	private string $schema;
@@ -46,14 +46,20 @@ final class TableDecorator implements ClassDecorator
 		$this->rowClass = $rowClass;
 		$this->modificationClass = $modificationClass;
 
-		Assert::allIsInstanceOf($columnInfo, Column::class);
 		$this->columnInfo = $columnInfo;
 		$this->columnPhpTypes = $columnPhpTypes;
 	}
 
 
-	public function decorate(Code\PhpNamespace $namespace, Code\ClassType $classType, ClassDefinition $definition): void
+	public function applyTo(
+		ClassDefinition $definition,
+		ClassInNamespace $draft,
+		?ClassInNamespace $current,
+	): void
 	{
+		$namespace = $draft->getNamespace();
+		$classType = $draft->getClassType();
+
 		// implements table
 		$namespace->addUse(Table::class);
 		$classType->addImplement(Table::class);
@@ -89,11 +95,6 @@ final class TableDecorator implements ClassDecorator
 
 		// Column references
 		// todo add - use constants? Or references to Column class?
-
-		$namespace->addUse(TableManager::class);
-		$classType->addProperty('tableManager')
-			->addComment('@var TableManager')
-			->setVisibility('private');
 
 		$classType->addMethod('find')
 			->setParameters([
@@ -232,13 +233,11 @@ final class TableDecorator implements ClassDecorator
 				'$this->tableManager->delete($this, $primaryKey);'
 			);
 
+		$namespace->addUse(TableManager::class);
 		$classType->addMethod('__construct')
-			->setParameters([
-				(new Code\Parameter('tableManager'))->setTypeHint(TableManager::class)
-			])
-			->setBody(
-				'$this->tableManager = $tableManager;'
-			);
+			->addPromotedParameter('tableManager')
+			->setType(TableManager::class)
+			->setPrivate();
 
 
 
