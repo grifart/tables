@@ -96,11 +96,6 @@ final class TableImplementation implements Capability
 		// Column references
 		// todo add - use constants? Or references to Column class?
 
-		$namespace->addUse(TableManager::class);
-		$classType->addProperty('tableManager')
-			->addComment('@var TableManager')
-			->setVisibility('private');
-
 		$classType->addMethod('find')
 			->setParameters([
 				(new Code\Parameter('primaryKey'))
@@ -238,13 +233,11 @@ final class TableImplementation implements Capability
 				'$this->tableManager->delete($this, $primaryKey);'
 			);
 
+		$namespace->addUse(TableManager::class);
 		$classType->addMethod('__construct')
-			->setParameters([
-				(new Code\Parameter('tableManager'))->setTypeHint(TableManager::class)
-			])
-			->setBody(
-				'$this->tableManager = $tableManager;'
-			);
+			->addPromotedParameter('tableManager')
+			->setType(TableManager::class)
+			->setPrivate();
 
 
 

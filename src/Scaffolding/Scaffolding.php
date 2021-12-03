@@ -5,11 +5,10 @@ namespace Grifart\Tables\Scaffolding;
 use Grifart\ClassScaffolder\Definition\ClassDefinition;
 use Grifart\Tables\Row;
 use Grifart\Tables\TypeMapper;
+use function Grifart\ClassScaffolder\Capabilities\constructorWithPromotedProperties;
 use function Grifart\ClassScaffolder\Capabilities\getters;
 use function Grifart\ClassScaffolder\Capabilities\implementedInterface;
-use function Grifart\ClassScaffolder\Capabilities\initializingConstructor;
 use function Grifart\ClassScaffolder\Capabilities\privatizedConstructor;
-use function Grifart\ClassScaffolder\Capabilities\properties;
 use function Grifart\ClassScaffolder\Definition\Types\nullable;
 use function Grifart\ClassScaffolder\Definition\Types\resolve;
 
@@ -96,8 +95,7 @@ final class Scaffolding
 		$rowClass = $addTableFields(new ClassDefinition($rowClassName))
 			->with(
 				implementedInterface(Row::class),
-				properties(),
-				initializingConstructor(),
+				constructorWithPromotedProperties(),
 				privatizedConstructor(),
 				getters(),
 				new ReconstituteConstructor(),
