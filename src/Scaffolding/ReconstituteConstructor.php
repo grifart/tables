@@ -5,8 +5,7 @@ namespace Grifart\Tables\Scaffolding;
 use Grifart\ClassScaffolder\Capabilities\Capability;
 use Grifart\ClassScaffolder\ClassInNamespace;
 use Grifart\ClassScaffolder\Definition\ClassDefinition;
-use Grifart\ClassScaffolder\Definition\Field;
-use Nette\PhpGenerator as Code;
+use Nette\PhpGenerator\PhpLiteral;
 
 final class ReconstituteConstructor implements Capability
 {
@@ -20,13 +19,21 @@ final class ReconstituteConstructor implements Capability
 
 		$reconstitute = $classType->addMethod('reconstitute')
 			->setReturnType('static')
-			->setParameters([(new Code\Parameter('values'))->setTypeHint('array')])
 			->setStatic();
 
-		$fields = $definition->getFields();
-		$questionMarks = \implode(', ', array_fill(0, \count($fields), '?'));
-		$literals = \array_map(function(Field $field): Code\PhpLiteral {return new Code\PhpLiteral("\$values['" . $field->getName() . "']");}, $fields);
+		$reconstitute->addParameter('values')->setTypeHint('array');
 
-		$reconstitute->addBody("return new static($questionMarks);", \array_values($literals));
+		$fields = $definition->getFields();
+		$shapeFields = $literals = [];
+		foreach ($fields as $field) {
+			$name = $field->getName();
+			$type = $field->getType();
+
+			$shapeFields[] = \sprintf('%s: %s', $name, $type->getDocCommentType($draft->getNamespace()));
+			$literals[] = new PhpLiteral("\$values['" . $name . "']");
+		}
+
+		$reconstitute->addComment(\sprintf('@param array{%s} $values', \implode(', ', $shapeFields)));
+		$reconstitute->addBody("return new static(...?);", [$literals]);
 	}
 }
