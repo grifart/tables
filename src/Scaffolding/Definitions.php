@@ -2,6 +2,7 @@
 
 namespace Grifart\Tables\Scaffolding;
 
+use Grifart\ClassScaffolder\Capabilities\Capability;
 use Grifart\ClassScaffolder\Definition\ClassDefinition;
 
 
@@ -29,19 +30,22 @@ final class Definitions implements \IteratorAggregate
 		);
 	}
 
-	public function getRowClass(): ClassDefinition
+	public function addCapabilityToRowClass(Capability $capability): self
 	{
-		return $this->rowClass;
+		$this->rowClass = $this->rowClass->with($capability);
+		return $this;
 	}
 
-	public function getModificationsClass(): ClassDefinition
+	public function addCapabilityModificationsClass(Capability $capability): self
 	{
-		return $this->modificationsClass;
+		$this->modificationsClass = $this->modificationsClass->with($capability);
+		return $this;
 	}
 
-	public function getTableClass(): ClassDefinition
+	public function addCapabilityTableClass(Capability $capability): self
 	{
-		return $this->tableClass;
+		$this->tableClass = $this->tableClass->with($capability);
+		return $this;
 	}
 
 
