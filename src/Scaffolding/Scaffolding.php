@@ -39,45 +39,13 @@ final class Scaffolding
 		string $primaryKeyClass
 	): Definitions
 	{
-		return self::buildersForPgTable(
-			$pgReflector,
-			$mapper,
-			$schema,
-			$table,
-			$rowClassName,
-			$modificationsClassName,
-			$tableClassName,
-			$primaryKeyClass,
-		);
-	}
-
-
-	/**
-	 * Usage:
-	 * ```php
-	 * $builders = Scaffolding::buildersForPgTable(...);
-	 * $builders->getRowClass()->decorate(...);
-	 * return $builders;
-	 * ```
-	 */
-	public static function buildersForPgTable(
-		PostgresReflector $pgReflector,
-		TypeMapper $mapper,
-		string $schema,
-		string $tableClass,
-		string $rowClassName,
-		string $modificationsClassName,
-		string $tableClassName,
-		string $primaryKeyClass
-	): Definitions
-	{
-		$columnsNativeTypes = $pgReflector->retrieveColumnInfo($schema, $tableClass);
+		$columnsNativeTypes = $pgReflector->retrieveColumnInfo($schema, $table);
 		if (\count($columnsNativeTypes) === 0) {
 			throw new \LogicException('No columns found for given configuration. Does referenced table exist?');
 		}
 
-		$location = function(string $column) use ($schema, $tableClass): string {
-			return self::location($schema, $tableClass, $column);
+		$location = function(string $column) use ($schema, $table): string {
+			return self::location($schema, $table, $column);
 		};
 
 		$columnsPhpTypes = [];
@@ -109,7 +77,7 @@ final class Scaffolding
 		$tableClass = (new ClassDefinition($tableClassName))
 			->with(new TableImplementation(
 				$schema,
-				$tableClass,
+				$table,
 				$primaryKeyClass,
 				$rowClassName,
 				$modificationsClassName,
