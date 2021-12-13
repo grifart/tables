@@ -30,21 +30,21 @@ final class Definitions implements \IteratorAggregate
 		);
 	}
 
-	public function addCapabilityToRowClass(Capability $capability): self
+	public function addCapabilityToRowClass(Capability $capability, Capability ...$capabilities): self
 	{
-		$this->rowClass = $this->rowClass->with($capability);
+		$this->rowClass = $this->rowClass->with($capability, ...$capabilities);
 		return $this;
 	}
 
-	public function addCapabilityModificationsClass(Capability $capability): self
+	public function addCapabilityModificationsClass(Capability $capability, Capability ...$capabilities): self
 	{
-		$this->modificationsClass = $this->modificationsClass->with($capability);
+		$this->modificationsClass = $this->modificationsClass->with($capability, ...$capabilities);
 		return $this;
 	}
 
-	public function addCapabilityTableClass(Capability $capability): self
+	public function addCapabilityTableClass(Capability $capability, Capability ...$capabilities): self
 	{
-		$this->tableClass = $this->tableClass->with($capability);
+		$this->tableClass = $this->tableClass->with($capability, ...$capabilities);
 		return $this;
 	}
 
