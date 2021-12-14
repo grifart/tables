@@ -107,7 +107,7 @@ final class TableImplementation implements Capability
 				'$row = $this->tableManager->find($this, $primaryKey);' . "\n" .
 				'\assert($row instanceof ? || $row === NULL);' . "\n" .
 				'return $row;',
-				[new Code\PhpLiteral($namespace->unresolveName($this->rowClass))]
+				[new Code\PhpLiteral($namespace->simplifyName($this->rowClass))]
 			);
 
 		$namespace->addUse(RowNotFound::class);
@@ -131,14 +131,14 @@ final class TableImplementation implements Capability
 				(new Code\Parameter('conditions'))
 					->setType('array')
 			])
-			->setComment('@return ' . $namespace->unresolveName($this->rowClass) . '[]')
+			->setComment('@return ' . $namespace->simplifyName($this->rowClass) . '[]')
 			->setReturnType('array')
 			->setBody(
 				'/** @var ?[] $result */' . "\n" .
 				'$result = $this->tableManager->findBy($this, $conditions);' . "\n" .
 				'return $result;',
 				[
-					new Code\PhpLiteral($namespace->unresolveName($this->rowClass))
+					new Code\PhpLiteral($namespace->simplifyName($this->rowClass))
 				]
 			);
 
@@ -146,14 +146,14 @@ final class TableImplementation implements Capability
 			->setReturnType($this->modificationClass)
 			->setBody(
 				'return ?::new();',
-				[new Code\PhpLiteral($namespace->unresolveName($this->modificationClass))],
+				[new Code\PhpLiteral($namespace->simplifyName($this->modificationClass))],
 			);
 
 		$newMethod = $classType->addMethod('new')
 			->setReturnType($this->modificationClass)
 			->addBody(
 				'$modifications = ?::new();',
-				[new Code\PhpLiteral($namespace->unresolveName($this->modificationClass))],
+				[new Code\PhpLiteral($namespace->simplifyName($this->modificationClass))],
 			);
 
 		foreach ($this->columnInfo as $columnInfo) {
@@ -162,7 +162,7 @@ final class TableImplementation implements Capability
 				$fieldType = $this->columnPhpTypes[$fieldName];
 
 				$newMethod->addParameter($fieldName)
-					->setTypeHint($fieldType->getTypeHint())
+					->setType($fieldType->getTypeHint())
 					->setNullable($fieldType->isNullable());
 
 				if ($fieldType->requiresDocComment()) {
@@ -186,7 +186,7 @@ final class TableImplementation implements Capability
 		$classType->addMethod('edit')
 			->setReturnType($this->modificationClass)
 			->setParameters([
-				(new Code\Parameter('row'))->setTypeHint($this->rowClass)
+				(new Code\Parameter('row'))->setType($this->rowClass)
 			])
 			->setBody(
 				'/** @var ? $primaryKeyClass */' . "\n" .
@@ -197,20 +197,20 @@ final class TableImplementation implements Capability
 				"\t" . '$primaryKeyClass::fromRow($row)' . "\n" .
 				');',
 				[
-					new Code\PhpLiteral($namespace->unresolveName($this->primaryKeyClass)),
-					new Code\PhpLiteral($namespace->unresolveName($this->modificationClass)),
+					new Code\PhpLiteral($namespace->simplifyName($this->primaryKeyClass)),
+					new Code\PhpLiteral($namespace->simplifyName($this->modificationClass)),
 				]
 			);
 
 		$classType->addMethod('editByKey')
 			->setReturnType($this->modificationClass)
 			->setParameters([
-				(new Code\Parameter('primaryKey'))->setTypeHint($this->primaryKeyClass)
+				(new Code\Parameter('primaryKey'))->setType($this->primaryKeyClass)
 			])
 			->setBody(
 				'return ?::update($primaryKey);',
 				[
-					new Code\PhpLiteral($namespace->unresolveName($this->modificationClass)),
+					new Code\PhpLiteral($namespace->simplifyName($this->modificationClass)),
 				]
 			);
 
@@ -218,7 +218,7 @@ final class TableImplementation implements Capability
 		$classType->addMethod('save')
 			->setReturnType('void')
 			->setParameters([
-				(new Code\Parameter('changes'))->setTypeHint($this->modificationClass)
+				(new Code\Parameter('changes'))->setType($this->modificationClass)
 			])
 			->setBody(
 				'$this->tableManager->save($this, $changes);'
@@ -227,7 +227,7 @@ final class TableImplementation implements Capability
 		$classType->addMethod('delete')
 			->setReturnType('void')
 			->setParameters([
-				(new Code\Parameter('primaryKey'))->setTypeHint($this->primaryKeyClass)
+				(new Code\Parameter('primaryKey'))->setType($this->primaryKeyClass)
 			])
 			->setBody(
 				'$this->tableManager->delete($this, $primaryKey);'
@@ -257,7 +257,7 @@ final class TableImplementation implements Capability
 	private function implementConfigMethodReturningClass(Code\PhpNamespace $namespace, Code\ClassType $classType, string $name, string $class): void
 	{
 		$namespace->addUse($class);
-		$this->implementConfigMethod($classType, $name, new Code\PhpLiteral($namespace->unresolveName($class) . '::class'));
+		$this->implementConfigMethod($classType, $name, new Code\PhpLiteral($namespace->simplifyName($class) . '::class'));
 	}
 
 	private function implementConfigMethod(Code\ClassType $classType, string $name, mixed $value): void
