@@ -21,7 +21,7 @@ final class ReconstituteConstructor implements Capability
 			->setReturnType('static')
 			->setStatic();
 
-		$reconstitute->addParameter('values')->setTypeHint('array');
+		$reconstitute->addParameter('values')->setType('array');
 
 		$fields = $definition->getFields();
 		$shapeFields = $literals = [];

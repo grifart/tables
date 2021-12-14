@@ -68,7 +68,7 @@ final class ModificationsImplementation implements Capability
 			->setVisibility('public')
 			->setReturnType('string')
 			->setBody('return ?::class;', [
-				new PhpLiteral($namespace->unresolveName($this->relatedTableClass))
+				new PhpLiteral($namespace->simplifyName($this->relatedTableClass))
 			]);
 
 		// modify*() methods
@@ -86,7 +86,7 @@ final class ModificationsImplementation implements Capability
 				])
 				->setParameters([
 					(new Parameter($fieldName))
-						->setTypeHint($type->getTypeHint())
+						->setType($type->getTypeHint())
 						->setNullable($type->isNullable())
 				]);
 			$modifier->setReturnType('void');
