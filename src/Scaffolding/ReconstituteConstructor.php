@@ -33,7 +33,7 @@ final class ReconstituteConstructor implements Capability
 			$literals[] = new PhpLiteral("\$values['" . $name . "']");
 		}
 
-		$reconstitute->addComment(\sprintf('@param array{%s} $values', \implode(', ', $shapeFields)));
+		$reconstitute->addBody(\sprintf('/** @var array{%s} $values */', \implode(', ', $shapeFields)));
 		$reconstitute->addBody("return new static(...?);", [$literals]);
 	}
 }
