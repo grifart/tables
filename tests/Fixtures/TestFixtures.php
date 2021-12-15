@@ -40,7 +40,7 @@ final class TestFixtures
 
 			public function fromDatabase(mixed $value): mixed
 			{
-				return $value;
+				return $value !== null ? (int) $value : null;
 			}
 		});
 		$typeResolver->addResolutionByTypeName('character varying', new class implements Type {
