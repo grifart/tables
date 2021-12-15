@@ -16,8 +16,8 @@
             "@phpstan",
             "@test"
         ],
-        "phpstan": "phpstan analyze --no-interaction -l max --error-format compact src",
-        "test": "tester src"
+        "phpstan": "phpstan analyze --no-interaction -l max --error-format compact src tests",
+        "test": "tester tests"
     },
 
 
@@ -37,13 +37,16 @@
 
     "autoload": {
         "psr-4": {
-            "Grifart\\Tables\\": "src"
+            "Grifart\\Tables\\": "src/"
         },
         "classmap": [
             "src/exceptions.php"
         ]
     },
     "autoload-dev": {
+        "psr-4": {
+            "Grifart\\Tables\\Tests\\": "tests/"
+        },
         "files": [
             "src/exceptions.php"
         ]

@@ -1,10 +1,16 @@
-<?php declare(strict_types=1);
+<?php
 
-require __DIR__ . '/bootstrap-tests.php';
+declare(strict_types=1);
+
+namespace Grifart\Tables\Tests;
 
 use Grifart\Tables\CaseConversion;
+use Tester\Assert;
+use Tester\Environment;
 
-\Tester\Environment::setup();
+require __DIR__ . '/bootstrap.php';
+
+Environment::setup();
 
 $testCases = [
 	'lowercase' => 'LOWERCASE',
@@ -22,7 +28,7 @@ $testCases = [
 
 
 foreach($testCases as $camelCase => $underscores) {
-	\Tester\Assert::same(
+	Assert::same(
 		$underscores,
 		CaseConversion::toUnderscores($camelCase)
 	);
