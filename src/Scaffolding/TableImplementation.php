@@ -8,7 +8,7 @@ use Grifart\ClassScaffolder\Capabilities\Capability;
 use Grifart\ClassScaffolder\ClassInNamespace;
 use Grifart\ClassScaffolder\Definition\ClassDefinition;
 use Grifart\ClassScaffolder\Definition\Types\Type;
-use Grifart\Tables\CaseConvertion;
+use Grifart\Tables\CaseConversion;
 use Grifart\Tables\RowNotFound;
 use Grifart\Tables\Table;
 use Grifart\Tables\TableManager;
@@ -247,7 +247,7 @@ final class TableImplementation implements Capability
 
 		foreach ($this->columnInfo as $columnInfo) {
 			$classType->addConstant(
-				CaseConvertion::toUnderscores($columnInfo->getName()),
+				CaseConversion::toUnderscores($columnInfo->getName()),
 				$columnInfo->getName()
 			)->setVisibility('public');
 

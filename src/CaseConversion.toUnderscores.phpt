@@ -2,7 +2,7 @@
 
 require __DIR__ . '/bootstrap-tests.php';
 
-use Grifart\Tables\CaseConvertion;
+use Grifart\Tables\CaseConversion;
 
 \Tester\Environment::setup();
 
@@ -24,6 +24,6 @@ $testCases = [
 foreach($testCases as $camelCase => $underscores) {
 	\Tester\Assert::same(
 		$underscores,
-		CaseConvertion::toUnderscores($camelCase)
+		CaseConversion::toUnderscores($camelCase)
 	);
 }
