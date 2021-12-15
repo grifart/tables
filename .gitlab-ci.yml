@@ -1,13 +1,28 @@
 stages:
+  - install
   - test
 
-test-verify:
+install:
+  stage: install
+  image: grifart/php8.0-with-all-modules-and-various-tools
+  interruptible: true
+  script:
+    - composer install
+  artifacts:
+    paths:
+      - vendor/
+    expire_in: 1 day
+
+phpstan:
   stage: test
   image: grifart/php8.0-with-all-modules-and-various-tools
   interruptible: true
-
-  before_script:
-    - composer install
-
   script:
-    - composer run verify
+    - composer run phpstan
+
+tests:
+  stage: test
+  image: grifart/php8.0-with-all-modules-and-various-tools
+  interruptible: true
+  script:
+    - composer run test
