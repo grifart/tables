@@ -1,0 +1,6 @@
+tables:
+	types:
+		byName:
+			uuid: Grifart\Tables\Tests\Fixtures\UuidType
+		byLocation:
+			public.test.score: Grifart\Tables\Types\IntType

@@ -1,0 +1,7 @@
+extensions:
+	tables: Grifart\Tables\DI\TablesExtension
+
+services:
+	connection:
+		type: Dibi\Connection
+		imported: true

@@ -32,6 +32,8 @@
         "brick/date-time": "^0.3.2",
         "brick/math": "^0.9.3",
         "grifart/phpstan-oneline": "^0.4.0",
+        "nette/bootstrap": "^3.1",
+        "nette/di": "^3.0",
         "nette/tester": "^2.3",
         "nikic/php-parser": "^4.13",
         "phpstan/phpstan": "^0.12"
@@ -39,7 +41,8 @@
 
     "suggest": {
 		"brick/date-time": "if you want to use date-time types",
-        "brick/math": "if you want to use DecimalType"
+        "brick/math": "if you want to use DecimalType",
+        "nette/di": "if you want to integrate with DI container"
 	},
 
 
