@@ -12,6 +12,7 @@ use function Functional\map;
 use function Grifart\ClassScaffolder\Capabilities\constructorWithPromotedProperties;
 use function Grifart\ClassScaffolder\Capabilities\getters;
 use function Grifart\ClassScaffolder\Capabilities\implementedInterface;
+use function Grifart\ClassScaffolder\Capabilities\namedConstructor;
 use function Grifart\ClassScaffolder\Capabilities\privatizedConstructor;
 use function Grifart\ClassScaffolder\Definition\Types\nullable;
 
@@ -46,10 +47,6 @@ final class Scaffolding
 		if (\count($columnMetadata) === 0) {
 			throw new \LogicException('No columns found for given configuration. Does referenced table exist?');
 		}
-
-		$location = function(string $column) use ($schema, $table): string {
-			return self::location($schema, $table, $column);
-		};
 
 		$columnResolvedTypes = map(
 			$columnMetadata,
@@ -87,6 +84,18 @@ final class Scaffolding
 		$modificationsClass = $addTableFields(new ClassDefinition($modificationsClassName))
 			->with(new ModificationsImplementation($tableClassName, $primaryKeyClassName));
 
+		$primaryKeyColumnNames = $pgReflector->retrievePrimaryKeyColumns($schema, $table);
+		$primaryKeyFields = map($primaryKeyColumnNames, static fn(string $name) => $columnPhpTypes[$name]);
+		$primaryKeyClass = (new ClassDefinition($primaryKeyClassName))
+			->withFields($primaryKeyFields)
+			->with(
+				constructorWithPromotedProperties(),
+				privatizedConstructor(),
+				namedConstructor('from'),
+				new PrimaryKeyImplementation($tableClassName, $rowClassName),
+				getters(),
+			);
+
 		// table class
 		$tableClass = (new ClassDefinition($tableClassName))
 			->with(new TableImplementation(
@@ -100,7 +109,7 @@ final class Scaffolding
 				$columnPhpTypes,
 			));
 
-		return Definitions::from($rowClass, $modificationsClass, $tableClass);
+		return Definitions::from($rowClass, $modificationsClass, $primaryKeyClass, $tableClass);
 	}
 
 }
