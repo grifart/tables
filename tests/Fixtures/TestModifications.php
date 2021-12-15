@@ -11,8 +11,12 @@ namespace Grifart\Tables\Tests\Fixtures;
 use Grifart\Tables\Modifications;
 use Grifart\Tables\ModificationsTrait;
 
+/**
+ * @implements Modifications<TestsTable>
+ */
 final class TestModifications implements Modifications
 {
+	/** @use ModificationsTrait<TestsTable> */
 	use ModificationsTrait;
 
 	public static function update(TestPrimaryKey $primaryKey): self

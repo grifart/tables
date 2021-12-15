@@ -11,6 +11,9 @@ namespace Grifart\Tables\Tests\Fixtures;
 use Grifart\Tables\PrimaryKey;
 use Grifart\Tables\Table;
 
+/**
+ * @implements PrimaryKey<TestsTable>
+ */
 final class TestPrimaryKey implements PrimaryKey
 {
 	private function __construct(private Uuid $id)

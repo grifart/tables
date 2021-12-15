@@ -21,7 +21,7 @@ final class TestsTable implements Table
 	public const SCORE = 'score';
 	public const DETAILS = 'details';
 
-	/** @var array<string, Column> */
+	/** @var array<string, Column<static, mixed>> */
 	private array $columns = [];
 
 
@@ -152,20 +152,32 @@ final class TestsTable implements Table
 	}
 
 
+	/**
+	 * @return Column<static, Uuid>
+	 */
 	public function id(): Column
 	{
+		// @phpstan-ignore-next-line
 		return $this->columns['id'] ??= Column::from($this, self::getDatabaseColumns()['id'], $this->typeResolver);
 	}
 
 
+	/**
+	 * @return Column<static, int>
+	 */
 	public function score(): Column
 	{
+		// @phpstan-ignore-next-line
 		return $this->columns['score'] ??= Column::from($this, self::getDatabaseColumns()['score'], $this->typeResolver);
 	}
 
 
+	/**
+	 * @return Column<static, string|null>
+	 */
 	public function details(): Column
 	{
+		// @phpstan-ignore-next-line
 		return $this->columns['details'] ??= Column::from($this, self::getDatabaseColumns()['details'], $this->typeResolver);
 	}
 }

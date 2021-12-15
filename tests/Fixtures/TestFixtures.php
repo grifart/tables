@@ -27,7 +27,7 @@ final class TestFixtures
 	{
 		$typeResolver = new TypeResolver();
 		$typeResolver->addResolutionByTypeName('uuid', new UuidType());
-		$typeResolver->addResolutionByLocation('public.test.score', new class implements Type {
+		$typeResolver->addResolutionByLocation('public.test.score', new /** @implements Type<int> */ class implements Type {
 			public function getPhpType(): PhpType
 			{
 				return resolve('int');
@@ -43,7 +43,7 @@ final class TestFixtures
 				return $value !== null ? (int) $value : null;
 			}
 		});
-		$typeResolver->addResolutionByTypeName('character varying', new class implements Type {
+		$typeResolver->addResolutionByTypeName('character varying', new /** @implements Type<string> */ class implements Type {
 			public function getPhpType(): PhpType
 			{
 				return resolve('string');

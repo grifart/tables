@@ -3,7 +3,9 @@
 
 namespace Grifart\Tables;
 
-
+/**
+ * @template TableType of Table
+ */
 interface Modifications
 {
 
@@ -14,10 +16,15 @@ interface Modifications
 	 */
 	public function getModifications(): array;
 
-	/** @return null|PrimaryKey if null it means, that row is new (do INSERT) */
+	/**
+	 * @return null|PrimaryKey<TableType> if null it means, that row is new (do INSERT)
+	 */
 	public function getPrimaryKey(): ?PrimaryKey;
 
-	/** With which table is this row associated */
+	/**
+	 * With which table is this row associated
+	 * @return class-string<TableType>
+	 */
 	public static function forTable(): string;
 
 }

@@ -31,6 +31,7 @@ final class PrimaryKeyImplementation implements Capability
 		$namespace = $draft->getNamespace();
 
 		$classType->setFinal();
+		$classType->addComment(\sprintf('@implements PrimaryKey<%s>', $namespace->simplifyName($this->tableClassName)));
 		$classType->addImplement(PrimaryKey::class);
 		$namespace->addUse(PrimaryKey::class);
 

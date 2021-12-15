@@ -6,12 +6,15 @@ namespace Grifart\Tables;
 
 final class TypeResolver
 {
-	/** @var array<string, Type> */
+	/** @var array<string, Type<mixed>> */
 	private array $byTypeName = [];
 
-	/** @var array<string, Type> */
+	/** @var array<string, Type<mixed>> */
 	private array $byLocation = [];
 
+	/**
+	 * @param Type<mixed> $type
+	 */
 	public function addResolutionByTypeName(string $typeName, Type $type): void
 	{
 		if (\array_key_exists($typeName, $this->byTypeName)) {
@@ -22,7 +25,7 @@ final class TypeResolver
 	}
 
 	/**
-	 * @param array<string, Type> $resolutions
+	 * @param array<string, Type<mixed>> $resolutions
 	 */
 	public function addResolutionsByName(array $resolutions): void
 	{
@@ -31,6 +34,9 @@ final class TypeResolver
 		}
 	}
 
+	/**
+	 * @param Type<mixed> $type
+	 */
 	public function addResolutionByLocation(string $location, Type $type): void
 	{
 		if (\array_key_exists($location, $this->byLocation)) {
@@ -41,7 +47,7 @@ final class TypeResolver
 	}
 
 	/**
-	 * @param array<string, Type> $resolutions
+	 * @param array<string, Type<mixed>> $resolutions
 	 */
 	public function addResolutionsByLocation(array $resolutions): void
 	{
@@ -50,6 +56,9 @@ final class TypeResolver
 		}
 	}
 
+	/**
+	 * @return Type<mixed>
+	 */
 	public function resolveType(
 		string $typeName,
 		string $location,

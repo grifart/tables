@@ -22,7 +22,7 @@ final class TableImplementation implements Capability
 {
 	/**
 	 * @param array<string, ColumnMetadata> $columnMetadata
-	 * @param array<string, Type> $resolvedColumnTypes
+	 * @param array<string, Type<mixed>> $resolvedColumnTypes
 	 * @param array<string, PhpType> $columnPhpTypes
 	 */
 	public function __construct(
@@ -236,7 +236,7 @@ final class TableImplementation implements Capability
 		$classType->addProperty('columns', [])
 			->setPrivate()
 			->setType('array')
-			->addComment('@var array<string, Column>');
+			->addComment('@var array<string, Column<static, mixed>>');
 
 		foreach ($this->columnMetadata as $columnInfo) {
 			$classType->addConstant(
@@ -246,6 +246,11 @@ final class TableImplementation implements Capability
 
 			$classType->addMethod($columnInfo->getName())
 				->setReturnType(Column::class)
+				->addComment(\sprintf(
+					'@return Column<static, %s>',
+					$this->columnPhpTypes[$columnInfo->getName()]->getDocCommentType($namespace),
+				))
+				->addBody('// @phpstan-ignore-next-line')
 				->addBody(
 					'return $this->columns[?] \?\?= Column::from($this, self::getDatabaseColumns()[?], $this->typeResolver);',
 					[$columnInfo->getName(), $columnInfo->getName()],

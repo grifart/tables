@@ -20,6 +20,11 @@ final class TableManager
 		private Connection $connection,
 	) {}
 
+	/**
+	 * @template TableType of Table
+	 * @param TableType $table
+	 * @param Modifications<TableType> $changes
+	 */
 	public function insert(Table $table, Modifications $changes): void
 	{
 		\assert($changes->getPrimaryKey() === NULL);
@@ -35,6 +40,9 @@ final class TableManager
 	}
 
 	/**
+	 * @template TableType of Table
+	 * @param TableType $table
+	 * @param PrimaryKey<TableType> $primaryKey
 	 * @return null|Row
 	 */
 	public function find(Table $table, PrimaryKey $primaryKey): ?Row
@@ -50,6 +58,8 @@ final class TableManager
 	}
 
 	/**
+	 * @template TableType of Table
+	 * @param TableType $table
 	 * @param array<string, mixed> $conditions Conditions provides low-level access to "where" clause concatenated by %and.
 	 *                                         More: https://dibiphp.com/en/documentation
 	 *                                         Note! Types and names are currently NOT mapped.
@@ -85,6 +95,9 @@ final class TableManager
 	}
 
 	/**
+	 * @template TableType of Table
+	 * @param TableType $table
+	 * @param Modifications<TableType> $changes
 	 * @throws GivenSearchCriteriaHaveNotMatchedAnyRows if no rows matches given criteria
 	 */
 	public function update(Table $table, Modifications $changes): void
@@ -110,6 +123,11 @@ final class TableManager
 		}
 	}
 
+	/**
+	 * @template TableType of Table
+	 * @param TableType $table
+	 * @param PrimaryKey<TableType> $primaryKey
+	 */
 	public function delete(Table $table, PrimaryKey $primaryKey): void
 	{
 		$this->connection->query(
@@ -121,6 +139,9 @@ final class TableManager
 	}
 
 	/**
+	 * @template TableType of Table
+	 * @param TableType $table
+	 * @param Modifications<TableType> $changes
 	 * @throws GivenSearchCriteriaHaveNotMatchedAnyRows
 	 */
 	public function save(Table $table, Modifications $changes): void {
