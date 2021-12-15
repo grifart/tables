@@ -96,6 +96,7 @@ final class Scaffolding
 				$rowClassName,
 				$modificationsClassName,
 				$columnMetadata,
+				$columnResolvedTypes,
 				$columnPhpTypes,
 			));
 

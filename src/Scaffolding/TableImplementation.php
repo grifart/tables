@@ -7,50 +7,34 @@ namespace Grifart\Tables\Scaffolding;
 use Grifart\ClassScaffolder\Capabilities\Capability;
 use Grifart\ClassScaffolder\ClassInNamespace;
 use Grifart\ClassScaffolder\Definition\ClassDefinition;
-use Grifart\ClassScaffolder\Definition\Types\Type;
+use Grifart\ClassScaffolder\Definition\Types\Type as PhpType;
 use Grifart\Tables\CaseConversion;
+use Grifart\Tables\Column;
 use Grifart\Tables\ColumnMetadata;
 use Grifart\Tables\RowNotFound;
 use Grifart\Tables\Table;
 use Grifart\Tables\TableManager;
+use Grifart\Tables\Type;
+use Grifart\Tables\TypeResolver;
 use Nette\PhpGenerator as Code;
 
 final class TableImplementation implements Capability
 {
-
-	private string $schema;
-
-	private string $tableName;
-
-	private string $primaryKeyClass;
-
-	private string $rowClass;
-
-	private string $modificationClass;
-
-	/** @var ColumnMetadata[] */
-	private array $columnInfo;
-
-	/** @var array<string, Type> */
-	private array $columnPhpTypes;
-
 	/**
-	 * @param array<string, ColumnMetadata> $columnInfo
-	 * @param array<string, Type> $columnPhpTypes
+	 * @param array<string, ColumnMetadata> $columnMetadata
+	 * @param array<string, Type> $resolvedColumnTypes
+	 * @param array<string, PhpType> $columnPhpTypes
 	 */
-	public function __construct(string $schema, string $tableName, string $primaryKeyClass, string $rowClass, string $modificationClass, array $columnInfo, array $columnPhpTypes)
-	{
-		$this->schema = $schema;
-		$this->tableName = $tableName;
-
-		$this->primaryKeyClass = $primaryKeyClass;
-		$this->rowClass = $rowClass;
-		$this->modificationClass = $modificationClass;
-
-		$this->columnInfo = $columnInfo;
-		$this->columnPhpTypes = $columnPhpTypes;
-	}
-
+	public function __construct(
+		private string $schema,
+		private string $tableName,
+		private string $primaryKeyClass,
+		private string $rowClass,
+		private string $modificationClass,
+		private array $columnMetadata,
+		private array $resolvedColumnTypes,
+		private array $columnPhpTypes,
+	) {}
 
 	public function applyTo(
 		ClassDefinition $definition,
@@ -77,7 +61,7 @@ final class TableImplementation implements Capability
 		$namespace->addUse(ColumnMetadata::class);
 		$columnsDefinitions = []; // name => PhpLiteral
 		$columnsArrayTemplate = [];
-		foreach($this->columnInfo as $column) {
+		foreach($this->columnMetadata as $column) {
 			$columnsArrayTemplate[] = "\t? => new ColumnMetadata(?, ?, ?, ?)";
 			$columnsDefinitions[] = $column->getName();
 			$columnsDefinitions[] = $column->getName();
@@ -132,7 +116,8 @@ final class TableImplementation implements Capability
 				(new Code\Parameter('conditions'))
 					->setType('array')
 			])
-			->setComment('@return ' . $namespace->simplifyName($this->rowClass) . '[]')
+			->addComment('@param mixed[] $conditions')
+			->addComment('@return ' . $namespace->simplifyName($this->rowClass) . '[]')
 			->setReturnType('array')
 			->setBody(
 				'/** @var ?[] $result */' . "\n" .
@@ -157,9 +142,9 @@ final class TableImplementation implements Capability
 				[new Code\PhpLiteral($namespace->simplifyName($this->modificationClass))],
 			);
 
-		foreach ($this->columnInfo as $columnInfo) {
-			if ( ! $columnInfo->hasDefaultValue()) {
-				$fieldName = $columnInfo->getName();
+		foreach ($this->columnMetadata as $columnMetadata) {
+			if ( ! $columnMetadata->hasDefaultValue()) {
+				$fieldName = $columnMetadata->getName();
 				$fieldType = $this->columnPhpTypes[$fieldName];
 
 				$newMethod->addParameter($fieldName)
@@ -235,23 +220,36 @@ final class TableImplementation implements Capability
 			);
 
 		$namespace->addUse(TableManager::class);
-		$classType->addMethod('__construct')
-			->addPromotedParameter('tableManager')
-			->setType(TableManager::class)
-			->setPrivate();
+		$namespace->addUse(TypeResolver::class);
+		$constructor = $classType->addMethod('__construct');
+		$constructor->addPromotedParameter('tableManager')->setType(TableManager::class)->setPrivate();
+		$constructor->addPromotedParameter('typeResolver')->setType(TypeResolver::class)->setPrivate();
 
 
 
 
 
-		// add column constants
+		// add column constants and accessors
 
-		foreach ($this->columnInfo as $columnInfo) {
+		$namespace->addUse(Column::class);
+
+		$classType->addProperty('columns', [])
+			->setPrivate()
+			->setType('array')
+			->addComment('@var array<string, Column>');
+
+		foreach ($this->columnMetadata as $columnInfo) {
 			$classType->addConstant(
 				CaseConversion::toUnderscores($columnInfo->getName()),
 				$columnInfo->getName()
-			)->setVisibility('public');
+			)->setPublic();
 
+			$classType->addMethod($columnInfo->getName())
+				->setReturnType(Column::class)
+				->addBody(
+					'return $this->columns[?] \?\?= Column::from($this, self::getDatabaseColumns()[?], $this->typeResolver);',
+					[$columnInfo->getName(), $columnInfo->getName()],
+				);
 		}
 	}
 
