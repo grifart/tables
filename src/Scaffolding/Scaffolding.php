@@ -3,17 +3,17 @@
 namespace Grifart\Tables\Scaffolding;
 
 use Grifart\ClassScaffolder\Definition\ClassDefinition;
-use Grifart\ClassScaffolder\Definition\Types\Type;
+use Grifart\ClassScaffolder\Definition\Types\Type as PhpType;
 use Grifart\Tables\ColumnMetadata;
 use Grifart\Tables\Row;
-use Grifart\Tables\TypeMapper;
+use Grifart\Tables\Type;
+use Grifart\Tables\TypeResolver;
 use function Functional\map;
 use function Grifart\ClassScaffolder\Capabilities\constructorWithPromotedProperties;
 use function Grifart\ClassScaffolder\Capabilities\getters;
 use function Grifart\ClassScaffolder\Capabilities\implementedInterface;
 use function Grifart\ClassScaffolder\Capabilities\privatizedConstructor;
 use function Grifart\ClassScaffolder\Definition\Types\nullable;
-use function Grifart\ClassScaffolder\Definition\Types\resolve;
 
 
 final class Scaffolding
@@ -33,7 +33,7 @@ final class Scaffolding
 	 */
 	public static function definitionsForPgTable(
 		PostgresReflector $pgReflector,
-		TypeMapper $mapper,
+		TypeResolver $typeResolver,
 		string $schema,
 		string $table,
 		string $rowClassName,
@@ -51,10 +51,19 @@ final class Scaffolding
 			return self::location($schema, $table, $column);
 		};
 
+		$columnResolvedTypes = map(
+			$columnMetadata,
+			static function (ColumnMetadata $column) use ($typeResolver, $schema, $table): Type {
+				$location = "$schema.$table.{$column->getName()}";
+				return $typeResolver->resolveType($column->getType(), $location);
+			},
+		);
+
 		$columnPhpTypes = map(
 			$columnMetadata,
-			function (ColumnMetadata $column) use ($mapper, $location): Type {
-				$phpType = resolve($mapper->mapType($location($column->getName()), $column->getType()));
+			static function (ColumnMetadata $column) use ($columnResolvedTypes): PhpType {
+				$type = $columnResolvedTypes[$column->getName()];
+				$phpType = $type->getPhpType();
 				return $column->isNullable() ? nullable($phpType) : $phpType;
 			},
 		);
