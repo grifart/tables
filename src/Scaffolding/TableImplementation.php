@@ -9,6 +9,7 @@ use Grifart\ClassScaffolder\ClassInNamespace;
 use Grifart\ClassScaffolder\Definition\ClassDefinition;
 use Grifart\ClassScaffolder\Definition\Types\Type;
 use Grifart\Tables\CaseConversion;
+use Grifart\Tables\ColumnMetadata;
 use Grifart\Tables\RowNotFound;
 use Grifart\Tables\Table;
 use Grifart\Tables\TableManager;
@@ -27,14 +28,14 @@ final class TableImplementation implements Capability
 
 	private string $modificationClass;
 
-	/** @var Column[] */
+	/** @var ColumnMetadata[] */
 	private array $columnInfo;
 
 	/** @var array<string, Type> */
 	private array $columnPhpTypes;
 
 	/**
-	 * @param array<string, Column> $columnInfo
+	 * @param array<string, ColumnMetadata> $columnInfo
 	 * @param array<string, Type> $columnPhpTypes
 	 */
 	public function __construct(string $schema, string $tableName, string $primaryKeyClass, string $rowClass, string $modificationClass, array $columnInfo, array $columnPhpTypes)
@@ -73,11 +74,11 @@ final class TableImplementation implements Capability
 		$this->implementConfigMethodReturningClass($namespace, $classType, 'getModificationClass', $this->modificationClass);
 
 		// column info:
-		$namespace->addUse(Column::class);
+		$namespace->addUse(ColumnMetadata::class);
 		$columnsDefinitions = []; // name => PhpLiteral
 		$columnsArrayTemplate = [];
 		foreach($this->columnInfo as $column) {
-			$columnsArrayTemplate[] = "\t? => new Column(?, ?, ?, ?)";
+			$columnsArrayTemplate[] = "\t? => new ColumnMetadata(?, ?, ?, ?)";
 			$columnsDefinitions[] = $column->getName();
 			$columnsDefinitions[] = $column->getName();
 			$columnsDefinitions[] = $column->getType();
@@ -88,7 +89,7 @@ final class TableImplementation implements Capability
 
 		$classType->addMethod('getDatabaseColumns')
 			->setReturnType('array')
-			->addComment("@return Column[]")
+			->addComment("@return ColumnMetadata[]")
 			->setStatic()
 			->setBody("return [\n".$columnsArrayTemplate."\n];", $columnsDefinitions);
 

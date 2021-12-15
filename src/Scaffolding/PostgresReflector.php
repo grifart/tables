@@ -5,6 +5,7 @@ namespace Grifart\Tables\Scaffolding;
 
 
 use Dibi\Connection;
+use Grifart\Tables\ColumnMetadata;
 
 final class PostgresReflector
 {
@@ -15,7 +16,8 @@ final class PostgresReflector
 
 	/**
 	 * source: https://stackoverflow.com/a/51897900/631369
-	 * @return Column[]
+	 *
+	 * @return ColumnMetadata[]
 	 */
 	function retrieveColumnInfo(string $schema, string $table): array {
 		$result = $this->connection->query(<<<SQL
@@ -42,7 +44,7 @@ SQL
 		$results = [];
 		foreach($result->fetchAssoc('name') as $columnName => $columnInfo) {
 			\assert($columnInfo instanceof \Dibi\Row);
-			$results[$columnName] = new Column(
+			$results[$columnName] = new ColumnMetadata(
 				$columnInfo['name'],
 				$columnInfo['type'],
 				$columnInfo['nullable'],

@@ -4,8 +4,6 @@
 namespace Grifart\Tables;
 
 
-use Grifart\Tables\Scaffolding\Column;
-
 interface Table
 {
 
@@ -15,6 +13,6 @@ interface Table
 	public static function getRowClass(): string;
 	public static function getModificationClass(): string;
 
-	/** @return Column[] */
+	/** @return ColumnMetadata[] */
 	public static function getDatabaseColumns(): array;
 }
