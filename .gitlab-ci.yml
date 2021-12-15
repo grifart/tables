@@ -25,4 +25,5 @@ tests:
   image: grifart/php8.0-with-all-modules-and-various-tools
   interruptible: true
   script:
+    - mv tests/createConnection.ci.php tests/createConnection.local.php
     - composer run test
