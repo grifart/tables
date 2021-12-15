@@ -29,11 +29,16 @@
         "nette/utils": "^3.0.1"
     },
     "require-dev": {
+        "brick/date-time": "^0.3.2",
         "grifart/phpstan-oneline": "^0.4.0",
         "nette/tester": "^2.3",
         "nikic/php-parser": "^4.13",
         "phpstan/phpstan": "^0.12"
     },
+
+    "suggest": {
+		"brick/date-time": "if you want to use date-time types"
+	},
 
 
     "autoload": {
