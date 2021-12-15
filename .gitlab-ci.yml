@@ -24,6 +24,13 @@ tests:
   stage: test
   image: grifart/php8.0-with-all-modules-and-various-tools
   interruptible: true
-  script:
+  services:
+    - postgres:14-alpine
+  variables:
+    POSTGRES_DB: tables
+    POSTGRES_USER: postgres
+    POSTGRES_PASSWORD: postgres
+  before_script:
     - mv tests/createConnection.ci.php tests/createConnection.local.php
+  script:
     - composer run test

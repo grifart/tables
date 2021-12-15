@@ -17,7 +17,7 @@
             "@test"
         ],
         "phpstan": "phpstan analyze --no-interaction -l max --error-format compact src tests",
-        "test": "tester tests"
+        "test": "tester -C tests"
     },
 
 
