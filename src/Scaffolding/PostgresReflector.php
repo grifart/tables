@@ -19,7 +19,7 @@ final class PostgresReflector
 	 *
 	 * @return ColumnMetadata[]
 	 */
-	function retrieveColumnInfo(string $schema, string $table): array {
+	function retrieveColumnMetadata(string $schema, string $table): array {
 		$result = $this->connection->query(<<<SQL
 	SELECT
 	`pg_attribute`.attname                                                    as `name`,

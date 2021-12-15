@@ -3,8 +3,11 @@
 namespace Grifart\Tables\Scaffolding;
 
 use Grifart\ClassScaffolder\Definition\ClassDefinition;
+use Grifart\ClassScaffolder\Definition\Types\Type;
+use Grifart\Tables\ColumnMetadata;
 use Grifart\Tables\Row;
 use Grifart\Tables\TypeMapper;
+use function Functional\map;
 use function Grifart\ClassScaffolder\Capabilities\constructorWithPromotedProperties;
 use function Grifart\ClassScaffolder\Capabilities\getters;
 use function Grifart\ClassScaffolder\Capabilities\implementedInterface;
@@ -36,11 +39,11 @@ final class Scaffolding
 		string $rowClassName,
 		string $modificationsClassName,
 		string $tableClassName,
-		string $primaryKeyClass
+		string $primaryKeyClassName,
 	): Definitions
 	{
-		$columnsNativeTypes = $pgReflector->retrieveColumnInfo($schema, $table);
-		if (\count($columnsNativeTypes) === 0) {
+		$columnMetadata = $pgReflector->retrieveColumnMetadata($schema, $table);
+		if (\count($columnMetadata) === 0) {
 			throw new \LogicException('No columns found for given configuration. Does referenced table exist?');
 		}
 
@@ -48,14 +51,16 @@ final class Scaffolding
 			return self::location($schema, $table, $column);
 		};
 
-		$columnsPhpTypes = [];
-		foreach ($columnsNativeTypes as $column) {
-			$phpType = resolve($mapper->mapType($location($column->getName()), $column->getType()));
-			$columnsPhpTypes[$column->getName()] = $column->isNullable() ? nullable($phpType) : $phpType;
-		}
+		$columnPhpTypes = map(
+			$columnMetadata,
+			function (ColumnMetadata $column) use ($mapper, $location): Type {
+				$phpType = resolve($mapper->mapType($location($column->getName()), $column->getType()));
+				return $column->isNullable() ? nullable($phpType) : $phpType;
+			},
+		);
 
-		$addTableFields = function (ClassDefinition $definition) use ($columnsPhpTypes): ClassDefinition {
-			return $definition->withFields($columnsPhpTypes);
+		$addTableFields = function (ClassDefinition $definition) use ($columnPhpTypes): ClassDefinition {
+			return $definition->withFields($columnPhpTypes);
 		};
 
 
@@ -71,18 +76,18 @@ final class Scaffolding
 
 		// row modification class
 		$modificationsClass = $addTableFields(new ClassDefinition($modificationsClassName))
-			->with(new ModificationsImplementation($tableClassName, $primaryKeyClass));
+			->with(new ModificationsImplementation($tableClassName, $primaryKeyClassName));
 
 		// table class
 		$tableClass = (new ClassDefinition($tableClassName))
 			->with(new TableImplementation(
 				$schema,
 				$table,
-				$primaryKeyClass,
+				$primaryKeyClassName,
 				$rowClassName,
 				$modificationsClassName,
-				$columnsNativeTypes,
-				$columnsPhpTypes,
+				$columnMetadata,
+				$columnPhpTypes,
 			));
 
 		return Definitions::from($rowClass, $modificationsClass, $tableClass);
