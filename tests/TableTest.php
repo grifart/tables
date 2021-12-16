@@ -13,8 +13,7 @@ use Tester\Assert;
 
 require __DIR__ . '/bootstrap.php';
 
-$connection = require __DIR__ . '/createConnection.local.php';
-\assert($connection instanceof Connection);
+$connection = connect();
 
 $connection->nativeQuery("TRUNCATE TABLE public.test");
 $connection->nativeQuery("INSERT INTO public.test (id, score, details) VALUES ('fb05a832-5729-4b1f-b064-fbc08cacbe43', 42, '👍'), ('2bec3f23-a210-455c-b907-bb69a99d07b2', 0, NULL);");

@@ -32,5 +32,6 @@ tests:
     POSTGRES_PASSWORD: postgres
   before_script:
     - mv tests/createConnection.ci.php tests/createConnection.local.php
+    - php tests/migration.php
   script:
     - composer run test

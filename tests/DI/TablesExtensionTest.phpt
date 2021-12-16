@@ -13,16 +13,14 @@ use Nette\Bootstrap\Configurator;
 use Nette\DI\Container;
 use Tester\Assert;
 use Tester\Helpers;
+use function Grifart\Tables\Tests\connect;
 
 require __DIR__ . '/../bootstrap.php';
-
-$connection = require __DIR__ . '/../createConnection.local.php';
-\assert($connection instanceof Connection);
 
 \define('TEMP_DIR', __DIR__ . '/temp/' . (isset($_SERVER['argv']) ? \md5(\serialize($_SERVER['argv'])) : \getmypid()));
 Helpers::purge(\TEMP_DIR);
 
-$createContainer = function (string $configFile) use ($connection): Container
+$createContainer = function (string $configFile): Container
 {
 	$configurator = new Configurator();
 	$configurator->setTempDirectory(TEMP_DIR);
@@ -31,7 +29,7 @@ $createContainer = function (string $configFile) use ($connection): Container
 	$configurator->addConfig(__DIR__ . '/config/common.neon');
 	$configurator->addConfig(__DIR__ . '/config/' . $configFile . '.neon');
 
-	$configurator->addServices(['connection' => $connection]);
+	$configurator->addServices(['connection' => connect()]);
 
 	return $configurator->createContainer();
 };

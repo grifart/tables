@@ -10,8 +10,11 @@ use Grifart\ClassScaffolder\DefinitionFile;
 use Grifart\ClassScaffolder\DefinitionResult;
 use Grifart\ClassScaffolder\FileProcessor;
 use Tester\Assert;
+use function Grifart\Tables\Tests\connect;
 
 require __DIR__ . '/../bootstrap.php';
+
+connect();
 
 $scaffolder = new ClassGenerator();
 
