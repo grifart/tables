@@ -17,6 +17,7 @@ use Grifart\Tables\TableManager;
 use Grifart\Tables\Type;
 use Grifart\Tables\TypeResolver;
 use Nette\PhpGenerator as Code;
+use function Functional\map;
 
 final class TableImplementation implements Capability
 {
@@ -233,29 +234,33 @@ final class TableImplementation implements Capability
 
 		$namespace->addUse(Column::class);
 
-		$classType->addProperty('columns', [])
+		$columnsProperty = $classType->addProperty('columns')
 			->setPrivate()
-			->setType('array')
-			->addComment('@var array<string, Column<static, mixed>>');
+			->setType('array');
+
+		$columnsShape = [];
+		$columnInitializers = [];
 
 		foreach ($this->columnMetadata as $columnInfo) {
-			$classType->addConstant(
-				CaseConversion::toUnderscores($columnInfo->getName()),
-				$columnInfo->getName()
-			)->setPublic();
+			$columnName = $columnInfo->getName();
+			$docCommentType = $this->columnPhpTypes[$columnName]->getDocCommentType($namespace);
 
-			$classType->addMethod($columnInfo->getName())
+			$classType->addConstant(CaseConversion::toUnderscores($columnName), $columnName)->setPublic();
+
+			$classType->addMethod($columnName)
 				->setReturnType(Column::class)
-				->addComment(\sprintf(
-					'@return Column<static, %s>',
-					$this->columnPhpTypes[$columnInfo->getName()]->getDocCommentType($namespace),
-				))
-				->addBody('// @phpstan-ignore-next-line')
-				->addBody(
-					'return $this->columns[?] \?\?= Column::from($this, self::getDatabaseColumns()[?], $this->typeResolver);',
-					[$columnInfo->getName(), $columnInfo->getName()],
-				);
+				->addComment(\sprintf('@return Column<self, %s>', $docCommentType))
+				->addBody('return $this->columns[?];', [$columnName]);
+
+			$columnsShape[] = \sprintf('%s: Column<self, %s>', $columnName, $docCommentType);
+
+			$constructor->addBody(\sprintf('/** @var Column<self, %s> $%s */', $docCommentType, $columnName));
+			$constructor->addBody('$? = Column::from($this, self::getDatabaseColumns()[?], $this->typeResolver);', [$columnName, $columnName]);
+			$columnInitializers[$columnName] = new Code\PhpLiteral('$?', [$columnName]);
 		}
+
+		$columnsProperty->addComment(\sprintf('@var array{%s}', \implode(', ', $columnsShape)));
+		$constructor->addBody('$this->columns = ?;', [$columnInitializers]);
 	}
 
 	private function implementConfigMethodReturningClass(Code\PhpNamespace $namespace, Code\ClassType $classType, string $name, string $class): void

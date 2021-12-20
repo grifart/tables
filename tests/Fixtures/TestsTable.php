@@ -21,8 +21,8 @@ final class TestsTable implements Table
 	public const SCORE = 'score';
 	public const DETAILS = 'details';
 
-	/** @var array<string, Column<static, mixed>> */
-	private array $columns = [];
+	/** @var array{id: Column<self, Uuid>, score: Column<self, int>, details: Column<self, string|null>} */
+	private array $columns;
 
 
 	public static function getSchema(): string
@@ -149,35 +149,39 @@ final class TestsTable implements Table
 		private TableManager $tableManager,
 		private TypeResolver $typeResolver,
 	) {
+		/** @var Column<self, Uuid> $id */
+		$id = Column::from($this, self::getDatabaseColumns()['id'], $this->typeResolver);
+		/** @var Column<self, int> $score */
+		$score = Column::from($this, self::getDatabaseColumns()['score'], $this->typeResolver);
+		/** @var Column<self, string|null> $details */
+		$details = Column::from($this, self::getDatabaseColumns()['details'], $this->typeResolver);
+		$this->columns = ['id' => $id, 'score' => $score, 'details' => $details];
 	}
 
 
 	/**
-	 * @return Column<static, Uuid>
+	 * @return Column<self, Uuid>
 	 */
 	public function id(): Column
 	{
-		// @phpstan-ignore-next-line
-		return $this->columns['id'] ??= Column::from($this, self::getDatabaseColumns()['id'], $this->typeResolver);
+		return $this->columns['id'];
 	}
 
 
 	/**
-	 * @return Column<static, int>
+	 * @return Column<self, int>
 	 */
 	public function score(): Column
 	{
-		// @phpstan-ignore-next-line
-		return $this->columns['score'] ??= Column::from($this, self::getDatabaseColumns()['score'], $this->typeResolver);
+		return $this->columns['score'];
 	}
 
 
 	/**
-	 * @return Column<static, string|null>
+	 * @return Column<self, string|null>
 	 */
 	public function details(): Column
 	{
-		// @phpstan-ignore-next-line
-		return $this->columns['details'] ??= Column::from($this, self::getDatabaseColumns()['details'], $this->typeResolver);
+		return $this->columns['details'];
 	}
 }
