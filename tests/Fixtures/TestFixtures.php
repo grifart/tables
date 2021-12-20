@@ -23,7 +23,7 @@ final class TestFixtures
 	public static function createTypeResolver(): TypeResolver
 	{
 		$typeResolver = new TypeResolver();
-		$typeResolver->addResolutionByTypeName('uuid', new UuidType());
+		$typeResolver->addResolutionByLocation('public.test.id', new UuidType());
 		$typeResolver->addResolutionByLocation('public.test.score', new IntType());
 		return $typeResolver;
 	}

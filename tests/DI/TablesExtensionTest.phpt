@@ -44,7 +44,5 @@ $createContainer = function (string $configFile): Container
 
 	$typeResolver = $container->getByType(TypeResolver::class);
 	Assert::type(TypeResolver::class, $typeResolver);
-
-	Assert::type(UuidType::class, $typeResolver->resolveType('uuid', 'public.test.id'));
 	Assert::type(IntType::class, $typeResolver->resolveType('int', 'public.test.score'));
 })();

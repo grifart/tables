@@ -16,6 +16,8 @@ use Grifart\Tables\Types\InstantType;
 use Grifart\Tables\Types\IntType;
 use Grifart\Tables\Types\TextType;
 use Grifart\Tables\Types\TimeType;
+use Grifart\Tables\Types\UuidType;
+use Ramsey\Uuid\UuidInterface;
 
 final class TypeResolver
 {
@@ -47,6 +49,10 @@ final class TypeResolver
 
 		if (\class_exists(LocalDate::class)) {
 			$this->byTypeName['date'] = new DateType();
+		}
+
+		if (\interface_exists(UuidInterface::class)) {
+			$this->byTypeName['uuid'] = new UuidType();
 		}
 	}
 
