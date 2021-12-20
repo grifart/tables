@@ -4,6 +4,19 @@ declare(strict_types=1);
 
 namespace Grifart\Tables;
 
+use Brick\DateTime\Instant;
+use Brick\DateTime\LocalDate;
+use Brick\DateTime\LocalTime;
+use Brick\Math\BigDecimal;
+use Grifart\Tables\Types\BinaryType;
+use Grifart\Tables\Types\BooleanType;
+use Grifart\Tables\Types\DateType;
+use Grifart\Tables\Types\DecimalType;
+use Grifart\Tables\Types\InstantType;
+use Grifart\Tables\Types\IntType;
+use Grifart\Tables\Types\TextType;
+use Grifart\Tables\Types\TimeType;
+
 final class TypeResolver
 {
 	/** @var array<string, Type<mixed>> */
@@ -11,6 +24,31 @@ final class TypeResolver
 
 	/** @var array<string, Type<mixed>> */
 	private array $byLocation = [];
+
+	public function __construct()
+	{
+		// default types
+		$this->byTypeName['character'] = $this->byTypeName['character varying'] = $this->byTypeName['text'] = new TextType();
+		$this->byTypeName['smallint'] = $this->byTypeName['integer'] = $this->byTypeName['bigint'] = new IntType();
+		$this->byTypeName['boolean'] = new BooleanType();
+		$this->byTypeName['bytea'] = new BinaryType();
+
+		if (\class_exists(BigDecimal::class)) {
+			$this->byTypeName['decimal'] = $this->byTypeName['numeric'] = new DecimalType();
+		}
+
+		if (\class_exists(Instant::class)) {
+			$this->byTypeName['timestamp without time zone'] = new InstantType();
+		}
+
+		if (\class_exists(LocalTime::class)) {
+			$this->byTypeName['time without time zone'] = new TimeType();
+		}
+
+		if (\class_exists(LocalDate::class)) {
+			$this->byTypeName['date'] = new DateType();
+		}
+	}
 
 	/**
 	 * @param Type<mixed> $type

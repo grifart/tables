@@ -25,7 +25,7 @@ final class PostgresReflector
 		$result = $this->connection->query(<<<SQL
 	SELECT
 		pg_attribute.attname as name,
-		pg_catalog.format_type(pg_attribute.atttypid, pg_attribute.atttypmod) as type,
+		pg_catalog.format_type(pg_attribute.atttypid, NULL) as type,
 		not(pg_attribute.attnotnull) AS nullable,
 		pg_attribute.atthasdef AS `hasDefaultValue`
 	FROM pg_catalog.pg_attribute pg_attribute

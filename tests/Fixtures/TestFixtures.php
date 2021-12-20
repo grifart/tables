@@ -25,7 +25,6 @@ final class TestFixtures
 		$typeResolver = new TypeResolver();
 		$typeResolver->addResolutionByTypeName('uuid', new UuidType());
 		$typeResolver->addResolutionByLocation('public.test.score', new IntType());
-		$typeResolver->addResolutionByTypeName('character varying', new TextType());
 		return $typeResolver;
 	}
 }
