@@ -21,6 +21,7 @@ $composite = new class extends CompositeType {
 			new IntType(),
 			new IntType(),
 			new TextType(),
+			new TextType(),
 		);
 	}
 
@@ -40,5 +41,5 @@ $composite = new class extends CompositeType {
 	}
 };
 
-Assert::same('(42,,"com\\\\ple\\"x")', $composite->toDatabase([42, null, 'com\\ple"x']));
-Assert::same([42, null, 'com\\ple"x'], $composite->fromDatabase('(42,,"com\\\\ple""x")'));
+Assert::same('(42,,"com\\\\ple\\"x","(")', $composite->toDatabase([42, null, 'com\\ple"x', '(']));
+Assert::same([42, null, 'com\\ple"x', '('], $composite->fromDatabase('(42,,"com\\\\ple""x","(")'));
