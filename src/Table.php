@@ -21,4 +21,9 @@ interface Table
 
 	/** @return ColumnMetadata[] */
 	public static function getDatabaseColumns(): array;
+
+	/**
+	 * @return Type<mixed>
+	 */
+	public function getTypeOf(string $columnName): Type;
 }

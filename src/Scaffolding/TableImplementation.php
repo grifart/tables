@@ -261,6 +261,15 @@ final class TableImplementation implements Capability
 
 		$columnsProperty->addComment(\sprintf('@var array{%s}', \implode(', ', $columnsShape)));
 		$constructor->addBody('$this->columns = ?;', [$columnInitializers]);
+
+		$namespace->addUse(Type::class);
+		$getTypeOf = $classType->addMethod('getTypeOf')
+			->setPublic()
+			->setReturnType(Type::class);
+
+		$getTypeOf->addParameter('columnName')->setType('string');
+		$getTypeOf->addBody('return $this->columns[$columnName]->getType();');
+		$getTypeOf->addComment('@return Type<mixed>');
 	}
 
 	private function implementConfigMethodReturningClass(Code\PhpNamespace $namespace, Code\ClassType $classType, string $name, string $class): void

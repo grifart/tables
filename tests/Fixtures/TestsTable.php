@@ -13,6 +13,7 @@ use Grifart\Tables\ColumnMetadata;
 use Grifart\Tables\RowNotFound;
 use Grifart\Tables\Table;
 use Grifart\Tables\TableManager;
+use Grifart\Tables\Type;
 use Grifart\Tables\TypeResolver;
 
 final class TestsTable implements Table
@@ -183,5 +184,16 @@ final class TestsTable implements Table
 	public function details(): Column
 	{
 		return $this->columns['details'];
+	}
+
+
+	/**
+	 * @return Type<mixed>
+	 */
+	public function getTypeOf(string $columnName): Type
+	{
+		/** @var Type<mixed> $type */
+		$type = $this->columns[$columnName]->getType();
+		return $type;
 	}
 }
