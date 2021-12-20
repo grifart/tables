@@ -52,7 +52,7 @@ final class ArrayType implements Type
 					return '""';
 				}
 
-				if (\preg_match('/[,\\"\s]/', $mapped)) {
+				if (\preg_match('/[,\\"\s]/', $mapped) && ! ($this->itemType instanceof self)) {
 					return \sprintf('"%s"', \addcslashes($mapped, '"\\'));
 				}
 
@@ -97,7 +97,7 @@ final class ArrayType implements Type
 				// parse to the end but only keep raw value so that it can be recursively parsed in fromDatabase()
 				$subArrayStart = $i;
 				$this->parseArray($value, $i, $i);
-				$item = \substr($value, $subArrayStart, $i - $subArrayStart);
+				$item = \substr($value, $subArrayStart, $i - $subArrayStart + 1);
 			} elseif ( ! $string && $char ===',') {
 				$result[] = $item !== 'NULL' ? $item : null;
 				$item = '';
