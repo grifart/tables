@@ -11,10 +11,8 @@ require __DIR__ . '/../bootstrap.php';
 
 $type = new IntType();
 
-Assert::same(null, $type->fromDatabase(null));
 Assert::same(42, $type->fromDatabase(42));
 Assert::same(42, $type->fromDatabase('42'));
 
-Assert::same(null, $type->toDatabase(null));
 Assert::same(42, $type->toDatabase(42));
 Assert::same(42, $type->toDatabase('42'));

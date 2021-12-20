@@ -5,14 +5,11 @@ declare(strict_types=1);
 namespace Grifart\Tables\Tests\Fixtures;
 
 use Dibi\Connection;
-use Grifart\ClassScaffolder\Definition\Types\Type as PhpType;
 use Grifart\Tables\TableManager;
-use Grifart\Tables\Type;
 use Grifart\Tables\TypeResolver;
 use Grifart\Tables\Types\IntType;
 use Grifart\Tables\Types\TextType;
 use Nette\StaticClass;
-use function Grifart\ClassScaffolder\Definition\Types\resolve;
 
 final class TestFixtures
 {
@@ -27,38 +24,8 @@ final class TestFixtures
 	{
 		$typeResolver = new TypeResolver();
 		$typeResolver->addResolutionByTypeName('uuid', new UuidType());
-		$typeResolver->addResolutionByLocation('public.test.score', new /** @implements Type<int> */ class implements Type {
-			public function getPhpType(): PhpType
-			{
-				return resolve('int');
-			}
-
-			public function toDatabase(mixed $value): mixed
-			{
-				return $value;
-			}
-
-			public function fromDatabase(mixed $value): mixed
-			{
-				return $value !== null ? (int) $value : null;
-			}
-		});
-		$typeResolver->addResolutionByTypeName('character varying', new /** @implements Type<string> */ class implements Type {
-			public function getPhpType(): PhpType
-			{
-				return resolve('string');
-			}
-
-			public function toDatabase(mixed $value): mixed
-			{
-				return $value;
-			}
-
-			public function fromDatabase(mixed $value): mixed
-			{
-				return $value;
-			}
-		});
+		$typeResolver->addResolutionByLocation('public.test.score', new IntType());
+		$typeResolver->addResolutionByTypeName('character varying', new TextType());
 		return $typeResolver;
 	}
 }

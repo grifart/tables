@@ -14,12 +14,12 @@ interface Type
 	public function getPhpType(): PhpType;
 
 	/**
-	 * @param T|null $value
+	 * @param T $value
 	 */
 	public function toDatabase(mixed $value): mixed;
 
 	/**
-	 * @return T|null
+	 * @return T
 	 */
 	public function fromDatabase(mixed $value): mixed;
 }

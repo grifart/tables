@@ -20,11 +20,11 @@ final class IntType implements Type
 
 	public function toDatabase(mixed $value): mixed
 	{
-		return $value !== null ? (int) $value : null;
+		return (int) $value;
 	}
 
 	public function fromDatabase(mixed $value): mixed
 	{
-		return $value !== null ? (int) $value : null;
+		return (int) $value;
 	}
 }

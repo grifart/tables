@@ -39,10 +39,6 @@ final class ArrayType implements Type
 
 	public function toDatabase(mixed $value): mixed
 	{
-		if ($value === null) {
-			return null;
-		}
-
 		return \sprintf(
 			'{%s}',
 			\implode(',', map($value, function (mixed $item) {
@@ -50,6 +46,7 @@ final class ArrayType implements Type
 					return 'NULL';
 				}
 
+				/** @var ItemType $item */
 				$mapped = (string) $this->itemType->toDatabase($item);
 				if ($mapped === '') {
 					return '""';
@@ -66,14 +63,10 @@ final class ArrayType implements Type
 
 	public function fromDatabase(mixed $value): mixed
 	{
-		if ($value === null || $value === '') {
-			return null;
-		}
-
 		$result = $this->parseArray($value);
 		return map(
 			$result,
-			fn($item) => $this->itemType->fromDatabase($item),
+			fn($item) => $item !== null ? $this->itemType->fromDatabase($item) : null,
 		);
 	}
 

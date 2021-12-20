@@ -12,8 +12,5 @@ require __DIR__ . '/../bootstrap.php';
 
 $type = new DateType();
 
-Assert::same(null, $type->fromDatabase(null));
 Assert::same('2021-12-15', (string) $type->fromDatabase('2021-12-15'));
-
-Assert::same(null, $type->toDatabase(null));
 Assert::same('2021-12-15', $type->toDatabase(LocalDate::of(2021, 12, 15)));

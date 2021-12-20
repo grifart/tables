@@ -36,6 +36,10 @@ final class Column
 	 */
 	public function map(mixed $value): mixed
 	{
+		if ($value === null) {
+			return null;
+		}
+
 		return $this->resolvedType->toDatabase($value);
 	}
 

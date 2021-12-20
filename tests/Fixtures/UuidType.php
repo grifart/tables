@@ -20,11 +20,11 @@ final class UuidType implements Type
 
 	public function toDatabase(mixed $value): mixed
 	{
-		return $value?->get();
+		return $value->get();
 	}
 
 	public function fromDatabase(mixed $value): mixed
 	{
-		return $value !== null ? new Uuid($value) : null;
+		return new Uuid($value);
 	}
 }

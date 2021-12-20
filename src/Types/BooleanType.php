@@ -20,19 +20,11 @@ final class BooleanType implements Type
 
 	public function toDatabase(mixed $value): mixed
 	{
-		if ($value === null) {
-			return null;
-		}
-
 		return $value ? 't' : 'f';
 	}
 
 	public function fromDatabase(mixed $value): mixed
 	{
-		if ($value === null) {
-			return null;
-		}
-
 		return $value === 't';
 	}
 }

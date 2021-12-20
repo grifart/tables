@@ -33,7 +33,7 @@ final class TableManager
 			'INTO %n.%n', $table::getSchema(), $table::getTableName(),
 			map(
 				$changes->getModifications(),
-				static fn(mixed $value, string $columnName) => $table->$columnName()->getType()->toDatabase($value),
+				static fn(mixed $value, string $columnName) => $value !== null ? $table->$columnName()->getType()->toDatabase($value) : null,
 			),
 		);
 		\assert($this->connection->getAffectedRows() === 1);
@@ -87,7 +87,7 @@ final class TableManager
 			$modelRows[] = $rowClass::reconstitute(
 				map(
 					$dibiRow->toArray(),
-					static fn(mixed $value, string $columnName) => $table->$columnName()->getType()->fromDatabase($value),
+					static fn(mixed $value, string $columnName) => $value !== null ? $table->$columnName()->getType()->fromDatabase($value) : null,
 				),
 			);
 		}
@@ -109,7 +109,7 @@ final class TableManager
 			'SET %a',
 			map(
 				$changes->getModifications(),
-				static fn(mixed $value, string $columnName) => $table->$columnName()->getType()->toDatabase($value),
+				static fn(mixed $value, string $columnName) => $value !== null ? $table->$columnName()->getType()->toDatabase($value) : null,
 			),
 			'WHERE %and', $primaryKey->getQuery($table),
 		);

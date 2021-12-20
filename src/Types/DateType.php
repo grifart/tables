@@ -21,15 +21,11 @@ final class DateType implements Type
 
 	public function toDatabase(mixed $value): mixed
 	{
-		return $value !== null
-			? (string) $value
-			: null;
+		return (string) $value;
 	}
 
 	public function fromDatabase(mixed $value): mixed
 	{
-		return $value !== null
-			?  LocalDate::parse($value)
-			: null;
+		return LocalDate::parse($value);
 	}
 }

@@ -37,17 +37,11 @@ final class InstantType implements Type
 
 	public function toDatabase(mixed $value): mixed
 	{
-		return $value !== null
-			? (string) $value // UTC
-			: null;
+		return (string) $value; // UTC
 	}
 
 	public function fromDatabase(mixed $value): mixed
 	{
-		if ($value === null) {
-			return null;
-		}
-
 		$local = LocalDateTime::parse($value, self::$parser);
 		return $local->atTimeZone(TimeZone::utc())->getInstant();
 	}

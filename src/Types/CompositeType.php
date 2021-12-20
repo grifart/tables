@@ -76,7 +76,7 @@ abstract class CompositeType implements Type
 		\assert(\count($result) === \count($this->types));
 		return map(
 			$result,
-			fn($item, $index) => $this->types[$index]->fromDatabase($item),
+			fn($item, $index) => $item !== null ? $this->types[$index]->fromDatabase($item) : null,
 		);
 	}
 

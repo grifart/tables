@@ -20,10 +20,6 @@ final class BinaryType implements Type
 
 	public function toDatabase(mixed $value): mixed
 	{
-		if ($value === null) {
-			return null;
-		}
-
 		$unpacked = \unpack('H*', $value);
 		\assert(\is_array($unpacked));
 
@@ -32,10 +28,6 @@ final class BinaryType implements Type
 
 	public function fromDatabase(mixed $value): mixed
 	{
-		if ($value === null) {
-			return null;
-		}
-
 		$result = \preg_match('/^\\\\x([0-9a-f]+)$/i', $value, $matches);
 		\assert($result !== false);
 

@@ -21,15 +21,11 @@ final class TimeType implements Type
 
 	public function toDatabase(mixed $value): mixed
 	{
-		return $value !== null
-			? (string) $value
-			: null;
+		return (string) $value;
 	}
 
 	public function fromDatabase(mixed $value): mixed
 	{
-		return $value !== null
-			?  LocalTime::parse($value)
-			: null;
+		return LocalTime::parse($value);
 	}
 }
