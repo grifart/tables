@@ -18,12 +18,12 @@ final class IntType implements Type
 		return resolve('int');
 	}
 
-	public function toDatabase(mixed $value): mixed
+	public function toDatabase(mixed $value): int
 	{
 		return (int) $value;
 	}
 
-	public function fromDatabase(mixed $value): mixed
+	public function fromDatabase(mixed $value): int
 	{
 		return (int) $value;
 	}

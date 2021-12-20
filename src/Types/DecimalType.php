@@ -19,12 +19,12 @@ final class DecimalType implements Type
 		return resolve(BigDecimal::class);
 	}
 
-	public function toDatabase(mixed $value): mixed
+	public function toDatabase(mixed $value): string
 	{
 		return (string) $value;
 	}
 
-	public function fromDatabase(mixed $value): mixed
+	public function fromDatabase(mixed $value): BigDecimal
 	{
 		return BigDecimal::of($value);
 	}

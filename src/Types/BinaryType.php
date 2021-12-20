@@ -18,7 +18,7 @@ final class BinaryType implements Type
 		return resolve('string');
 	}
 
-	public function toDatabase(mixed $value): mixed
+	public function toDatabase(mixed $value): string
 	{
 		$unpacked = \unpack('H*', $value);
 		\assert(\is_array($unpacked));
@@ -26,7 +26,7 @@ final class BinaryType implements Type
 		return \sprintf('\x%s', \implode('', $unpacked));
 	}
 
-	public function fromDatabase(mixed $value): mixed
+	public function fromDatabase(mixed $value): string
 	{
 		$result = \preg_match('/^\\\\x([0-9a-f]+)$/i', $value, $matches);
 		\assert($result !== false);

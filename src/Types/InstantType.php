@@ -35,12 +35,12 @@ final class InstantType implements Type
 		return resolve(Instant::class);
 	}
 
-	public function toDatabase(mixed $value): mixed
+	public function toDatabase(mixed $value): string
 	{
 		return (string) $value; // UTC
 	}
 
-	public function fromDatabase(mixed $value): mixed
+	public function fromDatabase(mixed $value): Instant
 	{
 		$local = LocalDateTime::parse($value, self::$parser);
 		return $local->atTimeZone(TimeZone::utc())->getInstant();

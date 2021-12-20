@@ -18,12 +18,12 @@ final class TextType implements Type
 		return resolve('string');
 	}
 
-	public function toDatabase(mixed $value): mixed
+	public function toDatabase(mixed $value): string
 	{
 		return $value;
 	}
 
-	public function fromDatabase(mixed $value): mixed
+	public function fromDatabase(mixed $value): string
 	{
 		return $value;
 	}

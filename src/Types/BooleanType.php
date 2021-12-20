@@ -18,12 +18,12 @@ final class BooleanType implements Type
 		return resolve('bool');
 	}
 
-	public function toDatabase(mixed $value): mixed
+	public function toDatabase(mixed $value): string
 	{
 		return $value ? 't' : 'f';
 	}
 
-	public function fromDatabase(mixed $value): mixed
+	public function fromDatabase(mixed $value): bool
 	{
 		return $value === 't';
 	}

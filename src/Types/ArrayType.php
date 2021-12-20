@@ -37,7 +37,7 @@ final class ArrayType implements Type
 		return listOf($this->itemType->getPhpType());
 	}
 
-	public function toDatabase(mixed $value): mixed
+	public function toDatabase(mixed $value): string
 	{
 		return \sprintf(
 			'{%s}',
@@ -61,7 +61,7 @@ final class ArrayType implements Type
 		);
 	}
 
-	public function fromDatabase(mixed $value): mixed
+	public function fromDatabase(mixed $value): array
 	{
 		$result = $this->parseArray($value);
 		return map(
