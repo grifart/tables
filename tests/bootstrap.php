@@ -19,5 +19,9 @@ function connect(): Connection {
 	$connection = require __DIR__ . '/createConnection.local.php';
 	\assert($connection instanceof Connection);
 
+	if ($connection->nativeQuery("SELECT to_regclass('public.test');")->fetchSingle() === null) {
+		throw new \RuntimeException('Uninitialized database. Please run `php tests/initializeDatabase.php` to initialize the database schema for tests.');
+	}
+
 	return $connection;
 }
