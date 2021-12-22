@@ -3,6 +3,8 @@
 
 namespace Grifart\Tables;
 
+use Grifart\Tables\Conditions\Condition;
+
 /**
  * @template TableType of Table
  */
@@ -11,9 +13,9 @@ interface PrimaryKey
 
 	/**
 	 * @param TableType $table
-	 * @return array<string, mixed> query used in WHERE to narrow down results into one record
+	 * @return Condition<mixed>[]
 	 */
-	public function getQuery(Table $table): array;
+	public function getConditions(Table $table): array;
 
 	/** @return static */
 	//public static function fromRow($row);

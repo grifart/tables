@@ -12,6 +12,7 @@ use Grifart\Tables\CaseConversion;
 use Grifart\Tables\Column;
 use Grifart\Tables\ColumnMetadata;
 use Grifart\Tables\ColumnNotFound;
+use Grifart\Tables\Conditions\Condition;
 use Grifart\Tables\RowNotFound;
 use Grifart\Tables\Table;
 use Grifart\Tables\TableManager;
@@ -110,22 +111,28 @@ final class TableImplementation implements Capability
 				'return $row;'
 			);
 
-		$classType->addMethod('findBy')
-			->setParameters([
-				(new Code\Parameter('conditions'))
-					->setType('array')
-			])
-			->addComment('@param mixed[] $conditions')
+		$classType->addMethod('findAll')
 			->addComment('@return ' . $namespace->simplifyName($this->rowClass) . '[]')
 			->setReturnType('array')
 			->setBody(
-				'/** @var ?[] $result */' . "\n" .
-				'$result = $this->tableManager->findBy($this, $conditions);' . "\n" .
+				"/** @var ?[] \$result */\n" .
+				"\$result = \$this->tableManager->findAll(\$this);\n" .
 				'return $result;',
-				[
-					new Code\PhpLiteral($namespace->simplifyName($this->rowClass))
-				]
+				[new Code\PhpLiteral($namespace->simplifyName($this->rowClass))],
 			);
+
+		$namespace->addUse(Condition::class);
+
+		$classType->addMethod('findBy')
+			->setParameters([
+				(new Code\Parameter('conditions'))->setType('array'),
+			])
+			->addComment('@param Condition<mixed>[] $conditions')
+			->addComment('@return ' . $namespace->simplifyName($this->rowClass) . '[]')
+			->setReturnType('array')
+			->addBody('/** @var ?[] $result */', [new Code\PhpLiteral($namespace->simplifyName($this->rowClass))])
+			->addBody('$result = $this->tableManager->findBy($this, $conditions);')
+			->addBody('return $result;');
 
 		$classType->addMethod('newEmpty')
 			->setReturnType($this->modificationClass)

@@ -10,6 +10,7 @@ namespace Grifart\Tables\Tests\Fixtures;
 
 use Grifart\Tables\PrimaryKey;
 use Grifart\Tables\Table;
+use function Grifart\Tables\Conditions\equalTo;
 
 /**
  * @implements PrimaryKey<TestsTable>
@@ -33,11 +34,11 @@ final class TestPrimaryKey implements PrimaryKey
 	}
 
 
-	public function getQuery(Table $table): array
+	public function getConditions(Table $table): array
 	{
-		$query = [];
-		$query[$table::ID] = $table->id()->map($this->id);
-		return $query;
+		return [
+			$table->id()->is(equalTo($this->id)),
+		];
 	}
 
 

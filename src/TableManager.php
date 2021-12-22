@@ -1,15 +1,14 @@
-<?php declare(strict_types=1);
+<?php
 
+declare(strict_types=1);
 
 namespace Grifart\Tables;
 
-
 use Dibi\Connection;
+use Grifart\Tables\Conditions\Condition;
 use function Functional\map;
 
 // todo: error handling
-// todo: mapping of primary key!
-// todo: mapping of where() clause
 // todo: mapping of orderBy() clause
 // todo: mapping of exceptions
 
@@ -47,7 +46,7 @@ final class TableManager
 	 */
 	public function find(Table $table, PrimaryKey $primaryKey): ?Row
 	{
-		$rows = $this->findBy($table, $primaryKey->getQuery($table));
+		$rows = $this->findBy($table, $primaryKey->getConditions($table));
 		if (\count($rows) === 1) {
 			$row = \reset($rows);
 			\assert($row instanceof Row, 'It cannot return false as there must be one element in array');
@@ -60,10 +59,24 @@ final class TableManager
 	/**
 	 * @template TableType of Table
 	 * @param TableType $table
-	 * @param array<string, mixed> $conditions Conditions provides low-level access to "where" clause concatenated by %and.
-	 *                                         More: https://dibiphp.com/en/documentation
-	 *                                         Note! Types and names are currently NOT mapped.
-	 *                                         Please follow https://gitlab.grifart.cz/grifart/tables/-/issues/2 on progress.
+	 * @return Row[]
+	 */
+	public function findAll(Table $table): array
+	{
+		return $this->findBy($table, [
+			new /** @implements Condition<never> */ class implements Condition {
+				public function format(): array
+				{
+					return ['true'];
+				}
+			},
+		]);
+	}
+
+	/**
+	 * @template TableType of Table
+	 * @param TableType $table
+	 * @param Condition<mixed>[] $conditions
 	 * @return Row[] (subclass of row)
 	 */
 	public function findBy(Table $table, array $conditions): array
@@ -71,8 +84,9 @@ final class TableManager
 		$result = $this->connection->query(
 			'SELECT *',
 			'FROM %n.%n', $table::getSchema(), $table::getTableName(),
-			'WHERE %and', \count($conditions) === 0 ? ['true'] : $conditions
+			'WHERE %and', map($conditions, fn(Condition $condition) => $condition->format()),
 		);
+
 		foreach ($table::getDatabaseColumns() as $column) {
 			$result->setType($column->getName(), NULL);
 		}
@@ -111,7 +125,10 @@ final class TableManager
 				$changes->getModifications(),
 				static fn(mixed $value, string $columnName) => $value !== null ? $table->getTypeOf($columnName)->toDatabase($value) : null,
 			),
-			'WHERE %and', $primaryKey->getQuery($table),
+			'WHERE %and', map(
+				$primaryKey->getConditions($table),
+				fn(Condition $condition) => $condition->format(),
+			),
 		);
 		$affectedRows = $this->connection->getAffectedRows();
 		if ($affectedRows !== 1) {
@@ -133,7 +150,10 @@ final class TableManager
 		$this->connection->query(
 			'DELETE',
 			'FROM %n.%n', $table::getSchema(), $table::getTableName(),
-			'WHERE %and', $primaryKey->getQuery($table),
+			'WHERE %and', map(
+				$primaryKey->getConditions($table),
+				fn(Condition $condition) => $condition->format(),
+			),
 		);
 		\assert($this->connection->getAffectedRows() === 1);
 	}

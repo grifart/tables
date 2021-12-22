@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Grifart\Tables\Tests;
 
-use Dibi\Connection;
 use Grifart\Tables\Tests\Fixtures\TestFixtures;
 use Grifart\Tables\Tests\Fixtures\TestPrimaryKey;
 use Grifart\Tables\Tests\Fixtures\TestsTable;
 use Grifart\Tables\Tests\Fixtures\Uuid;
 use Tester\Assert;
+use function Grifart\Tables\Conditions\greaterThanOrEqualTo;
 
 require __DIR__ . '/bootstrap.php';
 
@@ -23,14 +23,14 @@ $table = new TestsTable(
 	TestFixtures::createTypeResolver(),
 );
 
-$all = $table->findBy([]);
+$all = $table->findAll();
 Assert::count(2, $all);
 
 $changeSet = $table->new(new Uuid('9493decd-4b9c-45d6-9960-0c94dc9be353'), -5);
 $changeSet->modifyDetails('👎');
 $table->save($changeSet);
 
-$all = $table->findBy([]);
+$all = $table->findAll();
 Assert::count(3, $all);
 
 $byId = $table->get(TestPrimaryKey::from(new Uuid('9493decd-4b9c-45d6-9960-0c94dc9be353')));
@@ -38,7 +38,7 @@ Assert::same(-5, $byId->getScore());
 Assert::same('👎', $byId->getDetails());
 
 $nonNegative = $table->findBy([
-	['%n >= %i', $table::SCORE, $table->SCORE()->map(0)],
+	$table->score()->is(greaterThanOrEqualTo(0)),
 ]);
 Assert::count(2, $nonNegative);
 
