@@ -7,19 +7,19 @@ namespace Grifart\Tables;
 use Grifart\ClassScaffolder\Definition\Types\Type as PhpType;
 
 /**
- * @template T
+ * @template ValueType
  */
 interface Type
 {
 	public function getPhpType(): PhpType;
 
 	/**
-	 * @param T $value
+	 * @param ValueType $value
 	 */
 	public function toDatabase(mixed $value): mixed;
 
 	/**
-	 * @return T
+	 * @return ValueType
 	 */
 	public function fromDatabase(mixed $value): mixed;
 }

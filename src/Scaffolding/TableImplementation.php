@@ -23,7 +23,6 @@ final class TableImplementation implements Capability
 {
 	/**
 	 * @param array<string, ColumnMetadata> $columnMetadata
-	 * @param array<string, Type<mixed>> $resolvedColumnTypes
 	 * @param array<string, PhpType> $columnPhpTypes
 	 */
 	public function __construct(
@@ -33,7 +32,6 @@ final class TableImplementation implements Capability
 		private string $rowClass,
 		private string $modificationClass,
 		private array $columnMetadata,
-		private array $resolvedColumnTypes,
 		private array $columnPhpTypes,
 	) {}
 

@@ -20,12 +20,6 @@ use function Grifart\ClassScaffolder\Definition\Types\nullable;
 final class Scaffolding
 {
 
-	private static function location(string $schema, string $table, string $column): string
-	{
-		return "$schema.$table.$column";
-	}
-
-
 	/**
 	 * Usage:
 	 * ```php
@@ -105,7 +99,6 @@ final class Scaffolding
 				$rowClassName,
 				$modificationsClassName,
 				$columnMetadata,
-				$columnResolvedTypes,
 				$columnPhpTypes,
 			));
 
