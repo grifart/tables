@@ -10,6 +10,7 @@ namespace Grifart\Tables\Tests\Fixtures;
 
 use Grifart\Tables\Column;
 use Grifart\Tables\ColumnMetadata;
+use Grifart\Tables\ColumnNotFound;
 use Grifart\Tables\RowNotFound;
 use Grifart\Tables\Table;
 use Grifart\Tables\TableManager;
@@ -188,12 +189,14 @@ final class TestsTable implements Table
 
 
 	/**
+	 * @internal
 	 * @return Type<mixed>
 	 */
 	public function getTypeOf(string $columnName): Type
 	{
+		$column = $this->columns[$columnName] ?? throw ColumnNotFound::of($columnName, \get_class($this));
 		/** @var Type<mixed> $type */
-		$type = $this->columns[$columnName]->getType();
+		$type = $column->getType();
 		return $type;
 	}
 }

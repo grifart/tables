@@ -39,6 +39,13 @@ final class UnresolvableType extends UsageException
 	}
 }
 
+final class ColumnNotFound extends UsageException {
+	public static function of(string $columnName, string $tableClassName): self
+	{
+		return new self("Column '$columnName' not found in '$tableClassName'.");
+	}
+}
+
 final class GivenSearchCriteriaHaveNotMatchedAnyRows extends RuntimeException {};
 
 final class RowNotFound extends RuntimeException {};

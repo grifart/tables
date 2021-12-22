@@ -11,13 +11,13 @@ use Grifart\ClassScaffolder\Definition\Types\Type as PhpType;
 use Grifart\Tables\CaseConversion;
 use Grifart\Tables\Column;
 use Grifart\Tables\ColumnMetadata;
+use Grifart\Tables\ColumnNotFound;
 use Grifart\Tables\RowNotFound;
 use Grifart\Tables\Table;
 use Grifart\Tables\TableManager;
 use Grifart\Tables\Type;
 use Grifart\Tables\TypeResolver;
 use Nette\PhpGenerator as Code;
-use function Functional\map;
 
 final class TableImplementation implements Capability
 {
@@ -263,12 +263,17 @@ final class TableImplementation implements Capability
 		$constructor->addBody('$this->columns = ?;', [$columnInitializers]);
 
 		$namespace->addUse(Type::class);
+		$namespace->addUse(ColumnNotFound::class);
 		$getTypeOf = $classType->addMethod('getTypeOf')
 			->setPublic()
 			->setReturnType(Type::class);
 
 		$getTypeOf->addParameter('columnName')->setType('string');
-		$getTypeOf->addBody('return $this->columns[$columnName]->getType();');
+		$getTypeOf->addBody('$column = $this->columns[$columnName] ?? throw ColumnNotFound::of($columnName, \get_class($this));');
+		$getTypeOf->addBody('/** @var Type<mixed> $type */');
+		$getTypeOf->addBody('$type = $column->getType();');
+		$getTypeOf->addBody('return $type;');
+		$getTypeOf->addComment('@internal');
 		$getTypeOf->addComment('@return Type<mixed>');
 	}
 
