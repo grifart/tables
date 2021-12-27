@@ -1,13 +1,16 @@
-<?php declare(strict_types=1);
+<?php
 
+declare(strict_types=1);
 
 namespace Grifart\Tables;
 
-
+use Nette\StaticClass;
 use Nette\Utils\Strings;
 
-final class CaseConvertion
+final class CaseConversion
 {
+	use StaticClass;
+
 	public static function toUnderscores(string $input): string {
 		$withUnderscores = \preg_replace(
 			\sprintf('/%s|%s|%s/',

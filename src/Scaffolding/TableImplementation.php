@@ -7,49 +7,33 @@ namespace Grifart\Tables\Scaffolding;
 use Grifart\ClassScaffolder\Capabilities\Capability;
 use Grifart\ClassScaffolder\ClassInNamespace;
 use Grifart\ClassScaffolder\Definition\ClassDefinition;
-use Grifart\ClassScaffolder\Definition\Types\Type;
-use Grifart\Tables\CaseConvertion;
+use Grifart\ClassScaffolder\Definition\Types\Type as PhpType;
+use Grifart\Tables\CaseConversion;
+use Grifart\Tables\Column;
+use Grifart\Tables\ColumnMetadata;
+use Grifart\Tables\ColumnNotFound;
 use Grifart\Tables\RowNotFound;
 use Grifart\Tables\Table;
 use Grifart\Tables\TableManager;
+use Grifart\Tables\Type;
+use Grifart\Tables\TypeResolver;
 use Nette\PhpGenerator as Code;
 
 final class TableImplementation implements Capability
 {
-
-	private string $schema;
-
-	private string $tableName;
-
-	private string $primaryKeyClass;
-
-	private string $rowClass;
-
-	private string $modificationClass;
-
-	/** @var Column[] */
-	private array $columnInfo;
-
-	/** @var array<string, Type> */
-	private array $columnPhpTypes;
-
 	/**
-	 * @param array<string, Column> $columnInfo
-	 * @param array<string, Type> $columnPhpTypes
+	 * @param array<string, ColumnMetadata> $columnMetadata
+	 * @param array<string, PhpType> $columnPhpTypes
 	 */
-	public function __construct(string $schema, string $tableName, string $primaryKeyClass, string $rowClass, string $modificationClass, array $columnInfo, array $columnPhpTypes)
-	{
-		$this->schema = $schema;
-		$this->tableName = $tableName;
-
-		$this->primaryKeyClass = $primaryKeyClass;
-		$this->rowClass = $rowClass;
-		$this->modificationClass = $modificationClass;
-
-		$this->columnInfo = $columnInfo;
-		$this->columnPhpTypes = $columnPhpTypes;
-	}
-
+	public function __construct(
+		private string $schema,
+		private string $tableName,
+		private string $primaryKeyClass,
+		private string $rowClass,
+		private string $modificationClass,
+		private array $columnMetadata,
+		private array $columnPhpTypes,
+	) {}
 
 	public function applyTo(
 		ClassDefinition $definition,
@@ -73,11 +57,11 @@ final class TableImplementation implements Capability
 		$this->implementConfigMethodReturningClass($namespace, $classType, 'getModificationClass', $this->modificationClass);
 
 		// column info:
-		$namespace->addUse(Column::class);
+		$namespace->addUse(ColumnMetadata::class);
 		$columnsDefinitions = []; // name => PhpLiteral
 		$columnsArrayTemplate = [];
-		foreach($this->columnInfo as $column) {
-			$columnsArrayTemplate[] = "\t? => new Column(?, ?, ?, ?)";
+		foreach($this->columnMetadata as $column) {
+			$columnsArrayTemplate[] = "\t? => new ColumnMetadata(?, ?, ?, ?)";
 			$columnsDefinitions[] = $column->getName();
 			$columnsDefinitions[] = $column->getName();
 			$columnsDefinitions[] = $column->getType();
@@ -88,7 +72,7 @@ final class TableImplementation implements Capability
 
 		$classType->addMethod('getDatabaseColumns')
 			->setReturnType('array')
-			->addComment("@return Column[]")
+			->addComment("@return ColumnMetadata[]")
 			->setStatic()
 			->setBody("return [\n".$columnsArrayTemplate."\n];", $columnsDefinitions);
 
@@ -131,7 +115,8 @@ final class TableImplementation implements Capability
 				(new Code\Parameter('conditions'))
 					->setType('array')
 			])
-			->setComment('@return ' . $namespace->simplifyName($this->rowClass) . '[]')
+			->addComment('@param mixed[] $conditions')
+			->addComment('@return ' . $namespace->simplifyName($this->rowClass) . '[]')
 			->setReturnType('array')
 			->setBody(
 				'/** @var ?[] $result */' . "\n" .
@@ -156,9 +141,9 @@ final class TableImplementation implements Capability
 				[new Code\PhpLiteral($namespace->simplifyName($this->modificationClass))],
 			);
 
-		foreach ($this->columnInfo as $columnInfo) {
-			if ( ! $columnInfo->hasDefaultValue()) {
-				$fieldName = $columnInfo->getName();
+		foreach ($this->columnMetadata as $columnMetadata) {
+			if ( ! $columnMetadata->hasDefaultValue()) {
+				$fieldName = $columnMetadata->getName();
 				$fieldType = $this->columnPhpTypes[$fieldName];
 
 				$newMethod->addParameter($fieldName)
@@ -234,24 +219,60 @@ final class TableImplementation implements Capability
 			);
 
 		$namespace->addUse(TableManager::class);
-		$classType->addMethod('__construct')
-			->addPromotedParameter('tableManager')
-			->setType(TableManager::class)
-			->setPrivate();
+		$namespace->addUse(TypeResolver::class);
+		$constructor = $classType->addMethod('__construct');
+		$constructor->addPromotedParameter('tableManager')->setType(TableManager::class)->setPrivate();
+		$constructor->addPromotedParameter('typeResolver')->setType(TypeResolver::class)->setPrivate();
 
 
 
 
 
-		// add column constants
+		// add column constants and accessors
 
-		foreach ($this->columnInfo as $columnInfo) {
-			$classType->addConstant(
-				CaseConvertion::toUnderscores($columnInfo->getName()),
-				$columnInfo->getName()
-			)->setVisibility('public');
+		$namespace->addUse(Column::class);
 
+		$columnsProperty = $classType->addProperty('columns')
+			->setPrivate()
+			->setType('array');
+
+		$columnsShape = [];
+		$columnInitializers = [];
+
+		foreach ($this->columnMetadata as $columnInfo) {
+			$columnName = $columnInfo->getName();
+			$docCommentType = $this->columnPhpTypes[$columnName]->getDocCommentType($namespace);
+
+			$classType->addConstant(CaseConversion::toUnderscores($columnName), $columnName)->setPublic();
+
+			$classType->addMethod($columnName)
+				->setReturnType(Column::class)
+				->addComment(\sprintf('@return Column<self, %s>', $docCommentType))
+				->addBody('return $this->columns[?];', [$columnName]);
+
+			$columnsShape[] = \sprintf('%s: Column<self, %s>', $columnName, $docCommentType);
+
+			$constructor->addBody(\sprintf('/** @var Column<self, %s> $%s */', $docCommentType, $columnName));
+			$constructor->addBody('$? = Column::from($this, self::getDatabaseColumns()[?], $this->typeResolver);', [$columnName, $columnName]);
+			$columnInitializers[$columnName] = new Code\PhpLiteral('$?', [$columnName]);
 		}
+
+		$columnsProperty->addComment(\sprintf('@var array{%s}', \implode(', ', $columnsShape)));
+		$constructor->addBody('$this->columns = ?;', [$columnInitializers]);
+
+		$namespace->addUse(Type::class);
+		$namespace->addUse(ColumnNotFound::class);
+		$getTypeOf = $classType->addMethod('getTypeOf')
+			->setPublic()
+			->setReturnType(Type::class);
+
+		$getTypeOf->addParameter('columnName')->setType('string');
+		$getTypeOf->addBody('$column = $this->columns[$columnName] ?? throw ColumnNotFound::of($columnName, \get_class($this));');
+		$getTypeOf->addBody('/** @var Type<mixed> $type */');
+		$getTypeOf->addBody('$type = $column->getType();');
+		$getTypeOf->addBody('return $type;');
+		$getTypeOf->addComment('@internal');
+		$getTypeOf->addComment('@return Type<mixed>');
 	}
 
 	private function implementConfigMethodReturningClass(Code\PhpNamespace $namespace, Code\ClassType $classType, string $name, string $class): void

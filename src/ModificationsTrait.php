@@ -4,23 +4,27 @@
 namespace Grifart\Tables;
 
 
+/**
+ * @template TableType of Table
+ */
 trait ModificationsTrait //implements Changes
 {
 
 	/** @var mixed[] */
-	protected $modifications;
+	protected array $modifications = [];
 
-	/** @var PrimaryKey|null */
-	private $primaryKey;
+	/** @var PrimaryKey<TableType>|null */
+	private ?PrimaryKey $primaryKey = null;
 
 
 	private function __construct()
 	{
-		$this->modifications = [];
 	}
 
 
-	// PHP does not support parameter specialization
+	/**
+	 * @param PrimaryKey<TableType> $primaryKey
+	 */
 	private static function _update(PrimaryKey $primaryKey): self
 	{
 		$self = new static();
@@ -42,6 +46,9 @@ trait ModificationsTrait //implements Changes
 	}
 
 
+	/**
+	 * @return PrimaryKey<TableType>|null
+	 */
 	public function getPrimaryKey(): ?PrimaryKey
 	{
 		return $this->primaryKey;

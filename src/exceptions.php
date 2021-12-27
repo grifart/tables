@@ -18,15 +18,31 @@ final class ProbablyBrokenPrimaryIndexImplementation extends UsageException {
 	}
 };
 
-final class CouldNotMapTypeException extends UsageException
+final class TypeAlreadyRegistered extends UsageException
 {
-
-	public static function didYouRegisterTypeMapperFor(string $typeName, mixed $value): self
+	public static function forDatabaseType(string $typeName): self
 	{
-		return new self(
-			"Did you register type mapper for type '$typeName' and value of type "
-			. (\is_object($value) ? \get_class($value) : \gettype($value))
-		);
+		return new self("Cannot add resolution, a Type is already registered for database type '$typeName'.");
+	}
+
+	public static function forLocation(string $location): self
+	{
+		return new self("Cannot add resolution, a Type is already registered for location '$location'.");
+	}
+}
+
+final class UnresolvableType extends UsageException
+{
+	public static function of(string $location, string $typeName): self
+	{
+		return new self("No Type is registered either for location '$location' or database type '$typeName'.");
+	}
+}
+
+final class ColumnNotFound extends UsageException {
+	public static function of(string $columnName, string $tableClassName): self
+	{
+		return new self("Column '$columnName' not found in '$tableClassName'.");
 	}
 }
 

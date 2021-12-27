@@ -14,18 +14,21 @@ final class Definitions implements \IteratorAggregate
 	private function __construct(
 		private ClassDefinition $rowClass,
 		private ClassDefinition $modificationsClass,
+		private ?ClassDefinition $primaryKeyClass,
 		private ClassDefinition $tableClass,
 	) {}
 
 	public static function from(
 		ClassDefinition $rowClass,
 		ClassDefinition $modificationsClass,
+		ClassDefinition $primaryKeyClass,
 		ClassDefinition $tableClass,
 	): self
 	{
 		return new self(
 			$rowClass,
 			$modificationsClass,
+			$primaryKeyClass,
 			$tableClass,
 		);
 	}
@@ -42,6 +45,18 @@ final class Definitions implements \IteratorAggregate
 		return $this;
 	}
 
+	public function primaryKeyClassWith(Capability $capability, Capability ...$capabilities): self
+	{
+		$this->primaryKeyClass = $this->primaryKeyClass?->with($capability, ...$capabilities);
+		return $this;
+	}
+
+	public function withoutPrimaryKeyClass(): self
+	{
+		$this->primaryKeyClass = null;
+		return $this;
+	}
+
 	public function tableClassWith(Capability $capability, Capability ...$capabilities): self
 	{
 		$this->tableClass = $this->tableClass->with($capability, ...$capabilities);
@@ -54,6 +69,9 @@ final class Definitions implements \IteratorAggregate
 		yield $this->rowClass;
 		yield $this->modificationsClass;
 		yield $this->tableClass;
+		if ($this->primaryKeyClass !== null) {
+			yield $this->primaryKeyClass;
+		}
 	}
 
 }

@@ -1,0 +1,4 @@
+tables:
+	types:
+		byLocation:
+			public.test.score: Grifart\Tables\Types\IntType

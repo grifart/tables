@@ -5,6 +5,9 @@ namespace Grifart\Tables\Scaffolding;
 
 
 use Dibi\Connection;
+use Grifart\Tables\ColumnMetadata;
+use function Functional\map;
+use function Functional\reindex;
 
 final class PostgresReflector
 {
@@ -15,34 +18,31 @@ final class PostgresReflector
 
 	/**
 	 * source: https://stackoverflow.com/a/51897900/631369
-	 * @return Column[]
+	 *
+	 * @return ColumnMetadata[]
 	 */
-	function retrieveColumnInfo(string $schema, string $table): array {
+	function retrieveColumnMetadata(string $schema, string $table): array {
 		$result = $this->connection->query(<<<SQL
 	SELECT
-	`pg_attribute`.attname                                                    as `name`,
-	pg_catalog.format_type(`pg_attribute`.atttypid, `pg_attribute`.atttypmod) as `type`,
-	not(`pg_attribute`.attnotnull) AS `nullable`,
-	`pg_attribute`.atthasdef AS `hasDefaultValue`
-FROM
-	pg_catalog.pg_attribute `pg_attribute`
-WHERE
-	`pg_attribute`.attnum > 0
-	AND NOT `pg_attribute`.attisdropped
-	AND `pg_attribute`.attrelid = (
-	SELECT `pg_class`.oid
-		FROM pg_catalog.pg_class `pg_class`
-			LEFT JOIN pg_catalog.pg_namespace `pg_namespace` ON `pg_namespace`.oid = `pg_class`.relnamespace
-		WHERE
-			`pg_namespace`.nspname = %s
-			AND `pg_class`.relname = %s
-	);
+		pg_attribute.attname as name,
+		pg_catalog.format_type(pg_attribute.atttypid, NULL) as type,
+		not(pg_attribute.attnotnull) AS nullable,
+		pg_attribute.atthasdef AS `hasDefaultValue`
+	FROM pg_catalog.pg_attribute pg_attribute
+	WHERE pg_attribute.attnum > 0
+		AND NOT pg_attribute.attisdropped
+		AND pg_attribute.attrelid = (
+			SELECT pg_class.oid
+			FROM pg_catalog.pg_class pg_class
+			LEFT JOIN pg_catalog.pg_namespace pg_namespace ON pg_namespace.oid = pg_class.relnamespace
+			WHERE pg_namespace.nspname = %s AND pg_class.relname = %s
+		);
 SQL
 			,$schema, $table);
 		$results = [];
 		foreach($result->fetchAssoc('name') as $columnName => $columnInfo) {
 			\assert($columnInfo instanceof \Dibi\Row);
-			$results[$columnName] = new Column(
+			$results[$columnName] = new ColumnMetadata(
 				$columnInfo['name'],
 				$columnInfo['type'],
 				$columnInfo['nullable'],
@@ -50,6 +50,39 @@ SQL
 			);
 		}
 		return $results;
+	}
+
+	/**
+	 * @return string[]
+	 */
+	public function retrievePrimaryKeyColumns(string $schema, string $table): array
+	{
+		$columnsByPosition = $this->connection->query(<<<SQL
+SELECT pg_attribute.attnum, pg_attribute.attname
+FROM pg_catalog.pg_attribute
+JOIN pg_catalog.pg_class ON pg_class.oid = pg_attribute.attrelid
+LEFT JOIN pg_catalog.pg_namespace ON pg_namespace.oid = pg_class.relnamespace
+WHERE pg_namespace.nspname = %s AND pg_class.relname = %s;
+SQL
+			, $schema, $table)->fetchPairs('attnum', 'attname');
+
+		$rawPrimaryKeyColumnPositions = $this->connection->query(<<<SQL
+SELECT pg_index.indkey
+FROM pg_catalog.pg_index
+JOIN pg_catalog.pg_class ON pg_class.oid = pg_index.indrelid
+LEFT JOIN pg_catalog.pg_namespace ON pg_namespace.oid = pg_class.relnamespace
+WHERE pg_index.indisprimary AND pg_namespace.nspname = %s AND pg_class.relname = %s;
+SQL
+			, $schema, $table)->setType('indkey', null)->fetchSingle();
+
+		$primaryKeyColumnPositions = \explode(' ', $rawPrimaryKeyColumnPositions);
+		return reindex(
+			map(
+				$primaryKeyColumnPositions,
+				static fn(string $position) => $columnsByPosition[(int) $position],
+			),
+			static fn(string $name) => $name,
+		);
 	}
 
 }

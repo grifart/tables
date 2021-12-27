@@ -38,10 +38,12 @@ final class ModificationsImplementation implements Capability
 		$classType = $draft->getClassType();
 
 		$namespace->addUse(ModificationsTrait::class);
-		$classType->addTrait(ModificationsTrait::class);
+		$classType->addTrait(ModificationsTrait::class, true)
+			->addComment(\sprintf('@use ModificationsTrait<%s>', $namespace->simplifyName($this->relatedTableClass)));
 
 		$namespace->addUse(Modifications::class);
 		$classType->addImplement(Modifications::class);
+		$classType->addComment(\sprintf('@implements Modifications<%s>', $namespace->simplifyName($this->relatedTableClass)));
 
 		// ::update() constructor
 		$namespace->addUse($this->primaryKeyClass);

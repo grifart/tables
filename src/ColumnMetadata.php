@@ -1,10 +1,10 @@
-<?php declare(strict_types=1);
+<?php
 
+declare(strict_types=1);
 
-namespace Grifart\Tables\Scaffolding;
+namespace Grifart\Tables;
 
-
-final class Column
+final class ColumnMetadata
 {
 
 	public function __construct(
