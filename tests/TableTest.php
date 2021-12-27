@@ -10,6 +10,8 @@ use Grifart\Tables\Tests\Fixtures\TestsTable;
 use Grifart\Tables\Tests\Fixtures\Uuid;
 use Tester\Assert;
 use function Grifart\Tables\Conditions\greaterThanOrEqualTo;
+use function Grifart\Tables\OrderBy\asc;
+use function Grifart\Tables\OrderBy\desc;
 
 require __DIR__ . '/bootstrap.php';
 
@@ -40,8 +42,21 @@ $byId = $table->get(TestPrimaryKey::from(new Uuid('9493decd-4b9c-45d6-9960-0c94d
 Assert::same(-5, $byId->getScore());
 Assert::same('👎', $byId->getDetails());
 
-$nonNegative = $table->findBy($table->score()->is(greaterThanOrEqualTo(0)));
+$nonNegative = $table->findBy(
+	$table->score()->is(greaterThanOrEqualTo(0)),
+	orderBy: [asc($table->score())],
+);
 Assert::count(2, $nonNegative);
+Assert::same(0, $nonNegative[0]->getScore());
+Assert::same(42, $nonNegative[1]->getScore());
+
+$nonNegativeReversed = $table->findBy(
+	[$table->score()->is(greaterThanOrEqualTo(0))],
+	orderBy: [desc($table->score())],
+);
+Assert::count(2, $nonNegativeReversed);
+Assert::same(42, $nonNegativeReversed[0]->getScore());
+Assert::same(0, $nonNegativeReversed[1]->getScore());
 
 $zero = $table->get(TestPrimaryKey::from(new Uuid('2bec3f23-a210-455c-b907-bb69a99d07b2')));
 $zeroChangeSet = $table->edit($zero);
