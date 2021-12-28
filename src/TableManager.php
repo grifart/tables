@@ -11,6 +11,7 @@ use function Functional\map;
 // todo: error handling
 // todo: mapping of orderBy() clause
 // todo: mapping of exceptions
+// todo: paging/limit (needed?)
 
 final class TableManager
 {

@@ -10,7 +10,7 @@ namespace Grifart\Tables\Conditions;
 interface Condition
 {
 	/**
-	 * @return mixed[]
+	 * @return mixed[] the WHERE part of a Dibi query
 	 */
 	public function format(): array;
 }
