@@ -82,7 +82,7 @@ final class TableManager
 			'SELECT *',
 			'FROM %n.%n', $table::getSchema(), $table::getTableName(),
 			'WHERE %ex', (\is_array($conditions) ? CompositeCondition::and(...$conditions) : $conditions)->format(),
-			'%if', \count($orderBy) > 0, 'ORDER BY %by', map($orderBy, fn(OrderBy $orderBy) => $orderBy->format()), '%end',
+			'ORDER BY %by', \count($orderBy) > 0 ? map($orderBy, fn(OrderBy $orderBy) => $orderBy->format()) : [['%b', true]],
 		);
 
 		foreach ($table::getDatabaseColumns() as $column) {
