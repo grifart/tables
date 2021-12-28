@@ -14,6 +14,11 @@ interface Type
 	public function getPhpType(): PhpType;
 
 	/**
+	 * @return string[]
+	 */
+	public function getDatabaseTypes(): array;
+
+	/**
 	 * @param ValueType $value
 	 */
 	public function toDatabase(mixed $value): mixed;

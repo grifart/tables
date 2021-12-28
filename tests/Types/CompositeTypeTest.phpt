@@ -30,6 +30,11 @@ $composite = new class extends CompositeType {
 		return tuple('int', nullable('int'), 'string');
 	}
 
+	public function getDatabaseTypes(): array
+	{
+		return [];
+	}
+
 	public function toDatabase(mixed $value): mixed
 	{
 		return $this->tupleToDatabase($value);

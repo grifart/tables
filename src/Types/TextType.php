@@ -18,6 +18,11 @@ final class TextType implements Type
 		return resolve('string');
 	}
 
+	public function getDatabaseTypes(): array
+	{
+		return ['character', 'character varying', 'text'];
+	}
+
 	public function toDatabase(mixed $value): string
 	{
 		return $value;

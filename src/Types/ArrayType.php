@@ -37,6 +37,11 @@ final class ArrayType implements Type
 		return listOf($this->itemType->getPhpType());
 	}
 
+	public function getDatabaseTypes(): array
+	{
+		return [];
+	}
+
 	public function toDatabase(mixed $value): string
 	{
 		return \sprintf(

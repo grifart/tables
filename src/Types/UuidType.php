@@ -20,6 +20,11 @@ final class UuidType implements Type
 		return resolve(UuidInterface::class);
 	}
 
+	public function getDatabaseTypes(): array
+	{
+		return ['uuid'];
+	}
+
 	public function toDatabase(mixed $value): string
 	{
 		return $value->toString();

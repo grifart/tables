@@ -18,6 +18,17 @@ final class ProbablyBrokenPrimaryIndexImplementation extends UsageException {
 	}
 };
 
+final class MissingDatabaseTypeResolution extends UsageException
+{
+	/**
+	 * @param Type<mixed> $type
+	 */
+	public static function of(Type $type): self
+	{
+		return new self(\sprintf('Cannot auto-register type %s, it does not declare any matching database types.', \get_class($type)));
+	}
+}
+
 final class TypeAlreadyRegistered extends UsageException
 {
 	public static function forDatabaseType(string $typeName): self
