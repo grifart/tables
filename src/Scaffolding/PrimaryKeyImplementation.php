@@ -8,6 +8,8 @@ use Grifart\ClassScaffolder\Capabilities\Capability;
 use Grifart\ClassScaffolder\ClassInNamespace;
 use Grifart\ClassScaffolder\Definition\ClassDefinition;
 use Grifart\ClassScaffolder\Definition\Field;
+use Grifart\Tables\Conditions\CompositeCondition;
+use Grifart\Tables\Conditions\Condition;
 use Grifart\Tables\PrimaryKey;
 use Grifart\Tables\Table;
 use Nette\PhpGenerator\Literal;
@@ -49,13 +51,15 @@ final class PrimaryKeyImplementation implements Capability
 			),
 		]);
 
+		$namespace->addUse(Condition::class);
+		$namespace->addUse(CompositeCondition::class);
 		$namespace->addUseFunction('Grifart\Tables\Conditions\equalTo');
 
-		$getCondition = $classType->addMethod('getConditions')->setReturnType('array');
+		$getCondition = $classType->addMethod('getCondition')->setReturnType(Condition::class);
 		$getCondition->addParameter('table')->setType(Table::class);
 		$namespace->addUse(Table::class);
 
-		$getCondition->addBody('return [');
+		$getCondition->addBody('return CompositeCondition::and(');
 		foreach ($definition->getFields() as $field) {
 			$getCondition->addBody("\t\$table->?()->is(equalTo(\$this->?)),", [
 				$field->getName(),
@@ -63,6 +67,6 @@ final class PrimaryKeyImplementation implements Capability
 			]);
 		}
 
-		$getCondition->addBody('];');
+		$getCondition->addBody(');');
 	}
 }

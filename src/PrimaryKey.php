@@ -13,9 +13,9 @@ interface PrimaryKey
 
 	/**
 	 * @param TableType $table
-	 * @return Condition<mixed>[]
+	 * @return Condition<mixed>
 	 */
-	public function getConditions(Table $table): array;
+	public function getCondition(Table $table): Condition;
 
 	/** @return static */
 	//public static function fromRow($row);

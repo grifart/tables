@@ -46,7 +46,7 @@ final class TableManager
 	 */
 	public function find(Table $table, PrimaryKey $primaryKey): ?Row
 	{
-		$rows = $this->findBy($table, $primaryKey->getConditions($table));
+		$rows = $this->findBy($table, [$primaryKey->getCondition($table)]);
 		if (\count($rows) === 1) {
 			$row = \reset($rows);
 			\assert($row instanceof Row, 'It cannot return false as there must be one element in array');
@@ -125,10 +125,7 @@ final class TableManager
 				$changes->getModifications(),
 				static fn(mixed $value, string $columnName) => $value !== null ? $table->getTypeOf($columnName)->toDatabase($value) : null,
 			),
-			'WHERE %and', map(
-				$primaryKey->getConditions($table),
-				fn(Condition $condition) => $condition->format(),
-			),
+			'WHERE %ex', $primaryKey->getCondition($table)->format(),
 		);
 		$affectedRows = $this->connection->getAffectedRows();
 		if ($affectedRows !== 1) {
@@ -150,10 +147,7 @@ final class TableManager
 		$this->connection->query(
 			'DELETE',
 			'FROM %n.%n', $table::getSchema(), $table::getTableName(),
-			'WHERE %and', map(
-				$primaryKey->getConditions($table),
-				fn(Condition $condition) => $condition->format(),
-			),
+			'WHERE %ex', $primaryKey->getCondition($table)->format(),
 		);
 		\assert($this->connection->getAffectedRows() === 1);
 	}

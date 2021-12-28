@@ -8,6 +8,8 @@ declare(strict_types=1);
 
 namespace Grifart\Tables\Tests\Fixtures;
 
+use Grifart\Tables\Conditions\CompositeCondition;
+use Grifart\Tables\Conditions\Condition;
 use Grifart\Tables\PrimaryKey;
 use Grifart\Tables\Table;
 use function Grifart\Tables\Conditions\equalTo;
@@ -34,11 +36,11 @@ final class TestPrimaryKey implements PrimaryKey
 	}
 
 
-	public function getConditions(Table $table): array
+	public function getCondition(Table $table): Condition
 	{
-		return [
+		return CompositeCondition::and(
 			$table->id()->is(equalTo($this->id)),
-		];
+		);
 	}
 
 
