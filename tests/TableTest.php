@@ -23,14 +23,14 @@ $table = new TestsTable(
 	TestFixtures::createTypeResolver(),
 );
 
-$all = $table->findAll();
+$all = $table->getAll();
 Assert::count(2, $all);
 
 $changeSet = $table->new(new Uuid('9493decd-4b9c-45d6-9960-0c94dc9be353'), -5);
 $changeSet->modifyDetails('👎');
 $table->save($changeSet);
 
-$all = $table->findAll();
+$all = $table->getAll();
 Assert::count(3, $all);
 
 $byId = $table->get(TestPrimaryKey::from(new Uuid('9493decd-4b9c-45d6-9960-0c94dc9be353')));

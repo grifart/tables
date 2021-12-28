@@ -61,16 +61,9 @@ final class TableManager
 	 * @param TableType $table
 	 * @return Row[]
 	 */
-	public function findAll(Table $table): array
+	public function getAll(Table $table): array
 	{
-		return $this->findBy($table, [
-			new /** @implements Condition<never> */ class implements Condition {
-				public function format(): array
-				{
-					return ['true'];
-				}
-			},
-		]);
+		return $this->findBy($table, []);
 	}
 
 	/**

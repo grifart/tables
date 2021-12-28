@@ -95,10 +95,10 @@ final class TestsTable implements Table
 	/**
 	 * @return TestRow[]
 	 */
-	public function findAll(): array
+	public function getAll(): array
 	{
 		/** @var TestRow[] $result */
-		$result = $this->tableManager->findAll($this);
+		$result = $this->tableManager->getAll($this);
 		return $result;
 	}
 

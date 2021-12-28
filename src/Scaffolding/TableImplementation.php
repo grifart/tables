@@ -111,12 +111,12 @@ final class TableImplementation implements Capability
 				'return $row;'
 			);
 
-		$classType->addMethod('findAll')
+		$classType->addMethod('getAll')
 			->addComment('@return ' . $namespace->simplifyName($this->rowClass) . '[]')
 			->setReturnType('array')
 			->setBody(
 				"/** @var ?[] \$result */\n" .
-				"\$result = \$this->tableManager->findAll(\$this);\n" .
+				"\$result = \$this->tableManager->getAll(\$this);\n" .
 				'return $result;',
 				[new Code\PhpLiteral($namespace->simplifyName($this->rowClass))],
 			);
