@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Grifart\Tables;
 
 use Dibi\Connection;
+use Grifart\Tables\Conditions\CompositeCondition;
 use Grifart\Tables\Conditions\Condition;
 use function Functional\map;
 
@@ -47,7 +48,7 @@ final class TableManager
 	 */
 	public function find(Table $table, PrimaryKey $primaryKey): ?Row
 	{
-		$rows = $this->findBy($table, [$primaryKey->getCondition($table)]);
+		$rows = $this->findBy($table, $primaryKey->getCondition($table));
 		if (\count($rows) === 1) {
 			$row = \reset($rows);
 			\assert($row instanceof Row, 'It cannot return false as there must be one element in array');
@@ -70,15 +71,15 @@ final class TableManager
 	/**
 	 * @template TableType of Table
 	 * @param TableType $table
-	 * @param Condition<mixed>[] $conditions
+	 * @param Condition<mixed>|Condition<mixed>[] $conditions
 	 * @return Row[] (subclass of row)
 	 */
-	public function findBy(Table $table, array $conditions): array
+	public function findBy(Table $table, Condition|array $conditions): array
 	{
 		$result = $this->connection->query(
 			'SELECT *',
 			'FROM %n.%n', $table::getSchema(), $table::getTableName(),
-			'WHERE %and', map($conditions, fn(Condition $condition) => $condition->format()),
+			'WHERE %ex', (\is_array($conditions) ? CompositeCondition::and(...$conditions) : $conditions)->format(),
 		);
 
 		foreach ($table::getDatabaseColumns() as $column) {

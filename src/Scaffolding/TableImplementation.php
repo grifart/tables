@@ -125,9 +125,9 @@ final class TableImplementation implements Capability
 
 		$classType->addMethod('findBy')
 			->setParameters([
-				(new Code\Parameter('conditions'))->setType('array'),
+				(new Code\Parameter('conditions'))->setType(Condition::class . '|array'),
 			])
-			->addComment('@param Condition<mixed>[] $conditions')
+			->addComment('@param Condition<mixed>|Condition<mixed>[] $conditions')
 			->addComment('@return ' . $namespace->simplifyName($this->rowClass) . '[]')
 			->setReturnType('array')
 			->addBody('/** @var ?[] $result */', [new Code\PhpLiteral($namespace->simplifyName($this->rowClass))])

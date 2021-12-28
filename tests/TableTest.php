@@ -37,9 +37,7 @@ $byId = $table->get(TestPrimaryKey::from(new Uuid('9493decd-4b9c-45d6-9960-0c94d
 Assert::same(-5, $byId->getScore());
 Assert::same('👎', $byId->getDetails());
 
-$nonNegative = $table->findBy([
-	$table->score()->is(greaterThanOrEqualTo(0)),
-]);
+$nonNegative = $table->findBy($table->score()->is(greaterThanOrEqualTo(0)));
 Assert::count(2, $nonNegative);
 
 $zero = $table->get(TestPrimaryKey::from(new Uuid('2bec3f23-a210-455c-b907-bb69a99d07b2')));

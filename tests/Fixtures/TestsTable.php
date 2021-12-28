@@ -104,10 +104,10 @@ final class TestsTable implements Table
 
 
 	/**
-	 * @param Condition<mixed>[] $conditions
+	 * @param Condition<mixed>|Condition<mixed>[] $conditions
 	 * @return TestRow[]
 	 */
-	public function findBy(array $conditions): array
+	public function findBy(Condition|array $conditions): array
 	{
 		/** @var TestRow[] $result */
 		$result = $this->tableManager->findBy($this, $conditions);
