@@ -4,13 +4,19 @@ declare(strict_types=1);
 
 namespace Grifart\Tables\Tests;
 
+use Dibi\Expression as DibiExpression;
+use Dibi\Literal;
+use Grifart\Tables\Expression;
 use Grifart\Tables\Tests\Fixtures\TestFixtures;
 use Grifart\Tables\Tests\Fixtures\TestPrimaryKey;
 use Grifart\Tables\Tests\Fixtures\TestsTable;
 use Grifart\Tables\Tests\Fixtures\Uuid;
+use Grifart\Tables\Type;
+use Grifart\Tables\Types\IntType;
 use Tester\Assert;
 use function Grifart\Tables\Conditions\equalTo;
 use function Grifart\Tables\Conditions\greaterThanOrEqualTo;
+use function Grifart\Tables\Conditions\lesserThanOrEqualTo;
 
 require __DIR__ . '/bootstrap.php';
 
@@ -56,6 +62,33 @@ $nonNegativeReversed = $table->findBy(
 Assert::count(2, $nonNegativeReversed);
 Assert::same(42, $nonNegativeReversed[0]->getScore());
 Assert::same(0, $nonNegativeReversed[1]->getScore());
+
+$absoluteScore = new /** @extends Expression<int> */ class($table->score()) extends Expression {
+	/**
+	 * @param Expression<int> $sub
+	 */
+	public function __construct(
+		private Expression $sub,
+	) {}
+
+	public function toSql(): DibiExpression|Literal
+	{
+		return new DibiExpression('ABS(?)', $this->sub->toSql());
+	}
+
+	public function getType(): Type
+	{
+		return new IntType();
+	}
+};
+
+$filteredByExpression = $table->findBy(
+	[$absoluteScore->is(lesserThanOrEqualTo(5))],
+	orderBy: [$absoluteScore],
+);
+Assert::count(2, $filteredByExpression);
+Assert::same(0, $filteredByExpression[0]->getScore());
+Assert::same(-5, $filteredByExpression[1]->getScore());
 
 $unique = $table->getBy($table->score()->is(equalTo(42)));
 Assert::same(42, $unique->getScore());
