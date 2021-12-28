@@ -9,7 +9,6 @@ use Grifart\Tables\Conditions\CompositeCondition;
 use Grifart\Tables\Conditions\Condition;
 use Grifart\Tables\OrderBy\OrderBy;
 use function Functional\map;
-use function Grifart\Tables\OrderBy\asc;
 
 // todo: error handling
 // todo: mapping of exceptions
@@ -86,7 +85,7 @@ final class TableManager
 			'ORDER BY %by', \count($orderBy) > 0
 				? map($orderBy, function (OrderBy|Expression $orderBy) {
 					if ($orderBy instanceof Expression) {
-						$orderBy = asc($orderBy);
+						$orderBy = $orderBy->ascending();
 					}
 
 					return $orderBy->format();

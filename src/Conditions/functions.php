@@ -4,24 +4,6 @@ declare(strict_types=1);
 
 namespace Grifart\Tables\Conditions;
 
-use Grifart\Tables\Expression;
-
-/**
- * @template ValueType
- * @param Expression<ValueType> $expression
- * @param Operation<ValueType> $operation
- * @return SingleCondition<ValueType>
- */
-function condition(
-	Expression $expression,
-	Operation $operation,
-): SingleCondition {
-	return new SingleCondition(
-		$expression,
-		$operation,
-	);
-}
-
 /**
  * @param Condition<mixed> ...$conditions
  */

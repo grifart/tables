@@ -11,8 +11,6 @@ use Grifart\Tables\Tests\Fixtures\Uuid;
 use Tester\Assert;
 use function Grifart\Tables\Conditions\equalTo;
 use function Grifart\Tables\Conditions\greaterThanOrEqualTo;
-use function Grifart\Tables\OrderBy\asc;
-use function Grifart\Tables\OrderBy\desc;
 
 require __DIR__ . '/bootstrap.php';
 
@@ -53,7 +51,7 @@ Assert::same(42, $nonNegative[1]->getScore());
 
 $nonNegativeReversed = $table->findBy(
 	[$table->score()->is(greaterThanOrEqualTo(0))],
-	orderBy: [desc($table->score())],
+	orderBy: [$table->score()->descending()],
 );
 Assert::count(2, $nonNegativeReversed);
 Assert::same(42, $nonNegativeReversed[0]->getScore());
