@@ -12,6 +12,7 @@ use Grifart\Tables\Column;
 use Grifart\Tables\ColumnMetadata;
 use Grifart\Tables\ColumnNotFound;
 use Grifart\Tables\Conditions\Condition;
+use Grifart\Tables\Expression;
 use Grifart\Tables\OrderBy\OrderBy;
 use Grifart\Tables\RowNotFound;
 use Grifart\Tables\Table;
@@ -107,7 +108,7 @@ final class TestsTable implements Table
 
 	/**
 	 * @param Condition<mixed>|Condition<mixed>[] $conditions
-	 * @param OrderBy[] $orderBy
+	 * @param array<OrderBy|Expression<mixed>> $orderBy
 	 * @return TestRow[]
 	 */
 	public function findBy(Condition|array $conditions, array $orderBy = []): array

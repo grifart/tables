@@ -9,6 +9,7 @@ use Grifart\Tables\Conditions\CompositeCondition;
 use Grifart\Tables\Conditions\Condition;
 use Grifart\Tables\OrderBy\OrderBy;
 use function Functional\map;
+use function Grifart\Tables\OrderBy\asc;
 
 // todo: error handling
 // todo: mapping of exceptions
@@ -73,7 +74,7 @@ final class TableManager
 	 * @template TableType of Table
 	 * @param TableType $table
 	 * @param Condition<mixed>|Condition<mixed>[] $conditions
-	 * @param OrderBy[] $orderBy
+	 * @param array<OrderBy|Expression<mixed>> $orderBy
 	 * @return Row[] (subclass of row)
 	 */
 	public function findBy(Table $table, Condition|array $conditions, array $orderBy = []): array
@@ -82,7 +83,15 @@ final class TableManager
 			'SELECT *',
 			'FROM %n.%n', $table::getSchema(), $table::getTableName(),
 			'WHERE %ex', (\is_array($conditions) ? CompositeCondition::and(...$conditions) : $conditions)->format(),
-			'ORDER BY %by', \count($orderBy) > 0 ? map($orderBy, fn(OrderBy $orderBy) => $orderBy->format()) : [['%b', true]],
+			'ORDER BY %by', \count($orderBy) > 0
+				? map($orderBy, function (OrderBy|Expression $orderBy) {
+					if ($orderBy instanceof Expression) {
+						$orderBy = asc($orderBy);
+					}
+
+					return $orderBy->format();
+				})
+				: [['%b', true]],
 		);
 
 		foreach ($table::getDatabaseColumns() as $column) {

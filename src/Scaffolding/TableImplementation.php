@@ -13,6 +13,7 @@ use Grifart\Tables\Column;
 use Grifart\Tables\ColumnMetadata;
 use Grifart\Tables\ColumnNotFound;
 use Grifart\Tables\Conditions\Condition;
+use Grifart\Tables\Expression;
 use Grifart\Tables\RowNotFound;
 use Grifart\Tables\OrderBy\OrderBy;
 use Grifart\Tables\Table;
@@ -126,6 +127,7 @@ final class TableImplementation implements Capability
 			);
 
 		$namespace->addUse(Condition::class);
+		$namespace->addUse(Expression::class);
 
 		$classType->addMethod('findBy')
 			->setParameters([
@@ -133,7 +135,7 @@ final class TableImplementation implements Capability
 				(new Code\Parameter('orderBy'))->setType('array')->setDefaultValue([]),
 			])
 			->addComment('@param Condition<mixed>|Condition<mixed>[] $conditions')
-			->addComment('@param OrderBy[] $orderBy')
+			->addComment('@param array<OrderBy|Expression<mixed>> $orderBy')
 			->addComment('@return ' . $namespace->simplifyName($this->rowClass) . '[]')
 			->setReturnType('array')
 			->addBody('/** @var ?[] $result */', [new Code\PhpLiteral($namespace->simplifyName($this->rowClass))])

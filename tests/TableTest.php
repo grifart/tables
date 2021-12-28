@@ -44,7 +44,7 @@ Assert::same('👎', $byId->getDetails());
 
 $nonNegative = $table->findBy(
 	$table->score()->is(greaterThanOrEqualTo(0)),
-	orderBy: [asc($table->score())],
+	orderBy: [$table->score()],
 );
 Assert::count(2, $nonNegative);
 Assert::same(0, $nonNegative[0]->getScore());
