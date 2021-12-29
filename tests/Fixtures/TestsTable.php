@@ -17,6 +17,7 @@ use Grifart\Tables\OrderBy\OrderBy;
 use Grifart\Tables\RowNotFound;
 use Grifart\Tables\Table;
 use Grifart\Tables\TableManager;
+use Grifart\Tables\TooManyRowsFound;
 use Grifart\Tables\Type;
 use Grifart\Tables\TypeResolver;
 
@@ -116,6 +117,20 @@ final class TestsTable implements Table
 		/** @var TestRow[] $result */
 		$result = $this->tableManager->findBy($this, $conditions, $orderBy);
 		return $result;
+	}
+
+
+	/**
+	 * @param Condition<mixed>|Condition<mixed>[] $conditions
+	 * @return TestRow
+	 * @throws RowNotFound
+	 */
+	public function getBy(Condition|array $conditions): TestRow
+	{
+		$result = $this->findBy($conditions);
+		if (\count($result) === 0) { throw new RowNotFound(); }
+		if (\count($result) > 1) { throw new TooManyRowsFound(); }
+		return $result[0];
 	}
 
 

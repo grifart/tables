@@ -9,6 +9,7 @@ use Grifart\Tables\Tests\Fixtures\TestPrimaryKey;
 use Grifart\Tables\Tests\Fixtures\TestsTable;
 use Grifart\Tables\Tests\Fixtures\Uuid;
 use Tester\Assert;
+use function Grifart\Tables\Conditions\equalTo;
 use function Grifart\Tables\Conditions\greaterThanOrEqualTo;
 use function Grifart\Tables\OrderBy\asc;
 use function Grifart\Tables\OrderBy\desc;
@@ -57,6 +58,9 @@ $nonNegativeReversed = $table->findBy(
 Assert::count(2, $nonNegativeReversed);
 Assert::same(42, $nonNegativeReversed[0]->getScore());
 Assert::same(0, $nonNegativeReversed[1]->getScore());
+
+$unique = $table->getBy($table->score()->is(equalTo(42)));
+Assert::same(42, $unique->getScore());
 
 $zero = $table->get(TestPrimaryKey::from(new Uuid('2bec3f23-a210-455c-b907-bb69a99d07b2')));
 $zeroChangeSet = $table->edit($zero);

@@ -18,6 +18,7 @@ use Grifart\Tables\RowNotFound;
 use Grifart\Tables\OrderBy\OrderBy;
 use Grifart\Tables\Table;
 use Grifart\Tables\TableManager;
+use Grifart\Tables\TooManyRowsFound;
 use Grifart\Tables\Type;
 use Grifart\Tables\TypeResolver;
 use Nette\PhpGenerator as Code;
@@ -141,6 +142,22 @@ final class TableImplementation implements Capability
 			->addBody('/** @var ?[] $result */', [new Code\PhpLiteral($namespace->simplifyName($this->rowClass))])
 			->addBody('$result = $this->tableManager->findBy($this, $conditions, $orderBy);')
 			->addBody('return $result;');
+
+
+		$namespace->addUse(TooManyRowsFound::class);
+		$classType->addMethod('getBy')
+			->setParameters([
+				(new Code\Parameter('conditions'))->setType(Condition::class . '|array'),
+			])
+			->addComment('@param Condition<mixed>|Condition<mixed>[] $conditions')
+			->addComment('@return ' . $namespace->simplifyName($this->rowClass))
+			->addComment('@throws RowNotFound')
+			->setReturnType($this->rowClass)
+			->addBody('$result = $this->findBy($conditions);')
+			->addBody('if (\count($result) === 0) { throw new RowNotFound(); }')
+			->addBody('if (\count($result) > 1) { throw new TooManyRowsFound(); }')
+			->addBody('return $result[0];');
+
 
 		$classType->addMethod('newEmpty')
 			->setReturnType($this->modificationClass)
