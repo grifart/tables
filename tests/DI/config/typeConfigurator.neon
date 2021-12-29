@@ -1,0 +1,2 @@
+services:
+	- Grifart\Tables\Tests\Fixtures\TestTypeResolverConfigurator

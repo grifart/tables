@@ -8,6 +8,7 @@ use Dibi\Connection;
 use Grifart\Tables\TableManager;
 use Grifart\Tables\Tests\Fixtures\UuidType;
 use Grifart\Tables\TypeResolver;
+use Grifart\Tables\Types\DecimalType;
 use Grifart\Tables\Types\IntType;
 use Nette\Bootstrap\Configurator;
 use Nette\DI\Container;
@@ -45,4 +46,20 @@ $createContainer = function (string $configFile): Container
 	$typeResolver = $container->getByType(TypeResolver::class);
 	Assert::type(TypeResolver::class, $typeResolver);
 	Assert::type(IntType::class, $typeResolver->resolveType('int', 'public.test.score'));
+})();
+
+(function () use ($createContainer) {
+	$container = $createContainer('typeResolver');
+
+	$typeResolver = $container->getByType(TypeResolver::class);
+	Assert::type(TypeResolver::class, $typeResolver);
+	Assert::type(DecimalType::class, $typeResolver->resolveType('boolean', 'public.test.whatever'));
+})();
+
+(function () use ($createContainer) {
+	$container = $createContainer('typeConfigurator');
+
+	$typeResolver = $container->getByType(TypeResolver::class);
+	Assert::type(TypeResolver::class, $typeResolver);
+	Assert::type(DecimalType::class, $typeResolver->resolveType('boolean', 'public.test.whatever2'));
 })();

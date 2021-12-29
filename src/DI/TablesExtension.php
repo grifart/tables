@@ -7,6 +7,7 @@ namespace Grifart\Tables\DI;
 use Grifart\Tables\TableManager;
 use Grifart\Tables\TypeResolver;
 use Nette\DI\CompilerExtension;
+use Nette\DI\Definitions\ServiceDefinition;
 use Nette\DI\Definitions\Statement;
 use Nette\Schema\Expect;
 use Nette\Schema\Schema;
@@ -19,6 +20,7 @@ final class TablesExtension extends CompilerExtension
 	public function getConfigSchema(): Schema
 	{
 		return Expect::structure([
+			'typeResolver' => Expect::anyOf(Expect::type(Statement::class), Expect::string())->default(TypeResolver::class),
 			'types' => Expect::structure([
 				'byName' => Expect::arrayOf(
 					valueType: Expect::anyOf(Expect::type(Statement::class), Expect::string()),
@@ -40,7 +42,8 @@ final class TablesExtension extends CompilerExtension
 			->setFactory(TableManager::class);
 
 		$typeResolver = $builder->addDefinition($this->prefix('typeResolver'))
-			->setFactory(TypeResolver::class);
+			->setType(TypeResolver::class)
+			->setFactory($this->config->typeResolver);
 
 		foreach ($this->config->types->byName as $typeName => $type) {
 			$typeResolver->addSetup('addResolutionByTypeName', [$typeName, $type instanceof Statement ? $type : new Statement($type)]);
@@ -48,6 +51,18 @@ final class TablesExtension extends CompilerExtension
 
 		foreach ($this->config->types->byLocation as $location => $type) {
 			$typeResolver->addSetup('addResolutionByLocation', [$location, $type instanceof Statement ? $type : new Statement($type)]);
+		}
+	}
+
+	public function beforeCompile(): void
+	{
+		$builder = $this->getContainerBuilder();
+
+		$typeResolver = $builder->getDefinition($this->prefix('typeResolver'));
+		\assert($typeResolver instanceof ServiceDefinition);
+
+		foreach ($builder->findByType(TypeResolverConfigurator::class) as $configurator) {
+			$typeResolver->addSetup('?->configure(?)', [$configurator, '@self']);
 		}
 	}
 }
