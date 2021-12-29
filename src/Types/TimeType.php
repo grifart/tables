@@ -19,6 +19,11 @@ final class TimeType implements Type
 		return resolve(LocalTime::class);
 	}
 
+	public function getDatabaseTypes(): array
+	{
+		return ['time without time zone'];
+	}
+
 	public function toDatabase(mixed $value): string
 	{
 		return (string) $value;

@@ -19,6 +19,11 @@ final class DecimalType implements Type
 		return resolve(BigDecimal::class);
 	}
 
+	public function getDatabaseTypes(): array
+	{
+		return ['decimal', 'numeric'];
+	}
+
 	public function toDatabase(mixed $value): string
 	{
 		return (string) $value;

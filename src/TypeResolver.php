@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace Grifart\Tables;
 
 use Brick\DateTime\Instant;
-use Brick\DateTime\LocalDate;
-use Brick\DateTime\LocalTime;
 use Brick\Math\BigDecimal;
 use Grifart\Tables\Types\BinaryType;
 use Grifart\Tables\Types\BooleanType;
@@ -30,29 +28,38 @@ final class TypeResolver
 	public function __construct()
 	{
 		// default types
-		$this->byTypeName['character'] = $this->byTypeName['character varying'] = $this->byTypeName['text'] = new TextType();
-		$this->byTypeName['smallint'] = $this->byTypeName['integer'] = $this->byTypeName['bigint'] = new IntType();
-		$this->byTypeName['boolean'] = new BooleanType();
-		$this->byTypeName['bytea'] = new BinaryType();
+		$this->addType(new TextType());
+		$this->addType(new IntType());
+		$this->addType(new BooleanType());
+		$this->addType(new BinaryType());
 
 		if (\class_exists(BigDecimal::class)) {
-			$this->byTypeName['decimal'] = $this->byTypeName['numeric'] = new DecimalType();
+			$this->addType(new DecimalType());
 		}
 
 		if (\class_exists(Instant::class)) {
-			$this->byTypeName['timestamp without time zone'] = new InstantType();
-		}
-
-		if (\class_exists(LocalTime::class)) {
-			$this->byTypeName['time without time zone'] = new TimeType();
-		}
-
-		if (\class_exists(LocalDate::class)) {
-			$this->byTypeName['date'] = new DateType();
+			$this->addType(new InstantType());
+			$this->addType(new TimeType());
+			$this->addType(new DateType());
 		}
 
 		if (\interface_exists(UuidInterface::class)) {
-			$this->byTypeName['uuid'] = new UuidType();
+			$this->addType(new UuidType());
+		}
+	}
+
+	/**
+	 * @param Type<mixed> $type
+	 */
+	public function addType(Type $type): void
+	{
+		$databaseTypes = $type->getDatabaseTypes();
+		if (\count($databaseTypes) === 0) {
+			throw MissingDatabaseTypeResolution::of($type);
+		}
+
+		foreach ($databaseTypes as $databaseType) {
+			$this->addResolutionByTypeName($databaseType, $type);
 		}
 	}
 

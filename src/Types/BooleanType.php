@@ -18,6 +18,11 @@ final class BooleanType implements Type
 		return resolve('bool');
 	}
 
+	public function getDatabaseTypes(): array
+	{
+		return ['boolean'];
+	}
+
 	public function toDatabase(mixed $value): string
 	{
 		return $value ? 't' : 'f';

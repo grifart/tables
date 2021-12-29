@@ -19,6 +19,11 @@ final class DateType implements Type
 		return resolve(LocalDate::class);
 	}
 
+	public function getDatabaseTypes(): array
+	{
+		return ['date'];
+	}
+
 	public function toDatabase(mixed $value): string
 	{
 		return (string) $value;

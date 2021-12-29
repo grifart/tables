@@ -18,6 +18,11 @@ final class IntType implements Type
 		return resolve('int');
 	}
 
+	public function getDatabaseTypes(): array
+	{
+		return ['smallint', 'integer', 'bigint'];
+	}
+
 	public function toDatabase(mixed $value): int
 	{
 		return (int) $value;

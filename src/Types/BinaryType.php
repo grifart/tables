@@ -18,6 +18,11 @@ final class BinaryType implements Type
 		return resolve('string');
 	}
 
+	public function getDatabaseTypes(): array
+	{
+		return ['bytea'];
+	}
+
 	public function toDatabase(mixed $value): string
 	{
 		$unpacked = \unpack('H*', $value);
