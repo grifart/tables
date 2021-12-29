@@ -59,7 +59,7 @@ final class TypeResolver
 		}
 
 		foreach ($databaseTypes as $databaseType) {
-			$this->byTypeName[$databaseType] = $type;
+			$this->addResolutionByTypeName($databaseType, $type);
 		}
 	}
 
