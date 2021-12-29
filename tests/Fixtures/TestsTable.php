@@ -12,6 +12,8 @@ use Grifart\Tables\Column;
 use Grifart\Tables\ColumnMetadata;
 use Grifart\Tables\ColumnNotFound;
 use Grifart\Tables\Conditions\Condition;
+use Grifart\Tables\Expression;
+use Grifart\Tables\OrderBy\OrderBy;
 use Grifart\Tables\RowNotFound;
 use Grifart\Tables\Table;
 use Grifart\Tables\TableManager;
@@ -93,24 +95,26 @@ final class TestsTable implements Table
 
 
 	/**
+	 * @param OrderBy[] $orderBy
 	 * @return TestRow[]
 	 */
-	public function getAll(): array
+	public function getAll(array $orderBy = []): array
 	{
 		/** @var TestRow[] $result */
-		$result = $this->tableManager->getAll($this);
+		$result = $this->tableManager->getAll($this, $orderBy);
 		return $result;
 	}
 
 
 	/**
 	 * @param Condition<mixed>|Condition<mixed>[] $conditions
+	 * @param array<OrderBy|Expression<mixed>> $orderBy
 	 * @return TestRow[]
 	 */
-	public function findBy(Condition|array $conditions): array
+	public function findBy(Condition|array $conditions, array $orderBy = []): array
 	{
 		/** @var TestRow[] $result */
-		$result = $this->tableManager->findBy($this, $conditions);
+		$result = $this->tableManager->findBy($this, $conditions, $orderBy);
 		return $result;
 	}
 

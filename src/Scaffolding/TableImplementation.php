@@ -13,7 +13,9 @@ use Grifart\Tables\Column;
 use Grifart\Tables\ColumnMetadata;
 use Grifart\Tables\ColumnNotFound;
 use Grifart\Tables\Conditions\Condition;
+use Grifart\Tables\Expression;
 use Grifart\Tables\RowNotFound;
+use Grifart\Tables\OrderBy\OrderBy;
 use Grifart\Tables\Table;
 use Grifart\Tables\TableManager;
 use Grifart\Tables\Type;
@@ -111,27 +113,33 @@ final class TableImplementation implements Capability
 				'return $row;'
 			);
 
+		$namespace->addUse(OrderBy::class);
 		$classType->addMethod('getAll')
+			->addComment('@param OrderBy[] $orderBy')
 			->addComment('@return ' . $namespace->simplifyName($this->rowClass) . '[]')
+			->setParameters([(new Code\Parameter('orderBy'))->setType('array')->setDefaultValue([])])
 			->setReturnType('array')
 			->setBody(
 				"/** @var ?[] \$result */\n" .
-				"\$result = \$this->tableManager->getAll(\$this);\n" .
+				"\$result = \$this->tableManager->getAll(\$this, \$orderBy);\n" .
 				'return $result;',
 				[new Code\PhpLiteral($namespace->simplifyName($this->rowClass))],
 			);
 
 		$namespace->addUse(Condition::class);
+		$namespace->addUse(Expression::class);
 
 		$classType->addMethod('findBy')
 			->setParameters([
 				(new Code\Parameter('conditions'))->setType(Condition::class . '|array'),
+				(new Code\Parameter('orderBy'))->setType('array')->setDefaultValue([]),
 			])
 			->addComment('@param Condition<mixed>|Condition<mixed>[] $conditions')
+			->addComment('@param array<OrderBy|Expression<mixed>> $orderBy')
 			->addComment('@return ' . $namespace->simplifyName($this->rowClass) . '[]')
 			->setReturnType('array')
 			->addBody('/** @var ?[] $result */', [new Code\PhpLiteral($namespace->simplifyName($this->rowClass))])
-			->addBody('$result = $this->tableManager->findBy($this, $conditions);')
+			->addBody('$result = $this->tableManager->findBy($this, $conditions, $orderBy);')
 			->addBody('return $result;');
 
 		$classType->addMethod('newEmpty')
