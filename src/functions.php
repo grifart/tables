@@ -11,15 +11,15 @@ use function Functional\map;
 /**
  * @template ValueType
  * @param Type<ValueType> $type
- * @return Expression<ValueType>
+ * @return ExpressionWithShorthands<ValueType>
  */
 function expr(
 	Type $type,
 	string $pattern,
 	mixed ...$arguments,
-): Expression
+): ExpressionWithShorthands
 {
-	return new /** @extends Expression<ValueType> */ class($type, $pattern, $arguments) extends Expression {
+	return new /** @extends ExpressionWithShorthands<ValueType> */ class($type, $pattern, $arguments) extends ExpressionWithShorthands {
 		/**
 		 * @param Type<ValueType> $type
 		 * @param mixed[] $arguments

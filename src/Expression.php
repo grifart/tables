@@ -6,39 +6,16 @@ namespace Grifart\Tables;
 
 use Dibi\Expression as DibiExpression;
 use Dibi\Literal;
-use Grifart\Tables\Conditions\Operation;
-use Grifart\Tables\Conditions\SingleCondition;
-use Grifart\Tables\OrderBy\OrderBy;
-use Grifart\Tables\OrderBy\OrderByDirection;
 
 /**
  * @template ValueType
  */
-abstract class Expression
+interface Expression
 {
-	abstract public function toSql(): DibiExpression|Literal;
+	public function toSql(): DibiExpression|Literal;
 
 	/**
 	 * @return Type<ValueType>
 	 */
-	abstract public function getType(): Type;
-
-	/**
-	 * @param Operation<ValueType> $operation
-	 * @return SingleCondition<ValueType>
-	 */
-	public function is(Operation $operation): SingleCondition
-	{
-		return new SingleCondition($this, $operation);
-	}
-
-	public function ascending(): OrderBy
-	{
-		return new OrderBy($this);
-	}
-
-	public function descending(): OrderBy
-	{
-		return new OrderBy($this, OrderByDirection::DESC);
-	}
+	public function getType(): Type;
 }

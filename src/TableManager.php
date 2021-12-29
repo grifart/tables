@@ -85,7 +85,7 @@ final class TableManager
 			'ORDER BY %by', \count($orderBy) > 0
 				? map($orderBy, function (OrderBy|Expression $orderBy) {
 					if ($orderBy instanceof Expression) {
-						$orderBy = $orderBy->ascending();
+						$orderBy = new OrderBy($orderBy);
 					}
 
 					return $orderBy->format();

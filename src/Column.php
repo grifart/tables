@@ -10,9 +10,9 @@ use Dibi\Literal;
 /**
  * @template TableType of Table
  * @template ValueType
- * @extends Expression<ValueType>
+ * @extends ExpressionWithShorthands<ValueType>
  */
-final class Column extends Expression
+final class Column extends ExpressionWithShorthands
 {
 	/**
 	 * @param Type<ValueType> $resolvedType
