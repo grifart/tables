@@ -24,18 +24,6 @@ abstract class Expression
 	abstract public function getType(): Type;
 
 	/**
-	 * @param ValueType|null $value
-	 */
-	public function map(mixed $value): mixed
-	{
-		if ($value === null) {
-			return null;
-		}
-
-		return $this->getType()->toDatabase($value);
-	}
-
-	/**
 	 * @param Operation<ValueType> $operation
 	 * @return SingleCondition<ValueType>
 	 */
