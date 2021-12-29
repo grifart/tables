@@ -57,6 +57,7 @@ final class ColumnNotFound extends UsageException {
 	}
 }
 
-final class GivenSearchCriteriaHaveNotMatchedAnyRows extends RuntimeException {};
+final class GivenSearchCriteriaHaveNotMatchedAnyRows extends RuntimeException {}
 
-final class RowNotFound extends RuntimeException {};
+final class RowNotFound extends RuntimeException {}
+final class TooManyRowsFound extends UsageException {}
