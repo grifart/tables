@@ -8,7 +8,8 @@ use Grifart\ClassScaffolder\Capabilities\Capability;
 use Grifart\ClassScaffolder\ClassInNamespace;
 use Grifart\ClassScaffolder\Definition\ClassDefinition;
 use Grifart\ClassScaffolder\Definition\Field;
-use Grifart\Tables\CaseConversion;
+use Grifart\Tables\Conditions\CompositeCondition;
+use Grifart\Tables\Conditions\Condition;
 use Grifart\Tables\PrimaryKey;
 use Grifart\Tables\Table;
 use Nette\PhpGenerator\Literal;
@@ -50,25 +51,22 @@ final class PrimaryKeyImplementation implements Capability
 			),
 		]);
 
-		$getQuery = $classType->addMethod('getQuery')
-			->setReturnType('array')
-			->addBody('$query = [];');
+		$namespace->addUse(Condition::class);
+		$namespace->addUse(CompositeCondition::class);
+		$namespace->addUseFunction('Grifart\Tables\Conditions\equalTo');
 
-		$getQuery->addParameter('table')->setType(Table::class);
+		$getCondition = $classType->addMethod('getCondition')->setReturnType(Condition::class);
+		$getCondition->addParameter('table')->setType(Table::class);
 		$namespace->addUse(Table::class);
 
+		$getCondition->addBody('return CompositeCondition::and(');
 		foreach ($definition->getFields() as $field) {
-			$getQuery->addBody('$query[?] = ?;', [
-				new Literal('$table::?', [
-					CaseConversion::toUnderscores($field->getName()),
-				]),
-				new Literal('$table->?()->map($this->?)', [
-					$field->getName(),
-					$field->getName(),
-				]),
+			$getCondition->addBody("\t\$table->?()->is(equalTo(\$this->?)),", [
+				$field->getName(),
+				$field->getName(),
 			]);
 		}
 
-		$getQuery->addBody('return $query;');
+		$getCondition->addBody(');');
 	}
 }

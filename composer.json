@@ -54,7 +54,10 @@
         },
         "classmap": [
             "src/exceptions.php"
-        ]
+        ],
+        "files": [
+			"src/Conditions/functions.php"
+		]
     },
     "autoload-dev": {
         "psr-4": {

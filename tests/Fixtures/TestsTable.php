@@ -11,6 +11,7 @@ namespace Grifart\Tables\Tests\Fixtures;
 use Grifart\Tables\Column;
 use Grifart\Tables\ColumnMetadata;
 use Grifart\Tables\ColumnNotFound;
+use Grifart\Tables\Conditions\Condition;
 use Grifart\Tables\RowNotFound;
 use Grifart\Tables\Table;
 use Grifart\Tables\TableManager;
@@ -92,10 +93,21 @@ final class TestsTable implements Table
 
 
 	/**
-	 * @param mixed[] $conditions
 	 * @return TestRow[]
 	 */
-	public function findBy(array $conditions): array
+	public function getAll(): array
+	{
+		/** @var TestRow[] $result */
+		$result = $this->tableManager->getAll($this);
+		return $result;
+	}
+
+
+	/**
+	 * @param Condition<mixed>|Condition<mixed>[] $conditions
+	 * @return TestRow[]
+	 */
+	public function findBy(Condition|array $conditions): array
 	{
 		/** @var TestRow[] $result */
 		$result = $this->tableManager->findBy($this, $conditions);
