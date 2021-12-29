@@ -19,6 +19,7 @@ final class TablesExtension extends CompilerExtension
 	public function getConfigSchema(): Schema
 	{
 		return Expect::structure([
+			'typeResolver' => Expect::anyOf(Expect::type(Statement::class), Expect::string())->default(TypeResolver::class),
 			'types' => Expect::structure([
 				'byName' => Expect::arrayOf(
 					valueType: Expect::anyOf(Expect::type(Statement::class), Expect::string()),
@@ -40,7 +41,8 @@ final class TablesExtension extends CompilerExtension
 			->setFactory(TableManager::class);
 
 		$typeResolver = $builder->addDefinition($this->prefix('typeResolver'))
-			->setFactory(TypeResolver::class);
+			->setType(TypeResolver::class)
+			->setFactory($this->config->typeResolver);
 
 		foreach ($this->config->types->byName as $typeName => $type) {
 			$typeResolver->addSetup('addResolutionByTypeName', [$typeName, $type instanceof Statement ? $type : new Statement($type)]);
