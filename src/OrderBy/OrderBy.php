@@ -8,16 +8,13 @@ use Grifart\Tables\Expression;
 
 final class OrderBy
 {
-	public const ASC = 'ASC';
-	public const DESC = 'DESC';
-
 	/**
 	 * @param Expression<mixed> $expression
-	 * @param self::ASC|self::DESC $direction
+	 * @param OrderByDirection::ASC|OrderByDirection::DESC $direction
 	 */
 	public function __construct(
 		private Expression $expression,
-		private string $direction = self::ASC,
+		private string $direction = OrderByDirection::ASC,
 	) {}
 
 	/**

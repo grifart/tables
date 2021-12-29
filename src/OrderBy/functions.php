@@ -11,7 +11,7 @@ use Grifart\Tables\Expression;
  */
 function asc(Expression $expression): OrderBy
 {
-	return new OrderBy($expression, OrderBy::ASC);
+	return new OrderBy($expression, OrderByDirection::ASC);
 }
 
 /**
@@ -19,5 +19,5 @@ function asc(Expression $expression): OrderBy
  */
 function desc(Expression $expression): OrderBy
 {
-	return new OrderBy($expression, OrderBy::DESC);
+	return new OrderBy($expression, OrderByDirection::DESC);
 }
