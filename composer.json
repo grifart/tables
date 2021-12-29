@@ -56,8 +56,8 @@
             "src/exceptions.php"
         ],
         "files": [
-			"src/Conditions/functions.php",
-			"src/OrderBy/functions.php"
+			"src/functions.php",
+			"src/Conditions/functions.php"
 		]
     },
     "autoload-dev": {

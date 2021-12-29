@@ -28,7 +28,7 @@ final class SingleCondition implements Condition
 			return [
 				\sprintf('? %s ?', $this->operation->getOperator()),
 				$this->expression->toSql(),
-				$this->operation->mapOperand(\Closure::fromCallable([$this->expression, 'map'])),
+				$this->operation->mapOperand(fn(mixed $value) => $value !== null ? $this->expression->getType()->toDatabase($value) : null),
 			];
 		}
 

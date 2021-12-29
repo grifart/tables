@@ -4,18 +4,15 @@ declare(strict_types=1);
 
 namespace Grifart\Tables;
 
-use Dibi\Driver;
 use Dibi\Expression as DibiExpression;
 use Dibi\Literal;
-use Grifart\Tables\Conditions\SingleCondition;
-use Grifart\Tables\Conditions\Operation;
 
 /**
  * @template TableType of Table
  * @template ValueType
- * @implements Expression<ValueType>
+ * @extends ExpressionWithShorthands<ValueType>
  */
-final class Column implements Expression
+final class Column extends ExpressionWithShorthands
 {
 	/**
 	 * @param Type<ValueType> $resolvedType
@@ -41,27 +38,6 @@ final class Column implements Expression
 	public function getType(): Type
 	{
 		return $this->resolvedType;
-	}
-
-	/**
-	 * @param Operation<ValueType> $operation
-	 * @return SingleCondition<ValueType>
-	 */
-	public function is(Operation $operation): SingleCondition
-	{
-		return new SingleCondition($this, $operation);
-	}
-
-	/**
-	 * @param ValueType|null $value
-	 */
-	public function map(mixed $value): mixed
-	{
-		if ($value === null) {
-			return null;
-		}
-
-		return $this->resolvedType->toDatabase($value);
 	}
 
 	public function __toString(): string

@@ -18,9 +18,4 @@ interface Expression
 	 * @return Type<ValueType>
 	 */
 	public function getType(): Type;
-
-	/**
-	 * @param ValueType|null $value
-	 */
-	public function map(mixed $value): mixed;
 }
