@@ -55,3 +55,11 @@ $createContainer = function (string $configFile): Container
 	Assert::type(TypeResolver::class, $typeResolver);
 	Assert::type(DecimalType::class, $typeResolver->resolveType('boolean', 'public.test.whatever'));
 })();
+
+(function () use ($createContainer) {
+	$container = $createContainer('typeConfigurator');
+
+	$typeResolver = $container->getByType(TypeResolver::class);
+	Assert::type(TypeResolver::class, $typeResolver);
+	Assert::type(DecimalType::class, $typeResolver->resolveType('boolean', 'public.test.whatever2'));
+})();

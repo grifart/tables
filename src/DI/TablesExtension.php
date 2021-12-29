@@ -7,6 +7,7 @@ namespace Grifart\Tables\DI;
 use Grifart\Tables\TableManager;
 use Grifart\Tables\TypeResolver;
 use Nette\DI\CompilerExtension;
+use Nette\DI\Definitions\ServiceDefinition;
 use Nette\DI\Definitions\Statement;
 use Nette\Schema\Expect;
 use Nette\Schema\Schema;
@@ -50,6 +51,18 @@ final class TablesExtension extends CompilerExtension
 
 		foreach ($this->config->types->byLocation as $location => $type) {
 			$typeResolver->addSetup('addResolutionByLocation', [$location, $type instanceof Statement ? $type : new Statement($type)]);
+		}
+	}
+
+	public function beforeCompile(): void
+	{
+		$builder = $this->getContainerBuilder();
+
+		$typeResolver = $builder->getDefinition($this->prefix('typeResolver'));
+		\assert($typeResolver instanceof ServiceDefinition);
+
+		foreach ($builder->findByType(TypeResolverConfigurator::class) as $configurator) {
+			$typeResolver->addSetup('?->configure(?)', [$configurator, '@self']);
 		}
 	}
 }
