@@ -135,7 +135,7 @@ final class TableImplementation implements Capability
 				(new Code\Parameter('conditions'))->setType(Condition::class . '|array'),
 				(new Code\Parameter('orderBy'))->setType('array')->setDefaultValue([]),
 			])
-			->addComment('@param Condition<mixed>|Condition<mixed>[] $conditions')
+			->addComment('@param Condition|Condition[] $conditions')
 			->addComment('@param array<OrderBy|Expression<mixed>> $orderBy')
 			->addComment('@return ' . $namespace->simplifyName($this->rowClass) . '[]')
 			->setReturnType('array')
@@ -149,7 +149,7 @@ final class TableImplementation implements Capability
 			->setParameters([
 				(new Code\Parameter('conditions'))->setType(Condition::class . '|array'),
 			])
-			->addComment('@param Condition<mixed>|Condition<mixed>[] $conditions')
+			->addComment('@param Condition|Condition[] $conditions')
 			->addComment('@return ' . $namespace->simplifyName($this->rowClass))
 			->addComment('@throws RowNotFound')
 			->setReturnType($this->rowClass)

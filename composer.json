@@ -57,8 +57,9 @@
         ],
         "files": [
 			"src/functions.php",
-			"src/Conditions/functions.php"
-		]
+			"src/Conditions/functions.php",
+            "src/Types/functions.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {

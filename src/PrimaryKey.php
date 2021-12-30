@@ -13,7 +13,7 @@ interface PrimaryKey
 
 	/**
 	 * @param TableType $table
-	 * @return Condition<mixed>
+	 * @return Condition
 	 */
 	public function getCondition(Table $table): Condition;
 

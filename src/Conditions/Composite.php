@@ -6,14 +6,11 @@ namespace Grifart\Tables\Conditions;
 
 use function Functional\map;
 
-/**
- * @implements Condition<never>
- */
-final class CompositeCondition implements Condition
+final class Composite implements Condition
 {
 	/**
 	 * @param string $operator
-	 * @param Condition<mixed>[] $conditions
+	 * @param Condition[] $conditions
 	 */
 	private function __construct(
 		private string $operator,
@@ -21,7 +18,7 @@ final class CompositeCondition implements Condition
 	) {}
 
 	/**
-	 * @param Condition<mixed> ...$conditions
+	 * @param Condition ...$conditions
 	 */
 	public static function and(Condition ...$conditions): self
 	{
@@ -29,7 +26,7 @@ final class CompositeCondition implements Condition
 	}
 
 	/**
-	 * @param Condition<mixed> ...$conditions
+	 * @param Condition ...$conditions
 	 */
 	public static function or(Condition ...$conditions): self
 	{
