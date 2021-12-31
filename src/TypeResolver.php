@@ -12,6 +12,7 @@ use Grifart\Tables\Types\DateType;
 use Grifart\Tables\Types\DecimalType;
 use Grifart\Tables\Types\InstantType;
 use Grifart\Tables\Types\IntType;
+use Grifart\Tables\Types\JsonType;
 use Grifart\Tables\Types\TextType;
 use Grifart\Tables\Types\TimeType;
 use Grifart\Tables\Types\UuidType;
@@ -32,6 +33,7 @@ final class TypeResolver
 		$this->addType(new IntType());
 		$this->addType(new BooleanType());
 		$this->addType(new BinaryType());
+		$this->addType(new JsonType());
 
 		if (\class_exists(BigDecimal::class)) {
 			$this->addType(new DecimalType());
