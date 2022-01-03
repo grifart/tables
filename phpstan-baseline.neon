@@ -1,0 +1,17 @@
+parameters:
+	ignoreErrors:
+		-
+			message: "#^Parameter \\#2 \\$changes of method Grifart\\\\Tables\\\\TableManager\\:\\:save\\(\\) expects Grifart\\\\Tables\\\\Modifications\\<\\$this\\(Grifart\\\\Tables\\\\Tests\\\\Fixtures\\\\TestsTable\\)\\>, Grifart\\\\Tables\\\\Tests\\\\Fixtures\\\\TestModifications given\\.$#"
+			count: 1
+			path: tests/Fixtures/TestsTable.php
+
+		-
+			message: "#^Parameter \\#2 \\$primaryKey of method Grifart\\\\Tables\\\\TableManager\\:\\:delete\\(\\) expects Grifart\\\\Tables\\\\PrimaryKey\\<\\$this\\(Grifart\\\\Tables\\\\Tests\\\\Fixtures\\\\TestsTable\\)\\>, Grifart\\\\Tables\\\\Tests\\\\Fixtures\\\\TestPrimaryKey given\\.$#"
+			count: 1
+			path: tests/Fixtures/TestsTable.php
+
+		-
+			message: "#^Parameter \\#2 \\$primaryKey of method Grifart\\\\Tables\\\\TableManager\\:\\:find\\(\\) expects Grifart\\\\Tables\\\\PrimaryKey\\<\\$this\\(Grifart\\\\Tables\\\\Tests\\\\Fixtures\\\\TestsTable\\)\\>, Grifart\\\\Tables\\\\Tests\\\\Fixtures\\\\TestPrimaryKey given\\.$#"
+			count: 1
+			path: tests/Fixtures/TestsTable.php
+
