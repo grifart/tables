@@ -1,5 +1,6 @@
 includes:
 	- vendor/grifart/phpstan-oneline/config.neon
+	- phpstan-baseline.neon
 
 parameters:
 	level: 8
