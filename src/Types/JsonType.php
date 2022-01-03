@@ -25,7 +25,7 @@ final class JsonType implements Type
 
 	public function toDatabase(mixed $value): mixed
 	{
-		return \json_encode($value, \JSON_THROW_ON_ERROR);
+		return \json_encode($value, flags: \JSON_THROW_ON_ERROR);
 	}
 
 	public function fromDatabase(mixed $value): mixed
