@@ -205,13 +205,10 @@ final class TableImplementation implements Capability
 			->setParameters([
 				(new Code\Parameter('rowOrKey'))->setType($this->rowClass . '|' . $this->primaryKeyClass),
 			])
-			->addBody('if ($rowOrKey instanceof ?) {', [new Code\PhpLiteral($namespace->simplifyName($this->primaryKeyClass))])
-			->addBody("\t\$primaryKey = \$rowOrKey;")
-			->addBody('} else {')
-			->addBody("\t/** @var class-string<?> \$primaryKeyClass */", [new Code\PhpLiteral($namespace->simplifyName($this->primaryKeyClass))])
-			->addBody("\t\$primaryKeyClass = self::getPrimaryKeyClass();")
-			->addBody("\t\$primaryKey = \$primaryKeyClass::fromRow(\$rowOrKey);")
-			->addBody('}')
+			->addBody('$primaryKey = $rowOrKey instanceof ? \? $rowOrKey : ?::fromRow($rowOrKey);', [
+				new Code\PhpLiteral($namespace->simplifyName($this->primaryKeyClass)),
+				new Code\PhpLiteral($namespace->simplifyName($this->primaryKeyClass)),
+			])
 			->addBody('return ?::update($primaryKey);', [new Code\PhpLiteral($namespace->simplifyName($this->modificationClass))]);
 
 		$classType->addMethod('save')
@@ -228,13 +225,10 @@ final class TableImplementation implements Capability
 			->setParameters([
 				(new Code\Parameter('rowOrKey'))->setType($this->rowClass . '|' . $this->primaryKeyClass)
 			])
-			->addBody('if ($rowOrKey instanceof ?) {', [new Code\PhpLiteral($namespace->simplifyName($this->primaryKeyClass))])
-			->addBody("\t\$primaryKey = \$rowOrKey;")
-			->addBody('} else {')
-			->addBody("\t/** @var class-string<?> \$primaryKeyClass */", [new Code\PhpLiteral($namespace->simplifyName($this->primaryKeyClass))])
-			->addBody("\t\$primaryKeyClass = self::getPrimaryKeyClass();")
-			->addBody("\t\$primaryKey = \$primaryKeyClass::fromRow(\$rowOrKey);")
-			->addBody('}')
+			->addBody('$primaryKey = $rowOrKey instanceof ? \? $rowOrKey : ?::fromRow($rowOrKey);', [
+				new Code\PhpLiteral($namespace->simplifyName($this->primaryKeyClass)),
+				new Code\PhpLiteral($namespace->simplifyName($this->primaryKeyClass)),
+			])
 			->addBody('$this->tableManager->delete($this, $primaryKey);');
 
 		$namespace->addUse(TableManager::class);

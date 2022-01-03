@@ -151,13 +151,7 @@ final class TestsTable implements Table
 
 	public function edit(TestRow|TestPrimaryKey $rowOrKey): TestModifications
 	{
-		if ($rowOrKey instanceof TestPrimaryKey) {
-			$primaryKey = $rowOrKey;
-		} else {
-			/** @var class-string<TestPrimaryKey> $primaryKeyClass */
-			$primaryKeyClass = self::getPrimaryKeyClass();
-			$primaryKey = $primaryKeyClass::fromRow($rowOrKey);
-		}
+		$primaryKey = $rowOrKey instanceof TestPrimaryKey ? $rowOrKey : TestPrimaryKey::fromRow($rowOrKey);
 		return TestModifications::update($primaryKey);
 	}
 
@@ -170,13 +164,7 @@ final class TestsTable implements Table
 
 	public function delete(TestRow|TestPrimaryKey $rowOrKey): void
 	{
-		if ($rowOrKey instanceof TestPrimaryKey) {
-			$primaryKey = $rowOrKey;
-		} else {
-			/** @var class-string<TestPrimaryKey> $primaryKeyClass */
-			$primaryKeyClass = self::getPrimaryKeyClass();
-			$primaryKey = $primaryKeyClass::fromRow($rowOrKey);
-		}
+		$primaryKey = $rowOrKey instanceof TestPrimaryKey ? $rowOrKey : TestPrimaryKey::fromRow($rowOrKey);
 		$this->tableManager->delete($this, $primaryKey);
 	}
 
