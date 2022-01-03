@@ -81,14 +81,14 @@ final class TableManager
 		$result = $this->connection->query(
 			'SELECT *',
 			'FROM %n.%n', $table::getSchema(), $table::getTableName(),
-			'WHERE %ex', (\is_array($conditions) ? Composite::and(...$conditions) : $conditions)->format(),
+			'WHERE %ex', (\is_array($conditions) ? Composite::and(...$conditions) : $conditions)->toSql()->getValues(),
 			'ORDER BY %by', \count($orderBy) > 0
 				? map($orderBy, function (OrderBy|Expression $orderBy) {
 					if ($orderBy instanceof Expression) {
 						$orderBy = new OrderBy($orderBy);
 					}
 
-					return $orderBy->format();
+					return $orderBy->toSql()->getValues();
 				})
 				: [['%b', true]],
 		);
@@ -131,7 +131,7 @@ final class TableManager
 				$changes->getModifications(),
 				static fn(mixed $value, string $columnName) => $value !== null ? $table->getTypeOf($columnName)->toDatabase($value) : null,
 			),
-			'WHERE %ex', $primaryKey->getCondition($table)->format(),
+			'WHERE %ex', $primaryKey->getCondition($table)->toSql()->getValues(),
 		);
 		$affectedRows = $this->connection->getAffectedRows();
 		if ($affectedRows !== 1) {
@@ -153,7 +153,7 @@ final class TableManager
 		$this->connection->query(
 			'DELETE',
 			'FROM %n.%n', $table::getSchema(), $table::getTableName(),
-			'WHERE %ex', $primaryKey->getCondition($table)->format(),
+			'WHERE %ex', $primaryKey->getCondition($table)->toSql()->getValues(),
 		);
 		\assert($this->connection->getAffectedRows() === 1);
 	}

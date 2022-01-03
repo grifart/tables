@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Grifart\Tables\OrderBy;
 
+use Dibi\Expression as DibiExpression;
 use Grifart\Tables\Expression;
 
 final class OrderBy
@@ -17,15 +18,12 @@ final class OrderBy
 		private string $direction = OrderByDirection::ASC,
 	) {}
 
-	/**
-	 * @return mixed[]
-	 */
-	public function format(): array
+	public function toSql(): DibiExpression
 	{
-		return [
+		return new DibiExpression(
 			'? %sql',
 			$this->expression->toSql(),
 			$this->direction,
-		];
+		);
 	}
 }
