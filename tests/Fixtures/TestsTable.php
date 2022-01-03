@@ -149,19 +149,9 @@ final class TestsTable implements Table
 	}
 
 
-	public function edit(TestRow $row): TestModifications
+	public function edit(TestRow|TestPrimaryKey $rowOrKey): TestModifications
 	{
-		/** @var TestPrimaryKey $primaryKeyClass */
-		$primaryKeyClass = self::getPrimaryKeyClass();
-
-		return TestModifications::update(
-			$primaryKeyClass::fromRow($row)
-		);
-	}
-
-
-	public function editByKey(TestPrimaryKey $primaryKey): TestModifications
-	{
+		$primaryKey = $rowOrKey instanceof TestPrimaryKey ? $rowOrKey : TestPrimaryKey::fromRow($rowOrKey);
 		return TestModifications::update($primaryKey);
 	}
 
@@ -172,8 +162,9 @@ final class TestsTable implements Table
 	}
 
 
-	public function delete(TestPrimaryKey $primaryKey): void
+	public function delete(TestRow|TestPrimaryKey $rowOrKey): void
 	{
+		$primaryKey = $rowOrKey instanceof TestPrimaryKey ? $rowOrKey : TestPrimaryKey::fromRow($rowOrKey);
 		$this->tableManager->delete($this, $primaryKey);
 	}
 
