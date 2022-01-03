@@ -4,7 +4,7 @@ stages:
 
 install:
   stage: install
-  image: grifart/php8.0-with-all-modules-and-various-tools
+  image: grifart/php8.1-with-all-modules-and-various-tools
   interruptible: true
   script:
     - composer install
@@ -15,14 +15,14 @@ install:
 
 phpstan:
   stage: test
-  image: grifart/php8.0-with-all-modules-and-various-tools
+  image: grifart/php8.1-with-all-modules-and-various-tools
   interruptible: true
   script:
     - composer run phpstan
 
 tests:
   stage: test
-  image: grifart/php8.0-with-all-modules-and-various-tools
+  image: grifart/php8.1-with-all-modules-and-various-tools
   interruptible: true
   services:
     - postgres:14-alpine
