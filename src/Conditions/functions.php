@@ -4,111 +4,107 @@ declare(strict_types=1);
 
 namespace Grifart\Tables\Conditions;
 
-/**
- * @param Condition<mixed> ...$conditions
- */
-function all(Condition ...$conditions): CompositeCondition {
-	return CompositeCondition::and(...$conditions);
+use Grifart\Tables\Expression;
+
+function all(Condition ...$conditions): Composite {
+	return Composite::and(...$conditions);
 }
 
-/**
- * @param Condition<mixed> ...$conditions
- */
-function any(Condition ...$conditions): CompositeCondition {
-	return CompositeCondition::or(...$conditions);
+function any(Condition ...$conditions): Composite {
+	return Composite::or(...$conditions);
 }
 
 
 /**
  * @template ValueType
  * @param ValueType $value
- * @return Operation<ValueType>
+ * @return \Closure(Expression<ValueType>): IsEqualTo<ValueType>
  */
-function equalTo(mixed $value): Operation
+function equalTo(mixed $value): \Closure
 {
-	return new BinaryOperation('=', $value);
+	return static fn(Expression $expression) => new IsEqualTo($expression, $value);
 }
 
 /**
  * @template ValueType
  * @param ValueType $value
- * @return Operation<ValueType>
+ * @return \Closure(Expression<ValueType>): IsGreaterThan<ValueType>
  */
-function greaterThan(mixed $value): Operation
+function greaterThan(mixed $value): \Closure
 {
-	return new BinaryOperation('>', $value);
+	return static fn(Expression $expression) => new IsGreaterThan($expression, $value);
 }
 
 /**
  * @template ValueType
  * @param ValueType $value
- * @return Operation<ValueType>
+ * @return \Closure(Expression<ValueType>): IsGreaterThanOrEqualTo<ValueType>
  */
-function greaterThanOrEqualTo(mixed $value): Operation
+function greaterThanOrEqualTo(mixed $value): \Closure
 {
-	return new BinaryOperation('>=', $value);
+	return static fn(Expression $expression) => new IsGreaterThanOrEqualTo($expression, $value);
 }
 
 /**
  * @template ValueType
  * @param ValueType $value
- * @return Operation<ValueType>
+ * @return \Closure(Expression<ValueType>): IsLesserThan<ValueType>
  */
-function lesserThan(mixed $value): Operation
+function lesserThan(mixed $value): \Closure
 {
-	return new BinaryOperation('<', $value);
+	return static fn(Expression $expression) => new IsLesserThan($expression, $value);
 }
 
 /**
  * @template ValueType
  * @param ValueType $value
- * @return Operation<ValueType>
+ * @return \Closure(Expression<ValueType>): IsLesserThanOrEqualTo<ValueType>
  */
-function lesserThanOrEqualTo(mixed $value): Operation
+function lesserThanOrEqualTo(mixed $value): \Closure
 {
-	return new BinaryOperation('<=', $value);
+	return static fn(Expression $expression) => new IsLesserThanOrEqualTo($expression, $value);
 }
 
 /**
  * @template ValueType
  * @param ValueType $value
- * @return Operation<ValueType>
+ * @return \Closure(Expression<ValueType>): IsNotEqualTo<ValueType>
  */
-function notEqualTo(mixed $value): Operation
+function notEqualTo(mixed $value): \Closure
 {
-	return new BinaryOperation('!=', $value);
+	return static fn(Expression $expression) => new IsNotEqualTo($expression, $value);
 }
 
 /**
  * @template ValueType
  * @param ValueType[] $values
- * @return Operation<ValueType>
+ * @return \Closure(Expression<ValueType>): IsIn<ValueType>
  */
-function in(array $values): Operation {
-	return new InOperation($values);
+function in(array $values): \Closure {
+	return static fn(Expression $expression) => new IsIn($expression, $values);
 }
 
 /**
  * @template ValueType
  * @param ValueType[] $values
- * @return Operation<ValueType>
+ * @return \Closure(Expression<ValueType>): IsNotIn<ValueType>
  */
-function notIn(array $values): Operation {
-	return new InOperation($values, negated: true);
+function notIn(array $values): \Closure {
+	return static fn(Expression $expression) => new IsNotIn($expression, $values);
 }
 
 /**
- * @return Operation<never>
+ * @return \Closure(Expression<mixed>): IsNull
  */
-function null(): Operation
+function null(): \Closure
 {
-	return new NullOperation();
+	return static fn(Expression $expression) => new IsNull($expression);
 }
 
 /**
- * @return Operation<never>
+ * @return \Closure(Expression<mixed>): IsNotNull
  */
-function notNull(): Operation
+function notNull(): \Closure
 {
-	return new NullOperation(negated: true);
+	return static fn(Expression $expression) => new IsNotNull($expression);
 }

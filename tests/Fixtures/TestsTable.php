@@ -108,7 +108,7 @@ final class TestsTable implements Table
 
 
 	/**
-	 * @param Condition<mixed>|Condition<mixed>[] $conditions
+	 * @param Condition|Condition[] $conditions
 	 * @param array<OrderBy|Expression<mixed>> $orderBy
 	 * @return TestRow[]
 	 */
@@ -121,7 +121,7 @@ final class TestsTable implements Table
 
 
 	/**
-	 * @param Condition<mixed>|Condition<mixed>[] $conditions
+	 * @param Condition|Condition[] $conditions
 	 * @return TestRow
 	 * @throws RowNotFound
 	 */

@@ -4,8 +4,7 @@ declare(strict_types=1);
 
 namespace Grifart\Tables;
 
-use Grifart\Tables\Conditions\Operation;
-use Grifart\Tables\Conditions\SingleCondition;
+use Grifart\Tables\Conditions\Condition;
 use Grifart\Tables\OrderBy\OrderBy;
 use Grifart\Tables\OrderBy\OrderByDirection;
 
@@ -16,12 +15,11 @@ use Grifart\Tables\OrderBy\OrderByDirection;
 abstract class ExpressionWithShorthands implements Expression
 {
 	/**
-	 * @param Operation<ValueType> $operation
-	 * @return SingleCondition<ValueType>
+	 * @param \Closure(Expression<ValueType>): Condition $conditionFactory
 	 */
-	public function is(Operation $operation): SingleCondition
+	public function is(\Closure $conditionFactory): Condition
 	{
-		return new SingleCondition($this, $operation);
+		return $conditionFactory($this);
 	}
 
 	public function ascending(): OrderBy

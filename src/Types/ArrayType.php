@@ -32,6 +32,14 @@ final class ArrayType implements Type
 		return new self($itemType);
 	}
 
+	/**
+	 * @return Type<ItemType>
+	 */
+	public function getItemType(): Type
+	{
+		return $this->itemType;
+	}
+
 	public function getPhpType(): PhpType
 	{
 		return listOf($this->itemType->getPhpType());
