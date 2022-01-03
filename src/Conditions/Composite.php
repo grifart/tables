@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Grifart\Tables\Conditions;
 
+use Dibi\Expression as DibiExpression;
 use function Functional\map;
 
 final class Composite implements Condition
@@ -33,14 +34,14 @@ final class Composite implements Condition
 		return new self('%or', $conditions);
 	}
 
-	public function format(): array
+	public function toSql(): DibiExpression
 	{
-		return [
+		return new DibiExpression(
 			$this->operator,
 			map(
 				$this->conditions,
-				static fn(Condition $condition) => $condition->format(),
+				static fn(Condition $condition) => $condition->toSql(),
 			),
-		];
+		);
 	}
 }

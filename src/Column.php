@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Grifart\Tables;
 
 use Dibi\Expression as DibiExpression;
-use Dibi\Literal;
 
 /**
  * @template TableType of Table
@@ -27,7 +26,7 @@ final class Column extends ExpressionWithShorthands
 		return $this->column->getName();
 	}
 
-	public function toSql(): DibiExpression|Literal
+	public function toSql(): DibiExpression
 	{
 		return new DibiExpression('%n', $this->getName());
 	}

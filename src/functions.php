@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Grifart\Tables;
 
 use Dibi\Expression as DibiExpression;
-use Dibi\Literal;
 use function Functional\map;
 
 /**
@@ -30,7 +29,7 @@ function expr(
 			private array $arguments,
 		) {}
 
-		public function toSql(): DibiExpression|Literal
+		public function toSql(): DibiExpression
 		{
 			return new DibiExpression(
 				$this->pattern,

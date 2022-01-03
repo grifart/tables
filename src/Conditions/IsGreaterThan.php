@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Grifart\Tables\Conditions;
 
+use Dibi\Expression as DibiExpression;
 use Grifart\Tables\Expression;
 use function Grifart\Tables\Types\mapToDatabase;
 
@@ -21,12 +22,12 @@ final class IsGreaterThan implements Condition
 		private mixed $value,
 	) {}
 
-	public function format(): array
+	public function toSql(): DibiExpression
 	{
-		return [
+		return new DibiExpression(
 			'? > ?',
 			$this->expression->toSql(),
 			mapToDatabase($this->value, $this->expression->getType()),
-		];
+		);
 	}
 }

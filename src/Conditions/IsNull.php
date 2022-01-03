@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Grifart\Tables\Conditions;
 
+use Dibi\Expression as DibiExpression;
 use Grifart\Tables\Expression;
 
 final class IsNull implements Condition
@@ -15,11 +16,11 @@ final class IsNull implements Condition
 		private Expression $expression,
 	) {}
 
-	public function format(): array
+	public function toSql(): DibiExpression
 	{
-		return [
+		return new DibiExpression(
 			'? IS NULL',
 			$this->expression->toSql(),
-		];
+		);
 	}
 }
