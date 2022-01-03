@@ -203,34 +203,16 @@ final class TableImplementation implements Capability
 		$classType->addMethod('edit')
 			->setReturnType($this->modificationClass)
 			->setParameters([
-				(new Code\Parameter('row'))->setType($this->rowClass)
+				(new Code\Parameter('rowOrKey'))->setType($this->rowClass . '|' . $this->primaryKeyClass),
 			])
-			->setBody(
-				'/** @var ? $primaryKeyClass */' . "\n" .
-				'$primaryKeyClass = self::getPrimaryKeyClass();' . "\n" .
-				"\n" .
-
-				'return ?::update(' . "\n" .
-				"\t" . '$primaryKeyClass::fromRow($row)' . "\n" .
-				');',
-				[
-					new Code\PhpLiteral($namespace->simplifyName($this->primaryKeyClass)),
-					new Code\PhpLiteral($namespace->simplifyName($this->modificationClass)),
-				]
-			);
-
-		$classType->addMethod('editByKey')
-			->setReturnType($this->modificationClass)
-			->setParameters([
-				(new Code\Parameter('primaryKey'))->setType($this->primaryKeyClass)
-			])
-			->setBody(
-				'return ?::update($primaryKey);',
-				[
-					new Code\PhpLiteral($namespace->simplifyName($this->modificationClass)),
-				]
-			);
-
+			->addBody('if ($rowOrKey instanceof ?) {', [new Code\PhpLiteral($namespace->simplifyName($this->primaryKeyClass))])
+			->addBody("\t\$primaryKey = \$rowOrKey;")
+			->addBody('} else {')
+			->addBody("\t/** @var class-string<?> \$primaryKeyClass */", [new Code\PhpLiteral($namespace->simplifyName($this->primaryKeyClass))])
+			->addBody("\t\$primaryKeyClass = self::getPrimaryKeyClass();")
+			->addBody("\t\$primaryKey = \$primaryKeyClass::fromRow(\$rowOrKey);")
+			->addBody('}')
+			->addBody('return ?::update($primaryKey);', [new Code\PhpLiteral($namespace->simplifyName($this->modificationClass))]);
 
 		$classType->addMethod('save')
 			->setReturnType('void')
@@ -244,11 +226,16 @@ final class TableImplementation implements Capability
 		$classType->addMethod('delete')
 			->setReturnType('void')
 			->setParameters([
-				(new Code\Parameter('primaryKey'))->setType($this->primaryKeyClass)
+				(new Code\Parameter('rowOrKey'))->setType($this->rowClass . '|' . $this->primaryKeyClass)
 			])
-			->setBody(
-				'$this->tableManager->delete($this, $primaryKey);'
-			);
+			->addBody('if ($rowOrKey instanceof ?) {', [new Code\PhpLiteral($namespace->simplifyName($this->primaryKeyClass))])
+			->addBody("\t\$primaryKey = \$rowOrKey;")
+			->addBody('} else {')
+			->addBody("\t/** @var class-string<?> \$primaryKeyClass */", [new Code\PhpLiteral($namespace->simplifyName($this->primaryKeyClass))])
+			->addBody("\t\$primaryKeyClass = self::getPrimaryKeyClass();")
+			->addBody("\t\$primaryKey = \$primaryKeyClass::fromRow(\$rowOrKey);")
+			->addBody('}')
+			->addBody('$this->tableManager->delete($this, $primaryKey);');
 
 		$namespace->addUse(TableManager::class);
 		$namespace->addUse(TypeResolver::class);
