@@ -314,7 +314,7 @@ As you might have noticed, Tables provide default mapping for most PostgreSQL's 
 - Integer types (`smallint`, `int`, `bigint`) all map to `int`.
 - Boolean type maps to `bool`.
 - Binary type (`bytea`) maps to a binary `string`.
-- Json types (`json`, `jsonb`) map to a JSON-decoded PHP value.
+- Json types (`json`, `jsonb`) map to a `json_decode()`'d PHP value.
 
 Additional basic types are only mapped provided that certain packages are installed:
 
