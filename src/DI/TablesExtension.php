@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Grifart\Tables\DI;
 
 use Grifart\Tables\Scaffolding\PostgresReflector;
+use Grifart\Tables\Scaffolding\TableDefinitions;
 use Grifart\Tables\TableManager;
 use Grifart\Tables\TypeResolver;
 use Nette\DI\CompilerExtension;
@@ -41,6 +42,9 @@ final class TablesExtension extends CompilerExtension
 
 		$builder->addDefinition($this->prefix('tableManager'))
 			->setFactory(TableManager::class);
+
+		$builder->addDefinition($this->prefix('scaffolding'))
+			->setFactory(TableDefinitions::class);
 
 		$builder->addDefinition($this->prefix('reflector'))
 			->setFactory(PostgresReflector::class);

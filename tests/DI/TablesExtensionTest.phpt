@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Grifart\Tables\Tests\DI;
 
 use Dibi\Connection;
+use Grifart\Tables\Scaffolding\TableDefinitions;
 use Grifart\Tables\TableManager;
 use Grifart\Tables\Tests\Fixtures\UuidType;
 use Grifart\Tables\TypeResolver;
@@ -38,6 +39,7 @@ $createContainer = function (string $configFile): Container
 (function () use ($createContainer) {
 	$container = $createContainer('default');
 	Assert::type(TableManager::class, $container->getByType(TableManager::class));
+	Assert::type(TableDefinitions::class, $container->getByType(TableDefinitions::class));
 })();
 
 (function () use ($createContainer) {
