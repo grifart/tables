@@ -18,7 +18,7 @@ use function Grifart\ClassScaffolder\Capabilities\namedConstructor;
 use function Grifart\ClassScaffolder\Capabilities\privatizedConstructor;
 use function Grifart\ClassScaffolder\Definition\Types\nullable;
 
-final class TableDefinitions
+final class TablesDefinitions
 {
 	public function __construct(
 		private PostgresReflector $pgReflector,
