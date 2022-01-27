@@ -8,12 +8,6 @@ A simple library to access and manipulate database records. Built on top of [Dib
 composer require grifart/tables
 ```
 
-Although optional, we highly recommend you install [grifart/scaffolder](https://github.com/grifart/scaffolder) as well. This will help you generate lots of boilerplate code.
-
-```shell
-composer require grifart/scaffolder
-```
-
 ## Quick start
 
 1. **Register the tables DI extension.** Tables expect that an instance of [Dibi](https://github.com/dg/dibi) is also configured and registered in the container.
@@ -36,7 +30,7 @@ composer require grifart/scaffolder
     );
     ```
 
-3. **Create a definition file for scaffolder.** Tables expose a helper that creates all necessary class definitions for you:
+3. **Create a definition file for [scaffolder](https://github.com/grifart/scaffolder).** Tables expose a helper that creates all necessary class definitions for you:
 
     ```php
     <?php
