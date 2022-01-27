@@ -112,7 +112,14 @@ $rows = $table->findBy(
 );
 ```
 
-This package provides a `Composite` condition that lets you compose the most complex trees of boolean logic together, and a set of most common conditions such as equality, comparison, and null-checks.
+The code above could be simplified to a list of conditions – if a list is passed, the `and` relationship is assumed implicitly:
+
+```php
+$rows = $table->findBy([
+    $table->published()->is(equalTo(true)),
+    $table->createdAt()->is(lesserThanOrEqualTo(Instant::now())),
+]);
+```
 
 In addition to these, you can also write your own condition by implementing the `Condition` interface. It defines the sole method `format()` which is expected to return an array compatible with [Dibi](https://github.com/dg/dibi).
 
