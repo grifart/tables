@@ -184,6 +184,10 @@ Expressions are an abstraction over database expressions. All table columns are 
 You can also create custom expressions that map to various database functions and operations. You just need to implement the `Expression` interface which requires you to specify the SQL representation of the expression, and also its type (used for formatting values in conditions):
 
 ```php
+use Grifart\Tables\Expression;
+use Grifart\Tables\Types\IntType;
+use Grifart\Tables\Type;
+
 /**
  * @implements Expression<int>
  */
@@ -198,7 +202,7 @@ final class Year implements Expression
 
     public function toSql(): \Dibi\Expression
     {
-        return new DibiExpression(
+        return new \Dibi\Expression(
             "EXTRACT ('year' FROM ?)",
             $this->sub->toSql(),
         );
