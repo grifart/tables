@@ -121,7 +121,9 @@ $rows = $table->findBy([
 ]);
 ```
 
-In addition to these, you can also write your own condition by implementing the `Condition` interface. It defines the sole method `format()` which is expected to return an array compatible with [Dibi](https://github.com/dg/dibi).
+This package provides a `Composite` condition that lets you compose the most complex trees of boolean logic together, and a set of most common conditions such as equality, comparison, and null-checks. For a complete list, look into the `Conditions/functions.php` file.
+
+In addition to these, you can also write your own conditions by implementing the `Condition` interface. It defines the sole method `format()` which is expected to return an array compatible with [Dibi](https://github.com/dg/dibi).
 
 Take a look at how a `LIKE` condition could be implemented. It maps to a `LIKE` database operation with two operands, a sub-expression (more on that below), and a pattern mapped to a database text:
 
