@@ -34,17 +34,16 @@ composer require grifart/tables
 
     ```php
     <?php
-  
-    use Grifart\Tables\Scaffolding\PostgresReflector;
-    use Grifart\Tables\Scaffolding\Scaffolding;
-    use Grifart\Tables\TypeResolver;
-  
-    // create a DI container
+
+    use Grifart\Tables\Scaffolding\TablesDefinitions;
+
+    // create a DI container, the same way as you do in your application's bootstrap.php, e.g.
     $container = App\Bootstrap::boot();
-  
-    return Scaffolding::definitionsForPgTable(
-        $container->getByType(PostgresReflector::class),
-        $container->getByType(TypeResolver::class),
+
+    // grab the definitions factory from the container
+    $tablesDefinitions = $container->getByType(TablesDefinitions::class);
+
+    return $tablesDefinitions->for(
         'public', // table schema
         'article', // table name
         ArticleRow::class,
