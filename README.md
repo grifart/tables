@@ -308,16 +308,19 @@ $table->delete($articleRow);
 
 ### Basic types
 
-As you might have noticed, Tables provide default mapping for all PostgreSQL's basic types:
+As you might have noticed, Tables provide default mapping for most PostgreSQL's basic types:
 
 - Textual types (`character`, `character varying`, `text`) all map to `string`.
 - Integer types (`smallint`, `int`, `bigint`) all map to `int`.
 - Boolean type maps to `bool`.
 - Binary type (`bytea`) maps to a binary `string`.
-- Numeric type (`numeric`/`decimal`) maps to a `BigDecimal` from [brick/math](https://github.com/brick/math) if installed.
-- Date-time types (`date`, `time`, `timestamp`) map to `LocalDate`, `LocalType`, and `Instant`, respectively, from [brick/date-time](https://github.com/brick/date-time) if installed.
-- Uuid type maps to a `Uuid` from [ramsey/uuid](https://github.com/ramsey/uuid) if installed.
 - Json types (`json`, `jsonb`) map to a JSON-decoded PHP value.
+
+Additional basic types are only mapped provided that certain packages are installed:
+
+- Numeric type (`numeric`/`decimal`) maps to a `BigDecimal` from [brick/math](https://github.com/brick/math).
+- Date-time types (`date`, `time`, `timestamp`) map to `LocalDate`, `LocalType`, and `Instant`, respectively, from [brick/date-time](https://github.com/brick/date-time).
+- Uuid type maps to a `Uuid` from [ramsey/uuid](https://github.com/ramsey/uuid).
 
 ### Advanced types
 
