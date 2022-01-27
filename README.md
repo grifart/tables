@@ -142,13 +142,13 @@ final class IsLike implements Condition
 		private string $pattern,
 	) {}
 
-	public function format(): array
+	public function format(): \Dibi\Expression
 	{
-		return [
+		return new \Dibi\Expression(
 			'? LIKE ?',
 			$this->expression->toSql(),
 			mapToDatabase($this->pattern, new TextType()),
-		];
+		);
 	}
 }
 ```
