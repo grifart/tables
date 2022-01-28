@@ -73,10 +73,10 @@ Use dependency injection to retrieve an instance of the `ArticlesTable` service 
 
 ### Read
 
-You can list all records in the table by calling the `getAll()` method. The method optionally accepts sorting criteria (more on that below);
+You can list all records in the table by calling the `getAll()` method. The method optionally accepts sorting criteria and a paginator (more on both below).
 
 ```php
-$rows = $table->getAll($orderBy);
+$rows = $table->getAll($orderBy, $paginator);
 ```
 
 To fetch a specific record from the table, use either the `find()` or `get()` method with the desired record's primary key. The difference is that `find()` returns `null` if the query yields empty result, whereas `get()` throws an exception in such case:
@@ -90,7 +90,7 @@ $row = $table->get(ArticlePrimaryKey::of($articleId));
 To retrieve a list of records that match given criteria, you can use the `findBy()` method and pass a set of conditions to it (more on that below):
 
 ```php
-$rows = $table->findBy($conditions, $orderBy);
+$rows = $table->findBy($conditions, $orderBy, $paginator);
 ```
 
 There is also a helper method to retrieve a *single* record that matches given criteria. It throws an exception when the query doesn't yield exactly one result:
@@ -253,6 +253,18 @@ $rows = $table->getAll(orderBy: [
     $table->createdAt()->descending(),
     $table->title(), // ->ascending() is the default
 ]);
+```
+
+#### Pagination
+
+The `getAll` and `findBy` methods also optionally accept an instance of `Nette\Utils\Paginator`. If you provide it, the table will not only set the correct limit and offset, but also query the database for the total number of items, and update the paginator with that value.
+
+```php
+$paginator = new \Nette\Utils\Paginator();
+$paginator->setItemsPerPage(20);
+$paginator->setPage(2);
+
+$rows = $table->getAll($orderBy, $paginator);
 ```
 
 ### Insert
