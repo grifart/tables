@@ -11,6 +11,7 @@ use Grifart\Tables\Tests\Fixtures\TestsTable;
 use Grifart\Tables\Tests\Fixtures\Uuid;
 use Grifart\Tables\Types\BooleanType;
 use Grifart\Tables\Types\IntType;
+use Nette\Utils\Paginator;
 use Tester\Assert;
 use function Grifart\Tables\Conditions\equalTo;
 use function Grifart\Tables\Conditions\greaterThanOrEqualTo;
@@ -61,6 +62,18 @@ $nonNegativeReversed = $table->findBy(
 Assert::count(2, $nonNegativeReversed);
 Assert::same(42, $nonNegativeReversed[0]->getScore());
 Assert::same(0, $nonNegativeReversed[1]->getScore());
+
+$paginator = new Paginator();
+$paginator->setItemsPerPage(1);
+$paginator->setPage(2);
+$nonNegativePaginated = $table->findBy(
+	$table->score()->is(greaterThanOrEqualTo(0)),
+	orderBy: [$table->score()],
+	paginator: $paginator,
+);
+Assert::count(1, $nonNegativePaginated);
+Assert::same(42, $nonNegativePaginated[0]->getScore());
+Assert::same(2, $paginator->getItemCount());
 
 $abs = static fn(Expression $sub) => expr(new IntType(), 'ABS(?)', $sub);
 $filteredByExpression = $table->findBy(
