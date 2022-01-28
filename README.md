@@ -341,7 +341,7 @@ tables:
             schema.table.column: App\Tables\MyType
 ```
 
-Alternatively, you can implement the `TypeResolverConfigurator` interface and register the implementation in the DI container. Tables will automatically pick it up and pass the `TypeResolver` to the configurator's `configure()` method.
+Alternatively, you can register implementations of the `TypeResolverConfigurator` interface in the DI container. Tables will automatically pick them up and pass the `TypeResolver` to the configurators's `configure()` method.
 
 #### Custom types
 
