@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Grifart\Tables\Scaffolding;
 
@@ -16,19 +18,14 @@ use function Grifart\ClassScaffolder\Capabilities\namedConstructor;
 use function Grifart\ClassScaffolder\Capabilities\privatizedConstructor;
 use function Grifart\ClassScaffolder\Definition\Types\nullable;
 
-
-final class Scaffolding
+final class TablesDefinitions
 {
+	public function __construct(
+		private PostgresReflector $pgReflector,
+		private TypeResolver $typeResolver,
+	) {}
 
-	/**
-	 * Usage:
-	 * ```php
-	 * return Scaffolding::definitionsForPgTable(...);
-	 * ```
-	 */
-	public static function definitionsForPgTable(
-		PostgresReflector $pgReflector,
-		TypeResolver $typeResolver,
+	public function for(
 		string $schema,
 		string $table,
 		string $rowClassName,
@@ -37,16 +34,16 @@ final class Scaffolding
 		string $primaryKeyClassName,
 	): Definitions
 	{
-		$columnMetadata = $pgReflector->retrieveColumnMetadata($schema, $table);
+		$columnMetadata = $this->pgReflector->retrieveColumnMetadata($schema, $table);
 		if (\count($columnMetadata) === 0) {
 			throw new \LogicException('No columns found for given configuration. Does referenced table exist?');
 		}
 
 		$columnResolvedTypes = map(
 			$columnMetadata,
-			static function (ColumnMetadata $column) use ($typeResolver, $schema, $table): Type {
+			function (ColumnMetadata $column) use ($schema, $table): Type {
 				$location = "$schema.$table.{$column->getName()}";
-				return $typeResolver->resolveType($column->getType(), $location);
+				return $this->typeResolver->resolveType($column->getType(), $location);
 			},
 		);
 
@@ -78,7 +75,7 @@ final class Scaffolding
 		$modificationsClass = $addTableFields(new ClassDefinition($modificationsClassName))
 			->with(new ModificationsImplementation($tableClassName, $primaryKeyClassName));
 
-		$primaryKeyColumnNames = $pgReflector->retrievePrimaryKeyColumns($schema, $table);
+		$primaryKeyColumnNames = $this->pgReflector->retrievePrimaryKeyColumns($schema, $table);
 		$primaryKeyFields = map($primaryKeyColumnNames, static fn(string $name) => $columnPhpTypes[$name]);
 		$primaryKeyClass = (new ClassDefinition($primaryKeyClassName))
 			->withFields($primaryKeyFields)
@@ -104,5 +101,4 @@ final class Scaffolding
 
 		return Definitions::from($rowClass, $modificationsClass, $primaryKeyClass, $tableClass);
 	}
-
 }
