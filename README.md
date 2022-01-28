@@ -19,7 +19,7 @@ composer require grifart/tables
 
 2. **Create a database table.** You can use your favourite database migration tool.
 
-    ```postgresql
+    ```sql
     CREATE TABLE "article" (
       "id" uuid NOT NULL PRIMARY KEY,
       "title" varchar NOT NULL,
