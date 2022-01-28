@@ -1,6 +1,6 @@
 # grifart/tables
 
-A simple library to access and manipulate database records. Built on top of [Dibi](https://github.com/dg/dibi) and hardwired for PostgreSQL because why would you want to use anything else?
+A simple library to access and manipulate database records. Built on top of [Dibi](https://github.com/dg/dibi) and **hardwired for PostgreSQL.**
 
 ## Installation
 
