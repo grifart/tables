@@ -8,11 +8,11 @@ use Dibi\Connection;
 use Grifart\Tables\Conditions\Composite;
 use Grifart\Tables\Conditions\Condition;
 use Grifart\Tables\OrderBy\OrderBy;
+use Nette\Utils\Paginator;
 use function Functional\map;
 
 // todo: error handling
 // todo: mapping of exceptions
-// todo: paging/limit (needed?)
 
 final class TableManager
 {
@@ -64,9 +64,9 @@ final class TableManager
 	 * @param OrderBy[] $orderBy
 	 * @return Row[]
 	 */
-	public function getAll(Table $table, array $orderBy = []): array
+	public function getAll(Table $table, array $orderBy = [], ?Paginator $paginator = null): array
 	{
-		return $this->findBy($table, [], $orderBy);
+		return $this->findBy($table, [], $orderBy, $paginator);
 	}
 
 	/**
@@ -76,7 +76,7 @@ final class TableManager
 	 * @param array<OrderBy|Expression<mixed>> $orderBy
 	 * @return Row[] (subclass of row)
 	 */
-	public function findBy(Table $table, Condition|array $conditions, array $orderBy = []): array
+	public function findBy(Table $table, Condition|array $conditions, array $orderBy = [], ?Paginator $paginator = null): array
 	{
 		$result = $this->connection->query(
 			'SELECT *',
@@ -91,6 +91,8 @@ final class TableManager
 					return $orderBy->toSql()->getValues();
 				})
 				: [['%b', true]],
+			'%lmt', $paginator?->getItemsPerPage(),
+			'%ofs', $paginator?->getOffset(),
 		);
 
 		foreach ($table::getDatabaseColumns() as $column) {
@@ -111,6 +113,18 @@ final class TableManager
 				),
 			);
 		}
+
+		if ($paginator !== null) {
+			$totalCount = $this->connection->query(
+				'SELECT COUNT(*)',
+				'FROM %n.%n', $table::getSchema(), $table::getTableName(),
+				'WHERE %ex', (\is_array($conditions) ? Composite::and(...$conditions) : $conditions)->toSql()->getValues(),
+			)->fetchSingle();
+
+			\assert(\is_int($totalCount));
+			$paginator->setItemCount($totalCount);
+		}
+
 		return $modelRows;
 	}
 

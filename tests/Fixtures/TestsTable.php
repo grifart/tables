@@ -20,6 +20,7 @@ use Grifart\Tables\TableManager;
 use Grifart\Tables\TooManyRowsFound;
 use Grifart\Tables\Type;
 use Grifart\Tables\TypeResolver;
+use Nette\Utils\Paginator;
 
 final class TestsTable implements Table
 {
@@ -99,10 +100,10 @@ final class TestsTable implements Table
 	 * @param OrderBy[] $orderBy
 	 * @return TestRow[]
 	 */
-	public function getAll(array $orderBy = []): array
+	public function getAll(array $orderBy = [], ?Paginator $paginator = null): array
 	{
 		/** @var TestRow[] $result */
-		$result = $this->tableManager->getAll($this, $orderBy);
+		$result = $this->tableManager->getAll($this, $orderBy, $paginator);
 		return $result;
 	}
 
@@ -112,10 +113,10 @@ final class TestsTable implements Table
 	 * @param array<OrderBy|Expression<mixed>> $orderBy
 	 * @return TestRow[]
 	 */
-	public function findBy(Condition|array $conditions, array $orderBy = []): array
+	public function findBy(Condition|array $conditions, array $orderBy = [], ?Paginator $paginator = null): array
 	{
 		/** @var TestRow[] $result */
-		$result = $this->tableManager->findBy($this, $conditions, $orderBy);
+		$result = $this->tableManager->findBy($this, $conditions, $orderBy, $paginator);
 		return $result;
 	}
 

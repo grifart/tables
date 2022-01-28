@@ -22,6 +22,7 @@ use Grifart\Tables\TooManyRowsFound;
 use Grifart\Tables\Type;
 use Grifart\Tables\TypeResolver;
 use Nette\PhpGenerator as Code;
+use Nette\Utils\Paginator;
 
 final class TableImplementation implements Capability
 {
@@ -115,14 +116,18 @@ final class TableImplementation implements Capability
 			);
 
 		$namespace->addUse(OrderBy::class);
+		$namespace->addUse(Paginator::class);
 		$classType->addMethod('getAll')
 			->addComment('@param OrderBy[] $orderBy')
 			->addComment('@return ' . $namespace->simplifyName($this->rowClass) . '[]')
-			->setParameters([(new Code\Parameter('orderBy'))->setType('array')->setDefaultValue([])])
+			->setParameters([
+				(new Code\Parameter('orderBy'))->setType('array')->setDefaultValue([]),
+				(new Code\Parameter('paginator'))->setType(Paginator::class)->setNullable()->setDefaultValue(null),
+			])
 			->setReturnType('array')
 			->setBody(
 				"/** @var ?[] \$result */\n" .
-				"\$result = \$this->tableManager->getAll(\$this, \$orderBy);\n" .
+				"\$result = \$this->tableManager->getAll(\$this, \$orderBy, \$paginator);\n" .
 				'return $result;',
 				[new Code\PhpLiteral($namespace->simplifyName($this->rowClass))],
 			);
@@ -134,13 +139,14 @@ final class TableImplementation implements Capability
 			->setParameters([
 				(new Code\Parameter('conditions'))->setType(Condition::class . '|array'),
 				(new Code\Parameter('orderBy'))->setType('array')->setDefaultValue([]),
+				(new Code\Parameter('paginator'))->setType(Paginator::class)->setNullable()->setDefaultValue(null),
 			])
 			->addComment('@param Condition|Condition[] $conditions')
 			->addComment('@param array<OrderBy|Expression<mixed>> $orderBy')
 			->addComment('@return ' . $namespace->simplifyName($this->rowClass) . '[]')
 			->setReturnType('array')
 			->addBody('/** @var ?[] $result */', [new Code\PhpLiteral($namespace->simplifyName($this->rowClass))])
-			->addBody('$result = $this->tableManager->findBy($this, $conditions, $orderBy);')
+			->addBody('$result = $this->tableManager->findBy($this, $conditions, $orderBy, $paginator);')
 			->addBody('return $result;');
 
 
