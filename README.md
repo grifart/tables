@@ -238,7 +238,7 @@ $rows = $table->findBy(
 You can also use the `expr()` function to create such expression:
 
 ```php
-$year = fn(Expression $expr) => expr("EXTRACT ('year' FROM ?)", $expr->toSql());
+$year = fn(Expression $expr) => expr(new IntType(), "EXTRACT ('year' FROM ?)", $expr->toSql());
 $rows = $table->findBy(
     $year($table->createdAt())->is(equalTo(2021)),
 );
