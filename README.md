@@ -2,6 +2,8 @@
 
 A simple library to access and manipulate database records. Built on top of [Dibi](https://github.com/dg/dibi) and **hardwired for PostgreSQL.**
 
+This library is developed at [gitlab.grifart.cz/grifart/tables](https://gitlab.grifart.cz/grifart/tables) and distributed using [github.com/grifart/tables](https://github.com/grifart/tables). GitLab repository is automatically mirrored to GitHub for all protected branches and tags. Development branches can be found only at GitLab.
+
 ## Installation
 
 ```shell
