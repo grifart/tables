@@ -11,3 +11,14 @@ parameters:
 
 	excludePaths:
 		- tests/DI/temp/*
+
+	ignoreErrors:
+		-
+			message: "#^Template type ValueType of function Grifart\\\\Tables\\\\Conditions\\\\notNull\\(\\) is not referenced in a parameter\\.$#"
+			count: 1
+			path: src/Conditions/functions.php
+
+		-
+			message: "#^Template type ValueType of function Grifart\\\\Tables\\\\Conditions\\\\null\\(\\) is not referenced in a parameter\\.$#"
+			count: 1
+			path: src/Conditions/functions.php
