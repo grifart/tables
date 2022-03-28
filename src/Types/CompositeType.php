@@ -96,9 +96,7 @@ abstract class CompositeType implements Type
 			$char = $value[$i];
 
 			if ( ! $string && $char === ')') {
-				if ($item !== '') {
-					$result[] = $item;
-				}
+				$result[] = $item !== '' ? $item : null;
 				$end = $i;
 				break;
 			}
