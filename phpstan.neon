@@ -13,12 +13,10 @@ parameters:
 		- tests/DI/temp/*
 
 	ignoreErrors:
+		# null() / notNull() currently require type parameter so that it can be used in the return annotation.
+		# A better solution would be to use a type projection in the return type, but that's not currently supported in PHPStan.
+		# more info: https://gitlab.grifart.cz/grifart/tables/-/merge_requests/38#note_90571, https://github.com/phpstan/phpstan/issues/3290
 		-
-			message: "#^Template type ValueType of function Grifart\\\\Tables\\\\Conditions\\\\notNull\\(\\) is not referenced in a parameter\\.$#"
-			count: 1
-			path: src/Conditions/functions.php
-
-		-
-			message: "#^Template type ValueType of function Grifart\\\\Tables\\\\Conditions\\\\null\\(\\) is not referenced in a parameter\\.$#"
-			count: 1
+			message: "#^Template type ValueType of function Grifart\\\\Tables\\\\Conditions\\\\(null|notNull)\\(\\) is not referenced in a parameter\\.$#"
+			count: 2
 			path: src/Conditions/functions.php
