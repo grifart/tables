@@ -51,7 +51,8 @@ final class TypeResolver
 	}
 
 	/**
-	 * @param Type<mixed> $type
+	 * @template ValueType
+	 * @param Type<ValueType> $type
 	 */
 	public function addType(Type $type): void
 	{
@@ -66,7 +67,8 @@ final class TypeResolver
 	}
 
 	/**
-	 * @param Type<mixed> $type
+	 * @template ValueType
+	 * @param Type<ValueType> $type
 	 */
 	public function addResolutionByTypeName(string $typeName, Type $type): void
 	{
@@ -88,7 +90,8 @@ final class TypeResolver
 	}
 
 	/**
-	 * @param Type<mixed> $type
+	 * @template ValueType
+	 * @param Type<ValueType> $type
 	 */
 	public function addResolutionByLocation(string $location, Type $type): void
 	{

@@ -89,37 +89,37 @@ abstract class CompositeType implements Type
 
 		$result = [];
 
-		$string = false;
+		$inString = false;
+		$isString = false;
 		$length = \strlen($value);
 		$item = '';
 		for ($i = $start + 1; $i < $length; $i++) {
 			$char = $value[$i];
 
-			if ( ! $string && $char === ')') {
-				if ($item !== '') {
-					$result[] = $item;
-				}
+			if ( ! $inString && $char === ')') {
+				$result[] = $isString || $item !== '' ? $item : null;
 				$end = $i;
 				break;
 			}
 
-			if ( ! $string && $char === '(') {
+			if ( ! $inString && $char === '(') {
 				// parse to the end but only keep raw value so that it can be recursively parsed in fromDatabase()
 				$subCompositeStart = $i;
 				$this->parseComposite($value, $i, $i);
 				$item = \substr($value, $subCompositeStart, $i - $subCompositeStart);
-			} elseif ( ! $string && $char ===',') {
-				$result[] = $item !== '' ? $item : null;
+			} elseif ( ! $inString && $char === ',') {
+				$result[] = $isString || $item !== '' ? $item : null;
+				$isString = false;
 				$item = '';
-			} elseif ( ! $string && $char === '"') {
-				$string = true;
-			} elseif ($string && $char === "\\" && $value[$i - 1] === "\\") {
+			} elseif ( ! $inString && $char === '"') {
+				$inString = $isString = true;
+			} elseif ($inString && $char === "\\" && $value[$i - 1] === "\\") {
 				$item = \substr($item, 0, -1) . $char;
-			} elseif ($string && $char === '"' && $value[$i + 1] === '"') {
+			} elseif ($inString && $char === '"' && $value[$i + 1] === '"') {
 				$item .= $char;
 				$i++;
-			} elseif ($string && $char === '"' && $value[$i + 1] !== '"') {
-				$string = false;
+			} elseif ($inString && $char === '"' && $value[$i + 1] !== '"') {
+				$inString = false;
 			} else {
 				$item .= $char;
 			}
