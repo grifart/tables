@@ -23,12 +23,13 @@ $composite = new class extends CompositeType {
 			new TextType(),
 			new TextType(),
 			new TextType(),
+			new TextType(),
 		);
 	}
 
 	public function getPhpType(): PhpType
 	{
-		return tuple('int', nullable('int'), 'string', nullable('string'));
+		return tuple('int', nullable('int'), 'string', 'string', nullable('string'));
 	}
 
 	public function getDatabaseTypes(): array
@@ -47,5 +48,5 @@ $composite = new class extends CompositeType {
 	}
 };
 
-Assert::same('(42,,"com\\\\ple\\"x","(",)', $composite->toDatabase([42, null, 'com\\ple"x', '(', null]));
-Assert::same([42, null, 'com\\ple"x', '(', null], $composite->fromDatabase('(42,,"com\\\\ple""x","(",)'));
+Assert::same('(42,,"com\\\\ple\\"x","(","",)', $composite->toDatabase([42, null, 'com\\ple"x', '(', '', null]));
+Assert::same([42, null, 'com\\ple"x', '(', '', null], $composite->fromDatabase('(42,,"com\\\\ple""x","(","",)'));
