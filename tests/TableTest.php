@@ -89,7 +89,11 @@ $filteredByAnotherExpression = $table->findBy($startsWith($table->details(), 'ðŸ
 Assert::count(1, $filteredByAnotherExpression);
 Assert::same(-5, $filteredByAnotherExpression[0]->getScore());
 
-$unique = $table->getBy($table->score()->is(equalTo(42)));
+$nullDetails = $table->findBy($table->details()->is(null));
+Assert::count(1, $nullDetails);
+Assert::same(0, $nullDetails[0]->getScore());
+
+$unique = $table->getBy($table->score()->is(42));
 Assert::same(42, $unique->getScore());
 
 $zero = $table->get(TestPrimaryKey::from(new Uuid('2bec3f23-a210-455c-b907-bb69a99d07b2')));

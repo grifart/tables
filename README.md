@@ -123,6 +123,15 @@ $rows = $table->findBy([
 ]);
 ```
 
+Also, the `is()` method defaults to equality check, so you can omit the `equalTo()` and pass the value directly:
+
+```php
+$rows = $table->findBy([
+    $table->published()->is(true),
+    $table->createdAt()->is(lesserThanOrEqualTo(Instant::now())),
+]);
+```
+
 This package provides a `Composite` condition that lets you compose the most complex trees of boolean logic together, and a set of most common conditions such as equality, comparison, and null-checks. For a complete list, look into the [`Conditions/functions.php`](../src/Conditions/functions.php) file.
 
 In addition to these, you can also write your own conditions by implementing the `Condition` interface. It defines the sole method `toSql()` which is expected to return an array compatible with [Dibi](https://github.com/dg/dibi).
