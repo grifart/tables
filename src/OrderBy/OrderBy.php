@@ -9,21 +9,27 @@ use Grifart\Tables\Expression;
 
 final class OrderBy
 {
+	private readonly Nulls $nulls;
+
 	/**
 	 * @param Expression<mixed> $expression
-	 * @param OrderByDirection::ASC|OrderByDirection::DESC $direction
 	 */
 	public function __construct(
-		private Expression $expression,
-		private string $direction = OrderByDirection::ASC,
-	) {}
+		private readonly Expression $expression,
+		private readonly Direction $direction = Direction::Ascending,
+		Nulls|null $nulls = null,
+	)
+	{
+		$this->nulls = $nulls ?? Nulls::default($this->direction);
+	}
 
 	public function toSql(): DibiExpression
 	{
 		return new DibiExpression(
-			'? %sql',
+			'? %ex %ex',
 			$this->expression->toSql(),
-			$this->direction,
+			$this->direction->toSql(),
+			$this->nulls->toSql(),
 		);
 	}
 }

@@ -7,8 +7,9 @@ namespace Grifart\Tables;
 use Grifart\Tables\Conditions\Condition;
 use Grifart\Tables\Conditions\IsEqualTo;
 use Grifart\Tables\Conditions\IsNull;
+use Grifart\Tables\OrderBy\Direction;
+use Grifart\Tables\OrderBy\Nulls;
 use Grifart\Tables\OrderBy\OrderBy;
-use Grifart\Tables\OrderBy\OrderByDirection;
 
 /**
  * @template ValueType
@@ -32,13 +33,13 @@ abstract class ExpressionWithShorthands implements Expression
 		return new IsEqualTo($this, $conditionFactory);
 	}
 
-	public function ascending(): OrderBy
+	public function ascending(Nulls|null $nulls = null): OrderBy
 	{
-		return new OrderBy($this);
+		return new OrderBy($this, nulls: $nulls);
 	}
 
-	public function descending(): OrderBy
+	public function descending(Nulls|null $nulls = null): OrderBy
 	{
-		return new OrderBy($this, OrderByDirection::DESC);
+		return new OrderBy($this, direction: Direction::Descending, nulls: $nulls);
 	}
 }
