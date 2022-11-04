@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Grifart\Tables\Tests\Types;
 
+use Dibi\Literal;
 use Grifart\ClassScaffolder\Definition\Types\Type as PhpType;
 use Grifart\Tables\Types\CompositeType;
 use Grifart\Tables\Types\IntType;
@@ -18,6 +19,7 @@ $composite = new class extends CompositeType {
 	public function __construct()
 	{
 		parent::__construct(
+			'"databaseType"',
 			new IntType(),
 			new IntType(),
 			new TextType(),
@@ -32,11 +34,6 @@ $composite = new class extends CompositeType {
 		return tuple('int', nullable('int'), 'string', 'string', nullable('string'));
 	}
 
-	public function getDatabaseTypes(): array
-	{
-		return [];
-	}
-
 	public function toDatabase(mixed $value): mixed
 	{
 		return $this->tupleToDatabase($value);
@@ -48,5 +45,8 @@ $composite = new class extends CompositeType {
 	}
 };
 
-Assert::same('(42,,"com\\\\ple\\"x","(","",)', $composite->toDatabase([42, null, 'com\\ple"x', '(', '', null]));
+$dbValue = $composite->toDatabase([42, null, 'com\\ple"x', '(', '', null]);
+Assert::type(Literal::class, $dbValue);
+Assert::same('(42,,"com\\\\ple\\"x","(","",)::"databaseType"', (string) $dbValue);
+
 Assert::same([42, null, 'com\\ple"x', '(', '', null], $composite->fromDatabase('(42,,"com\\\\ple""x","(","",)'));

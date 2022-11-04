@@ -18,3 +18,11 @@ CREATE TABLE IF NOT EXISTS public.test (
     details varchar DEFAULT NULL
 );
 SQL);
+
+$connection->nativeQuery(<<<SQL
+CREATE TYPE public.version AS (major int, minor int, patch int);
+CREATE TABLE IF NOT EXISTS public.package (
+    name text NOT NULL PRIMARY KEY,
+    version public.version NOT NULL
+);
+SQL);

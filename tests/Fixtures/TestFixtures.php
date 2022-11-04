@@ -25,6 +25,7 @@ final class TestFixtures
 		$typeResolver = new TypeResolver();
 		$typeResolver->addResolutionByLocation('public.test.id', new UuidType());
 		$typeResolver->addResolutionByLocation('public.test.score', new IntType());
+		$typeResolver->addResolutionByLocation('public.package.version', new VersionType());
 		return $typeResolver;
 	}
 }

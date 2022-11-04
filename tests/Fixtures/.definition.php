@@ -15,11 +15,21 @@ $reflector = new PostgresReflector($connection);
 $typeResolver = TestFixtures::createTypeResolver();
 $tableDefinitions = new TablesDefinitions($reflector, $typeResolver);
 
-return $tableDefinitions->for(
-	'public',
-	'test',
-	TestRow::class,
-	TestModifications::class,
-	TestsTable::class,
-	TestPrimaryKey::class,
-);
+return [
+	...$tableDefinitions->for(
+		'public',
+		'test',
+		TestRow::class,
+		TestModifications::class,
+		TestsTable::class,
+		TestPrimaryKey::class,
+	),
+	...$tableDefinitions->for(
+		'public',
+		'package',
+		PackageRow::class,
+		PackageModifications::class,
+		PackagesTable::class,
+		PackagePrimaryKey::class,
+	)
+];

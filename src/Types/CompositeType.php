@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Grifart\Tables\Types;
 
+use Dibi\Literal;
 use Grifart\Tables\Type;
 use function Functional\map;
 
@@ -20,18 +21,27 @@ abstract class CompositeType implements Type
 	 * @param Type<mixed> $type
 	 * @param Type<mixed> ...$rest
 	 */
-	protected function __construct(Type $type, Type ...$rest)
+	protected function __construct(
+		private string $databaseType,
+		Type $type,
+		Type ...$rest,
+	)
 	{
 		$this->types = [$type, ...$rest];
+	}
+
+	final public function getDatabaseTypes(): array
+	{
+		return [$this->databaseType];
 	}
 
 	/**
 	 * @param mixed[] $value
 	 */
-	protected function tupleToDatabase(array $value): string
+	protected function tupleToDatabase(array $value): Literal
 	{
 		\assert(\count($value) === \count($this->types));
-		return \sprintf(
+		$dbValue = \sprintf(
 			'(%s)',
 			\implode(
 				',',
@@ -60,17 +70,15 @@ abstract class CompositeType implements Type
 				),
 			)
 		);
+
+		return new Literal(\sprintf('%s::%s', $dbValue, $this->databaseType));
 	}
 
 	/**
 	 * @return mixed[]
 	 */
-	protected function tupleFromDatabase(string $value): ?array
+	protected function tupleFromDatabase(string $value): array
 	{
-		if ($value === '') {
-			return null;
-		}
-
 		$result = $this->parseComposite($value);
 
 		\assert(\count($result) === \count($this->types));
