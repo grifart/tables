@@ -17,6 +17,10 @@ install.php81:
   extends: install.php80
   image: grifart/php8.1-with-all-modules-and-various-tools
 
+install.php-next:
+  extends: install.php80
+  image: grifart/php-next
+
 phpstan:
   stage: test
   image: grifart/php8.1-with-all-modules-and-various-tools
@@ -49,3 +53,9 @@ tests.php81:
   image: grifart/php8.1-with-all-modules-and-various-tools
   dependencies:
     - install.php81
+
+tests.php-next:
+  extends: tests.php80
+  image: grifart/php-next
+  dependencies:
+    - install.php-next
