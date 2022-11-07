@@ -19,6 +19,7 @@ install.php81:
 
 install.php-next:
   extends: install.php80
+  allow_failure: true
   script:
     - composer install --ignore-platform-reqs
   image: grifart/php-next
@@ -59,5 +60,6 @@ tests.php81:
 tests.php-next:
   extends: tests.php80
   image: grifart/php-next
+  allow_failure: true
   dependencies:
     - install.php-next
