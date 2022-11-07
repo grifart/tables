@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Grifart\Tables\Tests\Fixtures;
 
 use Grifart\ClassScaffolder\Definition\Types\Type as PhpType;
+use Grifart\Tables\NamedIdentifier;
 use Grifart\Tables\Types\CompositeType;
 use Grifart\Tables\Types\IntType;
 use function Grifart\ClassScaffolder\Definition\Types\tuple;
@@ -17,7 +18,7 @@ final class VersionType extends CompositeType
 	public function __construct()
 	{
 		parent::__construct(
-			'version',
+			new NamedIdentifier('version'),
 			new IntType(),
 			new IntType(),
 			new IntType(),

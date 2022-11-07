@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Grifart\Tables\Types;
 
 use Dibi\Literal;
+use Grifart\Tables\NamedIdentifier;
 use Grifart\Tables\Type;
 use function Functional\map;
 
@@ -17,22 +18,25 @@ abstract class CompositeType implements Type
 	/** @var Type<mixed>[] */
 	private array $types;
 
+	private NamedIdentifier $databaseType;
+
 	/**
 	 * @param Type<mixed> $type
 	 * @param Type<mixed> ...$rest
 	 */
 	protected function __construct(
-		private string $databaseType,
+		NamedIdentifier|string $databaseType,
 		Type $type,
 		Type ...$rest,
 	)
 	{
 		$this->types = [$type, ...$rest];
+		$this->databaseType = $databaseType instanceof NamedIdentifier ? $databaseType : new NamedIdentifier($databaseType);
 	}
 
 	final public function getDatabaseTypes(): array
 	{
-		return [$this->databaseType];
+		return [$this->databaseType->toSql()];
 	}
 
 	/**
@@ -71,7 +75,7 @@ abstract class CompositeType implements Type
 			)
 		);
 
-		return new Literal(\sprintf('%s::%s', $dbValue, $this->databaseType));
+		return new Literal(\sprintf('%s::%s', $dbValue, $this->databaseType->toSql()));
 	}
 
 	/**

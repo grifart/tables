@@ -19,7 +19,7 @@ $composite = new class extends CompositeType {
 	public function __construct()
 	{
 		parent::__construct(
-			'"databaseType"',
+			'databaseType',
 			new IntType(),
 			new IntType(),
 			new TextType(),
