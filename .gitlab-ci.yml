@@ -19,6 +19,8 @@ install.php81:
 
 install.php-next:
   extends: install.php80
+  script:
+    - composer install --ignore-platform-reqs
   image: grifart/php-next
 
 phpstan:
