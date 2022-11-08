@@ -7,8 +7,8 @@ namespace Grifart\Tables\Tests\Fixtures;
 use Dibi\Connection;
 use Grifart\Tables\TableManager;
 use Grifart\Tables\TypeResolver;
+use Grifart\Tables\Types\ArrayType;
 use Grifart\Tables\Types\IntType;
-use Grifart\Tables\Types\TextType;
 use Nette\StaticClass;
 
 final class TestFixtures
@@ -26,6 +26,7 @@ final class TestFixtures
 		$typeResolver->addResolutionByLocation('public.test.id', new UuidType());
 		$typeResolver->addResolutionByLocation('public.test.score', new IntType());
 		$typeResolver->addResolutionByLocation('public.package.version', new TupleVersionType());
+		$typeResolver->addResolutionByLocation('public.package.previousVersions', ArrayType::of(new VersionType()));
 		return $typeResolver;
 	}
 }

@@ -50,4 +50,13 @@ final class PackageModifications implements Modifications
 	{
 		$this->modifications['version'] = $version;
 	}
+
+
+	/**
+	 * @param Version[] $previousVersions
+	 */
+	public function modifyPreviousVersions(array $previousVersions): void
+	{
+		$this->modifications['previousVersions'] = $previousVersions;
+	}
 }

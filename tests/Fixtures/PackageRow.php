@@ -14,10 +14,12 @@ final class PackageRow implements Row
 {
 	/**
 	 * @param array{int, int, int} $version
+	 * @param Version[] $previousVersions
 	 */
 	private function __construct(
 		private string $name,
 		private array $version,
+		private array $previousVersions,
 	) {
 	}
 
@@ -37,9 +39,18 @@ final class PackageRow implements Row
 	}
 
 
+	/**
+	 * @return Version[]
+	 */
+	public function getPreviousVersions(): array
+	{
+		return $this->previousVersions;
+	}
+
+
 	public static function reconstitute(array $values): static
 	{
-		/** @var array{name: string, version: array{int, int, int}} $values */
-		return new static($values['name'], $values['version']);
+		/** @var array{name: string, version: array{int, int, int}, previousVersions: Version[]} $values */
+		return new static($values['name'], $values['version'], $values['previousVersions']);
 	}
 }

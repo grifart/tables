@@ -26,8 +26,9 @@ final class PackagesTable implements Table
 {
 	public const NAME = 'name';
 	public const VERSION = 'version';
+	public const PREVIOUS_VERSIONS = 'previousVersions';
 
-	/** @var array{name: Column<self, string>, version: Column<self, array{int, int, int}>} */
+	/** @var array{name: Column<self, string>, version: Column<self, array{int, int, int}>, previousVersions: Column<self, Version[]>} */
 	private array $columns;
 
 
@@ -68,7 +69,8 @@ final class PackagesTable implements Table
 	{
 		return [
 			'name' => new ColumnMetadata('name', 'text', false, false),
-			'version' => new ColumnMetadata('version', '"packageVersion"', false, false)
+			'version' => new ColumnMetadata('version', '"packageVersion"', false, false),
+			'previousVersions' => new ColumnMetadata('previousVersions', '"packageVersion"[]', false, false)
 		];
 	}
 
@@ -141,12 +143,14 @@ final class PackagesTable implements Table
 
 	/**
 	 * @param array{int, int, int} $version
+	 * @param Version[] $previousVersions
 	 */
-	public function new(string $name, array $version): PackageModifications
+	public function new(string $name, array $version, array $previousVersions): PackageModifications
 	{
 		$modifications = PackageModifications::new();
 		$modifications->modifyName($name);
 		$modifications->modifyVersion($version);
+		$modifications->modifyPreviousVersions($previousVersions);
 		return $modifications;
 	}
 
@@ -179,7 +183,9 @@ final class PackagesTable implements Table
 		$name = Column::from($this, self::getDatabaseColumns()['name'], $this->typeResolver);
 		/** @var Column<self, array{int, int, int}> $version */
 		$version = Column::from($this, self::getDatabaseColumns()['version'], $this->typeResolver);
-		$this->columns = ['name' => $name, 'version' => $version];
+		/** @var Column<self, Version[]> $previousVersions */
+		$previousVersions = Column::from($this, self::getDatabaseColumns()['previousVersions'], $this->typeResolver);
+		$this->columns = ['name' => $name, 'version' => $version, 'previousVersions' => $previousVersions];
 	}
 
 
@@ -198,6 +204,15 @@ final class PackagesTable implements Table
 	public function version(): Column
 	{
 		return $this->columns['version'];
+	}
+
+
+	/**
+	 * @return Column<self, Version[]>
+	 */
+	public function previousVersions(): Column
+	{
+		return $this->columns['previousVersions'];
 	}
 
 

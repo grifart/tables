@@ -23,6 +23,7 @@ $connection->nativeQuery(<<<SQL
 CREATE TYPE public."packageVersion" AS (major int, minor int, patch int);
 CREATE TABLE IF NOT EXISTS public.package (
     name text NOT NULL PRIMARY KEY,
-    version public."packageVersion" NOT NULL
+    version public."packageVersion" NOT NULL,
+    "previousVersions" public."packageVersion"[] NOT NULL
 );
 SQL);
