@@ -68,7 +68,7 @@ final class PackagesTable implements Table
 	{
 		return [
 			'name' => new ColumnMetadata('name', 'text', false, false),
-			'version' => new ColumnMetadata('version', 'version', false, false)
+			'version' => new ColumnMetadata('version', '"packageVersion"', false, false)
 		];
 	}
 

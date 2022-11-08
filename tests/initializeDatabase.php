@@ -20,9 +20,9 @@ CREATE TABLE IF NOT EXISTS public.test (
 SQL);
 
 $connection->nativeQuery(<<<SQL
-CREATE TYPE public.version AS (major int, minor int, patch int);
+CREATE TYPE public."packageVersion" AS (major int, minor int, patch int);
 CREATE TABLE IF NOT EXISTS public.package (
     name text NOT NULL PRIMARY KEY,
-    version public.version NOT NULL
+    version public."packageVersion" NOT NULL
 );
 SQL);

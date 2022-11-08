@@ -18,7 +18,7 @@ final class VersionType extends CompositeType
 	public function __construct()
 	{
 		parent::__construct(
-			new NamedIdentifier('version'),
+			new NamedIdentifier('public', 'packageVersion'),
 			new IntType(),
 			new IntType(),
 			new IntType(),
