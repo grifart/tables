@@ -13,7 +13,7 @@ use function Grifart\ClassScaffolder\Definition\Types\tuple;
 /**
  * @extends CompositeType<array{int, int, int}>
  */
-final class VersionType extends CompositeType
+final class TupleVersionType extends CompositeType
 {
 	public function __construct()
 	{
