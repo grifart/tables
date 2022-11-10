@@ -45,8 +45,8 @@ $composite = new class extends CompositeType {
 	}
 };
 
-$dbValue = $composite->toDatabase([42, null, 'com\\ple"x', '(', '', null]);
+$dbValue = $composite->toDatabase([42, null, 'com\\ple"\'x', '(', '', null]);
 Assert::type(Literal::class, $dbValue);
-Assert::same('(42,,"com\\\\ple\\"x","(","",)::"databaseType"', (string) $dbValue);
+Assert::same("ROW(42,null,'com\\ple\"\\'x','(','',null)::\"databaseType\"", (string) $dbValue);
 
-Assert::same([42, null, 'com\\ple"x', '(', '', null], $composite->fromDatabase('(42,,"com\\\\ple""x","(","",)'));
+Assert::same([42, null, 'com\\ple"\'x', '(', '', null], $composite->fromDatabase('(42,,"com\\\\ple""\'x","(","",)'));

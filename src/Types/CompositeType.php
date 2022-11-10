@@ -45,37 +45,33 @@ abstract class CompositeType implements Type
 	protected function tupleToDatabase(array $value): Literal
 	{
 		\assert(\count($value) === \count($this->types));
-		$dbValue = \sprintf(
-			'(%s)',
-			\implode(
-				',',
-				map(
-					$value,
-					function ($item, $index) {
-						if ($item === null) {
-							return '';
-						}
+		return new Literal(
+			\sprintf(
+				'ROW(%s)::%s',
+				\implode(
+					',',
+					map(
+						$value,
+						function ($item, $index) {
+							if ($item === null) {
+								return 'null';
+							}
+							$result = $this->types[$index]->toDatabase($item);
 
-						$mappedItem = $this->types[$index]->toDatabase($item);
-
-						if ($mappedItem === '') {
-							return '""';
-						}
-
-						if (\preg_match('/[,\s"()]/', (string) $mappedItem)) {
-							return \sprintf(
-								'"%s"',
-								\str_replace(['\\', '"'], ['\\\\', '\\"'], (string) $mappedItem),
-							);
-						}
-
-						return $mappedItem;
-					},
+							// @todo: we need connection here to call escape functiom ?!
+							if (is_string($result)) {
+								// @todo remove me! This is re-implementation of escaping
+								// @todo Should be escaped by TestType at a first place, hmm?
+								// @todo Shouldn't there be Literal as a required return type of toDatabse?
+								return "'" . str_replace("'", "\\'", $result) . "'";
+							}
+							return $result;
+						},
+					),
 				),
+				$this->databaseType->toSql()
 			)
 		);
-
-		return new Literal(\sprintf('%s::%s', $dbValue, $this->databaseType->toSql()));
 	}
 
 	/**
