@@ -81,7 +81,7 @@ abstract class CompositeType implements Type
 	{
 		$result = $this->parseComposite($value);
 
-		\count($result) === \count($this->types);
+		\assert(\count($result) === \count($this->types));
 		return map(
 			$result,
 			fn($item, $index) => $item !== null ? $this->types[$index]->fromDatabase($item) : null,
