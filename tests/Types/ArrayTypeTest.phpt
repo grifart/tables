@@ -11,6 +11,7 @@ use Grifart\Tables\Types\ArrayType;
 use Grifart\Tables\Types\CompositeType;
 use Grifart\Tables\Types\IntType;
 use Grifart\Tables\Types\TextType;
+use PhpParser\Node\Name;
 use Tester\Assert;
 use function Functional\map;
 use function Grifart\ClassScaffolder\Definition\Types\resolve;
@@ -53,26 +54,3 @@ $executeExpressionInDatabase = function(string $expression) use ($connection): s
 	Assert::same($theInput, $textArrayType->fromDatabase($dbResult));
 })();
 
-
-final class Version {
-	public function __construct(public int $major, public int $minor, public int $patch) {}
-	/** @return array{int,int,int} */
-	public function toArray(): array { return [$this->major, $this->minor, $this->patch]; }
-}
-/** @extends CompositeType<Version> */
-final class VersionType extends CompositeType {
-	public function __construct() { parent::__construct(new NamedIdentifier('public', 'packageVersion'), new IntType(), new IntType(), new IntType() ); }
-	public function getPhpType(): PhpType { return resolve(Version::class); }
-	public function toDatabase(mixed $value): Literal { return $this->tupleToDatabase($value->toArray()); }
-	public function fromDatabase(mixed $value): Version { return new Version(...$this->tupleFromDatabase($value)); }
-};
-$compositeArrayType = ArrayType::of(new VersionType());
-Assert::same('{(0,1,0),(1,0,0),(1,0,1)}::public."packageVersion"[]', $compositeArrayType->toDatabase([new Version(0,1,0), new Version(1,0,0), new Version(1,0,1)]));
-
-/** @var callable(Version[] $versions):array<array{int,int,int}> $toTuples */
-// scalar tuples are comparable with ===
-$toTuples = static fn(array $versions): array => map($versions, static fn($version) => $version->toArray());
-Assert::same(
-	$toTuples([new Version(0,1,0), new Version(1,0,0), new Version(1,0,1)]),
-	$toTuples($compositeArrayType->fromDatabase('{(0,1,0),(1,0,0),(1,0,1)}')),
-);
