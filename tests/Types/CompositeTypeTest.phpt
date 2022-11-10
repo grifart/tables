@@ -6,6 +6,7 @@ namespace Grifart\Tables\Tests\Types;
 
 use Dibi\Literal;
 use Grifart\ClassScaffolder\Definition\Types\Type as PhpType;
+use Grifart\Tables\NamedIdentifier;
 use Grifart\Tables\Types\CompositeType;
 use Grifart\Tables\Types\IntType;
 use Grifart\Tables\Types\TextType;
@@ -19,7 +20,7 @@ $composite = new class extends CompositeType {
 	public function __construct()
 	{
 		parent::__construct(
-			'databaseType',
+			new NamedIdentifier('databaseType'),
 			new IntType(),
 			new IntType(),
 			new TextType(),

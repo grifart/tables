@@ -22,6 +22,9 @@ final class NamedIdentifier
 		// todo: should not add quotes when not necessary!
 		$escapeIdentifier = static function($v) {
 			\assert(! str_contains($v, '"'), 'Whoops, this temporary escaping could not escape strings with a " character.');
+			if (preg_match('/^[a-z]*$/', $v) === 1) {
+				return $v;
+			}
 			return sprintf('"%s"', $v);
 		};
 
