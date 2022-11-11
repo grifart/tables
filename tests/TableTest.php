@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Grifart\Tables\Tests;
 
 use Grifart\Tables\Expression;
+use Grifart\Tables\OrderBy\Nulls;
 use Grifart\Tables\Tests\Fixtures\TestFixtures;
 use Grifart\Tables\Tests\Fixtures\TestPrimaryKey;
 use Grifart\Tables\Tests\Fixtures\TestsTable;
@@ -62,6 +63,14 @@ $nonNegativeReversed = $table->findBy(
 Assert::count(2, $nonNegativeReversed);
 Assert::same(42, $nonNegativeReversed[0]->getScore());
 Assert::same(0, $nonNegativeReversed[1]->getScore());
+
+$orderByNullsFirst = $table->findBy([], orderBy: [$table->details()->ascending(Nulls::First)]);
+Assert::count(3, $orderByNullsFirst);
+Assert::same(null, $orderByNullsFirst[0]->getDetails());
+
+$orderByNullsLast = $table->findBy([], orderBy: [$table->details()->ascending(Nulls::Last)]);
+Assert::count(3, $orderByNullsLast);
+Assert::same(null, $orderByNullsLast[2]->getDetails());
 
 $paginator = new Paginator();
 $paginator->setItemsPerPage(1);
