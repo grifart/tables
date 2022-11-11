@@ -13,6 +13,14 @@ install:
       - vendor/
     expire_in: 1 day
 
+install.php-next:
+  extends: install
+  allow_failure: true
+  script:
+    # install dibi/dibi from master, as support is in no stable version yet
+    - composer require dibi/dibi:dev-master --ignore-platform-reqs
+  image: grifart/php-next
+
 phpstan:
   stage: test
   image: grifart/php8.1-with-all-modules-and-various-tools
@@ -39,3 +47,10 @@ tests:
     - php tests/initializeDatabase.php
   script:
     - composer run test
+
+tests.php-next:
+  extends: tests
+  image: grifart/php-next
+  allow_failure: true
+  dependencies:
+    - install.php-next
