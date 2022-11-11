@@ -17,7 +17,8 @@ install.php-next:
   extends: install
   allow_failure: true
   script:
-    - composer install --ignore-platform-reqs
+    # install dibi/dibi from master, as support is in no stable version yet
+    - composer require dibi/dibi:dev-master --ignore-platform-reqs
   image: grifart/php-next
 
 phpstan:
