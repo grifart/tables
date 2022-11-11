@@ -5,6 +5,7 @@ declare(strict_types = 1);
 namespace Grifart\Tables\Tests;
 
 use Dibi\Connection;
+use Dibi\Expression;
 use Tester\Environment;
 
 require __DIR__ . '/../vendor/autoload.php';
@@ -24,4 +25,10 @@ function connect(): Connection {
 	}
 
 	return $connection;
+}
+
+function executeExpressionInDatabase(Connection $connection, Expression $expression): string {
+	$result = $connection->query('SELECT ?', $expression)->fetchSingle();
+	\assert(is_string($result));
+	return $result;
 }

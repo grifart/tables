@@ -4,29 +4,33 @@ declare(strict_types=1);
 
 namespace Grifart\Tables\Tests\Types;
 
-use Dibi\Literal;
+use Dibi\Expression;
 use Grifart\ClassScaffolder\Definition\Types\Type as PhpType;
-use Grifart\Tables\NamedIdentifier;
+use Grifart\Tables\Database\Identifier;
+use Grifart\Tables\Database\NamedType;
 use Grifart\Tables\Types\CompositeType;
 use Grifart\Tables\Types\IntType;
 use Grifart\Tables\Types\TextType;
 use Tester\Assert;
 use function Grifart\ClassScaffolder\Definition\Types\nullable;
 use function Grifart\ClassScaffolder\Definition\Types\tuple;
+use function Grifart\Tables\Tests\connect;
 
 require __DIR__ . '/../bootstrap.php';
+
+$connection = connect();
 
 $composite = new class extends CompositeType {
 	public function __construct()
 	{
 		parent::__construct(
-			new NamedIdentifier('databaseType'),
-			new IntType(),
-			new IntType(),
-			new TextType(),
-			new TextType(),
-			new TextType(),
-			new TextType(),
+			new NamedType(new Identifier('databaseType')),
+			IntType::integer(),
+			IntType::integer(),
+			TextType::text(),
+			TextType::text(),
+			TextType::text(),
+			TextType::text(),
 		);
 	}
 
@@ -35,7 +39,7 @@ $composite = new class extends CompositeType {
 		return tuple('int', nullable('int'), 'string', 'string', nullable('string'));
 	}
 
-	public function toDatabase(mixed $value): mixed
+	public function toDatabase(mixed $value): Expression
 	{
 		return $this->tupleToDatabase($value);
 	}
@@ -46,8 +50,9 @@ $composite = new class extends CompositeType {
 	}
 };
 
-$dbValue = $composite->toDatabase([42, null, 'com\\ple"\'x', '(', '', null]);
-Assert::type(Literal::class, $dbValue);
-Assert::same("ROW(42,null,'com\\ple\"\\'x','(','',null)::\"databaseType\"", (string) $dbValue);
+Assert::same(
+	"ROW(42,NULL,'com\\ple\"''x','(','',NULL)::\"databaseType\"",
+	$connection->translate($composite->toDatabase([42, null, 'com\\ple"\'x', '(', '', null])),
+);
 
 Assert::same([42, null, 'com\\ple"\'x', '(', '', null], $composite->fromDatabase('(42,,"com\\\\ple""\'x","(","",)'));

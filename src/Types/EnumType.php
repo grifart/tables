@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Grifart\Tables\Types;
 
+use Dibi\Expression;
 use Grifart\ClassScaffolder\Definition\Types\Type as PhpType;
+use Grifart\Tables\Database\DatabaseType;
 use Grifart\Tables\Type;
 use function Grifart\ClassScaffolder\Definition\Types\resolve;
 
@@ -19,7 +21,7 @@ final class EnumType implements Type
 	 */
 	private function __construct(
 		private string $enumType,
-		private ?string $databaseType,
+		private DatabaseType $databaseType,
 	) {}
 
 	/**
@@ -29,7 +31,7 @@ final class EnumType implements Type
 	 */
 	public static function of(
 		string $enumType,
-		?string $databaseType = null,
+		DatabaseType $databaseType,
 	): self
 	{
 		return new self(
@@ -43,16 +45,17 @@ final class EnumType implements Type
 		return resolve($this->enumType);
 	}
 
-	public function getDatabaseTypes(): array
+	public function getDatabaseType(): DatabaseType
 	{
-		return $this->databaseType !== null
-			? [$this->databaseType]
-			: [];
+		return $this->databaseType;
 	}
 
-	public function toDatabase(mixed $value): string|int
+	public function toDatabase(mixed $value): Expression
 	{
-		return $value->value;
+		return new Expression(
+			\is_string($value->value) ? '%s' : '%i',
+			$value->value,
+		);
 	}
 
 	public function fromDatabase(mixed $value): \BackedEnum

@@ -23,16 +23,16 @@ final class TablesExtension extends CompilerExtension
 	{
 		return Expect::structure([
 			'typeResolver' => Expect::anyOf(Expect::type(Statement::class), Expect::string())->default(TypeResolver::class),
-			'types' => Expect::structure([
-				'byName' => Expect::arrayOf(
-					valueType: Expect::anyOf(Expect::type(Statement::class), Expect::string()),
-					keyType: Expect::string(),
-				)->default([]),
-				'byLocation' => Expect::arrayOf(
-					valueType: Expect::anyOf(Expect::type(Statement::class), Expect::string()),
-					keyType: Expect::string(),
-				)->default([]),
-			]),
+			'types' => Expect::arrayOf(
+				Expect::anyOf(
+					Expect::type(Statement::class),
+					Expect::string(),
+					Expect::structure([
+						'type' => Expect::anyOf(Expect::type(Statement::class), Expect::string()),
+						'location' => Expect::type(Statement::class),
+					]),
+				),
+			)->default([]),
 		]);
 	}
 
@@ -53,12 +53,17 @@ final class TablesExtension extends CompilerExtension
 			->setType(TypeResolver::class)
 			->setFactory($this->config->typeResolver);
 
-		foreach ($this->config->types->byName as $typeName => $type) {
-			$typeResolver->addSetup('addResolutionByTypeName', [$typeName, $type instanceof Statement ? $type : new Statement($type)]);
-		}
+		foreach ($this->config->types as $typeDefinition) {
+			if ($typeDefinition instanceof \stdClass) {
+				$type = $typeDefinition->type instanceof Statement ? $typeDefinition->type : new Statement($typeDefinition->type);
+				$typeResolver->addSetup('addResolutionByLocation', [$typeDefinition->location, $type]);
 
-		foreach ($this->config->types->byLocation as $location => $type) {
-			$typeResolver->addSetup('addResolutionByLocation', [$location, $type instanceof Statement ? $type : new Statement($type)]);
+			} elseif (\is_string($typeDefinition)) {
+				$typeResolver->addSetup('addResolutionByTypeName', [new Statement($typeDefinition)]);
+
+			} elseif ($typeDefinition instanceof Statement) {
+				$typeResolver->addSetup('addResolutionByTypeName', [$typeDefinition]);
+			}
 		}
 	}
 

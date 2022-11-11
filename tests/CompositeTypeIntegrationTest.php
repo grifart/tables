@@ -17,7 +17,7 @@ $connection->nativeQuery("TRUNCATE TABLE public.package");
 
 $table = new PackagesTable(
 	TestFixtures::createTableManager($connection),
-	TestFixtures::createTypeResolver(),
+	TestFixtures::createTypeResolver($connection),
 );
 
 $package = $table->new('grifart/tables', [0, 8, 0], [new Version(0, 7, 0)]);

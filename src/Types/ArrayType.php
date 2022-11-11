@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Grifart\Tables\Types;
 
+use Dibi\Expression;
 use Dibi\Literal;
 use Grifart\ClassScaffolder\Definition\Types\Type as PhpType;
-use Grifart\Tables\NamedIdentifier;
+use Grifart\Tables\Database\ArrayType as DatabaseArrayType;
 use Grifart\Tables\Type;
-use PhpParser\Node\Name;
 use function Functional\map;
 use function Grifart\ClassScaffolder\Definition\Types\listOf;
 
@@ -18,29 +18,21 @@ use function Grifart\ClassScaffolder\Definition\Types\listOf;
  */
 final class ArrayType implements Type // @todo: There is implicit support for nullable types, shouldn't it be explicit instead?
 {
-
-	private string $databaseType;
-
 	/**
 	 * @param Type<ItemType> $itemType
 	 */
 	private function __construct(
-		NamedIdentifier|string $databaseType,
-		private Type $itemType, // @todo: Should we have just `getDatabaseType()` and wrap this type automatically?
-	) {
-		$this->databaseType = $databaseType instanceof NamedIdentifier
-			? $databaseType->toSql() . '[]' // @todo: what about multi-dimensional arrays? int[][]?
-			: $databaseType;
-	}
+		private Type $itemType,
+	) {}
 
 	/**
 	 * @template FromItemType
 	 * @param Type<FromItemType> $itemType
 	 * @return ArrayType<FromItemType>
 	 */
-	public static function of(NamedIdentifier|string $databaseType, Type $itemType): self
+	public static function of(Type $itemType): self
 	{
-		return new self($databaseType, $itemType);
+		return new self($itemType);
 	}
 
 	/**
@@ -56,34 +48,26 @@ final class ArrayType implements Type // @todo: There is implicit support for nu
 		return listOf($this->itemType->getPhpType());
 	}
 
-	public function getDatabaseTypes(): array
+	public function getDatabaseType(): DatabaseArrayType
 	{
-		return [$this->databaseType];
+		return new DatabaseArrayType($this->itemType->getDatabaseType());
 	}
 
-	public function toDatabase(mixed $value): Literal
+	public function toDatabase(mixed $value): Expression
 	{
-		return new Literal(
-			\sprintf(
-				'ARRAY[%s]::%s',
-				\implode(',', map($value, function (mixed $item) {
-					if ($item === null) {
-						return 'null';
-					}
+		$args = [
+			new Literal('ARRAY['),
+			...map(
+				$value,
+				fn(mixed $item) => $item !== null ? $this->itemType->toDatabase($item) : new Literal('NULL'),
+			),
+			new Literal(']::'),
+			$this->getDatabaseType()->toSql(),
+		];
 
-					/** @var ItemType $item */
-					$mapped = $this->itemType->toDatabase($item);
-					// @todo: we need connection here to call escape functiom ?!
-					if (is_string($mapped)) {
-						// @todo remove me! This is re-implementation of escaping
-						// @todo Should be escaped by TestType at a first place, hmm?
-						// @todo Shouldn't there be Literal as a required return type of toDatabse?
-						return "'" . str_replace(["\\","'"], ["\\\\","''"], $mapped) . "'";
-					}
-					return $mapped;
-				})),
-				$this->databaseType
-			)
+		return new Expression(
+			'?' . \implode(',', map($value, fn() => '?')) . '??',
+			...$args,
 		);
 	}
 

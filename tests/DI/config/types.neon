@@ -1,4 +1,6 @@
 tables:
 	types:
-		byLocation:
-			public.test.score: Grifart\Tables\Types\IntType
+		- type: Grifart\Tables\Types\IntType::integer()
+		  location: Grifart\Tables\Database\Identifier(public, test, score)
+
+		- Grifart\Tables\Tests\Fixtures\VersionType

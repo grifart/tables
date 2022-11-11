@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace Grifart\Tables\Tests\DI;
 
 use Dibi\Connection;
+use Grifart\Tables\Database\Identifier;
 use Grifart\Tables\Scaffolding\TablesDefinitions;
 use Grifart\Tables\TableManager;
 use Grifart\Tables\Tests\Fixtures\UuidType;
+use Grifart\Tables\Tests\Fixtures\VersionType;
 use Grifart\Tables\TypeResolver;
 use Grifart\Tables\Types\DecimalType;
 use Grifart\Tables\Types\IntType;
@@ -47,7 +49,8 @@ $createContainer = function (string $configFile): Container
 
 	$typeResolver = $container->getByType(TypeResolver::class);
 	Assert::type(TypeResolver::class, $typeResolver);
-	Assert::type(IntType::class, $typeResolver->resolveType('int', 'public.test.score'));
+	Assert::type(IntType::class, $typeResolver->resolveType('int', new Identifier('public', 'test', 'score')));
+	Assert::type(VersionType::class, $typeResolver->resolveType('public."packageVersion"', new Identifier('public', 'test', 'whatever')));
 })();
 
 (function () use ($createContainer) {
@@ -55,7 +58,7 @@ $createContainer = function (string $configFile): Container
 
 	$typeResolver = $container->getByType(TypeResolver::class);
 	Assert::type(TypeResolver::class, $typeResolver);
-	Assert::type(DecimalType::class, $typeResolver->resolveType('boolean', 'public.test.whatever'));
+	Assert::type(DecimalType::class, $typeResolver->resolveType('boolean', new Identifier('public', 'test', 'whatever')));
 })();
 
 (function () use ($createContainer) {
@@ -63,5 +66,5 @@ $createContainer = function (string $configFile): Container
 
 	$typeResolver = $container->getByType(TypeResolver::class);
 	Assert::type(TypeResolver::class, $typeResolver);
-	Assert::type(DecimalType::class, $typeResolver->resolveType('boolean', 'public.test.whatever2'));
+	Assert::type(DecimalType::class, $typeResolver->resolveType('boolean', new Identifier('public', 'test', 'whatever2')));
 })();

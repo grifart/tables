@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Grifart\Tables\Tests\Fixtures;
 
+use Dibi\Expression;
 use Grifart\ClassScaffolder\Definition\Types\Type as PhpType;
-use Grifart\Tables\NamedIdentifier;
+use Grifart\Tables\Database\Identifier;
+use Grifart\Tables\Database\NamedType;
 use Grifart\Tables\Types\CompositeType;
 use Grifart\Tables\Types\IntType;
 use function Grifart\ClassScaffolder\Definition\Types\tuple;
@@ -18,10 +20,10 @@ final class TupleVersionType extends CompositeType
 	public function __construct()
 	{
 		parent::__construct(
-			new NamedIdentifier('public', 'packageVersion'),
-			new IntType(),
-			new IntType(),
-			new IntType(),
+			new NamedType(new Identifier('public', 'packageVersion')),
+			IntType::integer(),
+			IntType::integer(),
+			IntType::integer(),
 		);
 	}
 
@@ -30,7 +32,7 @@ final class TupleVersionType extends CompositeType
 		return tuple('int', 'int', 'int');
 	}
 
-	public function toDatabase(mixed $value): mixed
+	public function toDatabase(mixed $value): Expression
 	{
 		return $this->tupleToDatabase($value);
 	}

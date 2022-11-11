@@ -6,11 +6,14 @@ namespace Grifart\Tables\Tests\Types;
 
 use Grifart\Tables\Types\TextType;
 use Tester\Assert;
+use function Grifart\Tables\Tests\connect;
 
 require __DIR__ . '/../bootstrap.php';
 
-$type = new TextType();
+$connection = connect();
+
+$type = TextType::text();
 
 Assert::same('string', $type->fromDatabase('string'));
 
-Assert::same('string', $type->toDatabase('string'));
+Assert::same("'string'", $connection->translate($type->toDatabase('string')));

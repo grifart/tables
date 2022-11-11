@@ -6,6 +6,8 @@ namespace Grifart\Tables;
 
 use Brick\DateTime\Instant;
 use Brick\Math\BigDecimal;
+use Dibi\Connection;
+use Grifart\Tables\Database\Identifier;
 use Grifart\Tables\Types\BinaryType;
 use Grifart\Tables\Types\BooleanType;
 use Grifart\Tables\Types\DateType;
@@ -26,27 +28,35 @@ final class TypeResolver
 	/** @var array<string, Type<mixed>> */
 	private array $byLocation = [];
 
-	public function __construct()
+	public function __construct(
+		private Connection $connection,
+	)
 	{
 		// default types
-		$this->addType(new TextType());
-		$this->addType(new IntType());
-		$this->addType(new BooleanType());
-		$this->addType(new BinaryType());
-		$this->addType(new JsonType());
+		$this->addResolutionByTypeName(TextType::char());
+		$this->addResolutionByTypeName(TextType::varchar());
+		$this->addResolutionByTypeName(TextType::text());
+		$this->addResolutionByTypeName(IntType::smallint());
+		$this->addResolutionByTypeName(IntType::integer());
+		$this->addResolutionByTypeName(IntType::bigint());
+		$this->addResolutionByTypeName(new BooleanType());
+		$this->addResolutionByTypeName(new BinaryType());
+		$this->addResolutionByTypeName(JsonType::json());
+		$this->addResolutionByTypeName(JsonType::jsonb());
 
 		if (\class_exists(BigDecimal::class)) {
-			$this->addType(new DecimalType());
+			$this->addResolutionByTypeName(DecimalType::decimal());
+			$this->addResolutionByTypeName(DecimalType::numeric());
 		}
 
 		if (\class_exists(Instant::class)) {
-			$this->addType(new InstantType());
-			$this->addType(new TimeType());
-			$this->addType(new DateType());
+			$this->addResolutionByTypeName(new InstantType());
+			$this->addResolutionByTypeName(new TimeType());
+			$this->addResolutionByTypeName(new DateType());
 		}
 
 		if (\interface_exists(UuidInterface::class)) {
-			$this->addType(new UuidType());
+			$this->addResolutionByTypeName(new UuidType());
 		}
 	}
 
@@ -54,24 +64,11 @@ final class TypeResolver
 	 * @template ValueType
 	 * @param Type<ValueType> $type
 	 */
-	public function addType(Type $type): void
+	public function addResolutionByTypeName(Type $type): void
 	{
-		$databaseTypes = $type->getDatabaseTypes();
-		if (\count($databaseTypes) === 0) {
-			throw MissingDatabaseTypeResolution::of($type);
-		}
+		$databaseType = $type->getDatabaseType();
+		$typeName = $this->connection->translate($databaseType->toSql());
 
-		foreach ($databaseTypes as $databaseType) {
-			$this->addResolutionByTypeName($databaseType, $type);
-		}
-	}
-
-	/**
-	 * @template ValueType
-	 * @param Type<ValueType> $type
-	 */
-	public function addResolutionByTypeName(string $typeName, Type $type): void
-	{
 		if (\array_key_exists($typeName, $this->byTypeName)) {
 			throw TypeAlreadyRegistered::forDatabaseType($typeName);
 		}
@@ -80,36 +77,18 @@ final class TypeResolver
 	}
 
 	/**
-	 * @param array<string, Type<mixed>> $resolutions
-	 */
-	public function addResolutionsByName(array $resolutions): void
-	{
-		foreach ($resolutions as $typeName => $type) {
-			$this->addResolutionByTypeName($typeName, $type);
-		}
-	}
-
-	/**
 	 * @template ValueType
 	 * @param Type<ValueType> $type
 	 */
-	public function addResolutionByLocation(string $location, Type $type): void
+	public function addResolutionByLocation(Identifier $location, Type $type): void
 	{
-		if (\array_key_exists($location, $this->byLocation)) {
-			throw TypeAlreadyRegistered::forLocation($location);
+		$locationString = $this->connection->translate($location->toSql());
+
+		if (\array_key_exists($locationString, $this->byLocation)) {
+			throw TypeAlreadyRegistered::forLocation($locationString);
 		}
 
-		$this->byLocation[$location] = $type;
-	}
-
-	/**
-	 * @param array<string, Type<mixed>> $resolutions
-	 */
-	public function addResolutionsByLocation(array $resolutions): void
-	{
-		foreach ($resolutions as $location => $type) {
-			$this->addResolutionByLocation($location, $type);
-		}
+		$this->byLocation[$locationString] = $type;
 	}
 
 	/**
@@ -117,11 +96,13 @@ final class TypeResolver
 	 */
 	public function resolveType(
 		string $typeName,
-		string $location,
+		Identifier $location,
 	): Type
 	{
-		return $this->byLocation[$location]
+		$locationString = $this->connection->translate($location->toSql());
+
+		return $this->byLocation[$locationString]
 			?? $this->byTypeName[$typeName]
-			?? throw UnresolvableType::of($location, $typeName);
+			?? throw UnresolvableType::of($locationString, $typeName);
 	}
 }

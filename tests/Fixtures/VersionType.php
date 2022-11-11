@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace Grifart\Tables\Tests\Fixtures;
 
-use Dibi\Literal;
+use Dibi\Expression;
 use Grifart\ClassScaffolder\Definition\Types\Type as PhpType;
-use Grifart\Tables\NamedIdentifier;
+use Grifart\Tables\Database\Identifier;
+use Grifart\Tables\Database\NamedType;
 use Grifart\Tables\Types\CompositeType;
 use Grifart\Tables\Types\IntType;
 use function Grifart\ClassScaffolder\Definition\Types\resolve;
@@ -19,10 +20,10 @@ final class VersionType extends CompositeType
 	public function __construct()
 	{
 		parent::__construct(
-			new NamedIdentifier('public', 'packageVersion'),
-			new IntType(),
-			new IntType(),
-			new IntType(),
+			new NamedType(new Identifier('public', 'packageVersion')),
+			IntType::integer(),
+			IntType::integer(),
+			IntType::integer(),
 		);
 	}
 
@@ -31,7 +32,7 @@ final class VersionType extends CompositeType
 		return resolve(Version::class);
 	}
 
-	public function toDatabase(mixed $value): Literal
+	public function toDatabase(mixed $value): Expression
 	{
 		return $this->tupleToDatabase($value->toArray());
 	}

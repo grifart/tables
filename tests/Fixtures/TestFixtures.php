@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Grifart\Tables\Tests\Fixtures;
 
 use Dibi\Connection;
-use Grifart\Tables\NamedIdentifier;
+use Grifart\Tables\Database\Identifier;
 use Grifart\Tables\TableManager;
 use Grifart\Tables\TypeResolver;
 use Grifart\Tables\Types\ArrayType;
@@ -21,13 +21,13 @@ final class TestFixtures
 		return new TableManager($connection);
 	}
 
-	public static function createTypeResolver(): TypeResolver
+	public static function createTypeResolver(Connection $connection): TypeResolver
 	{
-		$typeResolver = new TypeResolver();
-		$typeResolver->addResolutionByLocation('public.test.id', new UuidType());
-		$typeResolver->addResolutionByLocation('public.test.score', new IntType());
-		$typeResolver->addResolutionByLocation('public.package.version', new TupleVersionType());
-		$typeResolver->addResolutionByLocation('public.package.previousVersions', ArrayType::of(new NamedIdentifier('public', 'packageVersion'),new VersionType()));
+		$typeResolver = new TypeResolver($connection);
+		$typeResolver->addResolutionByLocation(new Identifier('public', 'test', 'id'), new UuidType());
+		$typeResolver->addResolutionByLocation(new Identifier('public', 'test', 'score'), IntType::integer());
+		$typeResolver->addResolutionByLocation(new Identifier('public', 'package', 'version'), new TupleVersionType());
+		$typeResolver->addResolutionByLocation(new Identifier('public', 'package', 'previousVersions'), ArrayType::of(new VersionType()));
 		return $typeResolver;
 	}
 }

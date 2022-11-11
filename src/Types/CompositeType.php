@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace Grifart\Tables\Types;
 
+use Dibi\Expression;
 use Dibi\Literal;
-use Grifart\Tables\NamedIdentifier;
+use Grifart\Tables\Database\DatabaseType;
 use Grifart\Tables\Type;
 use function Functional\map;
 
@@ -18,59 +19,42 @@ abstract class CompositeType implements Type
 	/** @var Type<mixed>[] */
 	private array $types;
 
-	private NamedIdentifier $databaseType;
-
 	/**
 	 * @param Type<mixed> $type
 	 * @param Type<mixed> ...$rest
 	 */
 	protected function __construct(
-		NamedIdentifier|string $databaseType,
+		private DatabaseType $databaseType,
 		Type $type,
 		Type ...$rest,
 	)
 	{
 		$this->types = [$type, ...$rest];
-		$this->databaseType = $databaseType instanceof NamedIdentifier ? $databaseType : new NamedIdentifier($databaseType);
 	}
 
-	final public function getDatabaseTypes(): array
+	final public function getDatabaseType(): DatabaseType
 	{
-		return [$this->databaseType->toSql()];
+		return $this->databaseType;
 	}
 
 	/**
 	 * @param mixed[] $value
 	 */
-	protected function tupleToDatabase(array $value): Literal
+	protected function tupleToDatabase(array $value): Expression
 	{
-		\assert(\count($value) === \count($this->types));
-		return new Literal(
-			\sprintf(
-				'ROW(%s)::%s',
-				\implode(
-					',',
-					map(
-						$value,
-						function ($item, $index) {
-							if ($item === null) {
-								return 'null';
-							}
-							$result = $this->types[$index]->toDatabase($item);
+		$args = [
+			new Literal('ROW('),
+			...map(
+				$value,
+				fn(mixed $item, int $index) => $item !== null ? $this->types[$index]->toDatabase($item) : new Literal('NULL'),
+			),
+			new Literal(')::'),
+			$this->getDatabaseType()->toSql(),
+		];
 
-							// @todo: we need connection here to call escape functiom ?!
-							if (is_string($result)) {
-								// @todo remove me! This is re-implementation of escaping
-								// @todo Should be escaped by TestType at a first place, hmm?
-								// @todo Shouldn't there be Literal as a required return type of toDatabse?
-								return "'" . str_replace("'", "\\'", $result) . "'";
-							}
-							return $result;
-						},
-					),
-				),
-				$this->databaseType->toSql()
-			)
+		return new Expression(
+			'?' . \implode(',', map($value, fn() => '?')) . '??',
+			...$args,
 		);
 	}
 

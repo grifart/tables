@@ -12,7 +12,7 @@ $connection = require __DIR__ . '/../createConnection.local.php';
 \assert($connection instanceof Connection);
 
 $reflector = new PostgresReflector($connection);
-$typeResolver = TestFixtures::createTypeResolver();
+$typeResolver = TestFixtures::createTypeResolver($connection);
 $tableDefinitions = new TablesDefinitions($reflector, $typeResolver);
 
 return [

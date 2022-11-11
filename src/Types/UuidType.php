@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace Grifart\Tables\Types;
 
+use Dibi\Expression;
 use Grifart\ClassScaffolder\Definition\Types\Type as PhpType;
+use Grifart\Tables\Database\BuiltInType;
+use Grifart\Tables\Database\DatabaseType;
 use Grifart\Tables\Type;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
@@ -20,14 +23,14 @@ final class UuidType implements Type
 		return resolve(UuidInterface::class);
 	}
 
-	public function getDatabaseTypes(): array
+	public function getDatabaseType(): DatabaseType
 	{
-		return ['uuid'];
+		return BuiltInType::uuid();
 	}
 
-	public function toDatabase(mixed $value): string
+	public function toDatabase(mixed $value): Expression
 	{
-		return $value->toString();
+		return new Expression('%s', $value->toString());
 	}
 
 	public function fromDatabase(mixed $value): UuidInterface
