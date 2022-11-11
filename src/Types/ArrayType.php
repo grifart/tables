@@ -106,7 +106,6 @@ final class ArrayType implements Type // @todo: There is implicit support for nu
 		$result = [];
 
 		$string = false;
-		$subObject = false;
 		$length = \strlen($value);
 		$item = '';
 		for ($i = $start + 1; $i < $length; $i++) {
@@ -125,12 +124,7 @@ final class ArrayType implements Type // @todo: There is implicit support for nu
 				$subArrayStart = $i;
 				$this->parseArray($value, $i, $i);
 				$item = \substr($value, $subArrayStart, $i - $subArrayStart + 1);
-			} elseif ( ! $string && ! $subObject && $char === '(') {
-				// @todo: Not sure if this 100% covers all cases. It should run here full object parser and find where the object ends
-				// @todo: see few lines above how recursive arrays are handled...
-				$subObject = TRUE;
-				$item .= '(';
-			} elseif ( ! $string && ! $subObject && $char ===',') {
+			} elseif ( ! $string && $char ===',') {
 				$result[] = $item !== 'NULL' ? $item : null;
 				$item = '';
 			} elseif ( ! $string && $char === '"') {
@@ -138,10 +132,7 @@ final class ArrayType implements Type // @todo: There is implicit support for nu
 			} elseif ($string && ($char === '"' || $char === "\\") && $value[$i - 1] === "\\") {
 				$item = \substr($item, 0, -1) . $char;
 			} elseif ($string && $char === '"' && $value[$i - 1] !== "\\") {
-				$string = FALSE;
-			} elseif (!$string && $subObject && $char === ')') {
-				$subObject = FALSE;
-				$item .= ')';
+				$string = false;
 			} else {
 				$item .= $char;
 			}
