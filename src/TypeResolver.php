@@ -47,6 +47,7 @@ final class TypeResolver
 		if (\class_exists(BigDecimal::class)) {
 			$this->addResolutionByTypeName(DecimalType::decimal());
 			$this->addResolutionByTypeName(DecimalType::numeric());
+			$this->addResolutionByTypeName(DecimalType::real());
 		}
 
 		if (\class_exists(Instant::class)) {

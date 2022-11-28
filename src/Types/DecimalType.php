@@ -33,6 +33,11 @@ final class DecimalType implements Type
 		return new self(BuiltInType::numeric());
 	}
 
+	public static function real(): self
+	{
+		return new self(BuiltInType::real());
+	}
+
 	public function getPhpType(): PhpType
 	{
 		return resolve(BigDecimal::class);

@@ -40,6 +40,11 @@ final class BuiltInType implements DatabaseType
 		return new self('numeric');
 	}
 
+	public static function real(): self
+	{
+		return new self('real');
+	}
+
 	public static function timestamp(): self
 	{
 		return new self('timestamp without time zone');
