@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Grifart\Tables\DI;
 
+use Grifart\Tables\Database\Identifier;
 use Grifart\Tables\Scaffolding\PostgresReflector;
 use Grifart\Tables\Scaffolding\TablesDefinitions;
 use Grifart\Tables\TableManager;
@@ -13,6 +14,8 @@ use Nette\DI\Definitions\ServiceDefinition;
 use Nette\DI\Definitions\Statement;
 use Nette\Schema\Expect;
 use Nette\Schema\Schema;
+use function explode;
+use function is_int;
 
 /**
  * @property-read \stdClass $config
@@ -24,13 +27,10 @@ final class TablesExtension extends CompilerExtension
 		return Expect::structure([
 			'typeResolver' => Expect::anyOf(Expect::type(Statement::class), Expect::string())->default(TypeResolver::class),
 			'types' => Expect::arrayOf(
-				Expect::anyOf(
+				keyType: Expect::anyOf(Expect::int(), Expect::string()),
+				valueType: Expect::anyOf(
 					Expect::type(Statement::class),
 					Expect::string(),
-					Expect::structure([
-						'type' => Expect::anyOf(Expect::type(Statement::class), Expect::string()),
-						'location' => Expect::type(Statement::class),
-					]),
 				),
 			)->default([]),
 		]);
@@ -53,16 +53,16 @@ final class TablesExtension extends CompilerExtension
 			->setType(TypeResolver::class)
 			->setFactory($this->config->typeResolver);
 
-		foreach ($this->config->types as $typeDefinition) {
-			if ($typeDefinition instanceof \stdClass) {
-				$type = $typeDefinition->type instanceof Statement ? $typeDefinition->type : new Statement($typeDefinition->type);
-				$typeResolver->addSetup('addResolutionByLocation', [$typeDefinition->location, $type]);
+		foreach ($this->config->types as $key => $type) {
+			$type = $type instanceof Statement ? $type : new Statement($type);
 
-			} elseif (\is_string($typeDefinition)) {
-				$typeResolver->addSetup('addResolutionByTypeName', [new Statement($typeDefinition)]);
-
-			} elseif ($typeDefinition instanceof Statement) {
-				$typeResolver->addSetup('addResolutionByTypeName', [$typeDefinition]);
+			if (is_int($key)) {
+				$typeResolver->addSetup('addResolutionByTypeName', [$type]);
+			} else {
+				$typeResolver->addSetup('addResolutionByLocation', [
+					new Statement(Identifier::class, explode('.', $key)),
+					$type,
+				]);
 			}
 		}
 	}
