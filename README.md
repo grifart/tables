@@ -358,11 +358,11 @@ You can register your own types in the config file:
 ```neon
 tables:
     types:
-        byName:
-            typeName: App\Tables\MyType
-        byLocation:
-            schema.table.column: App\Tables\MyType
+        - App\Tables\MyType
+        schema.table.column: App\Tables\MyType
 ```
+
+You can explicitly map the type to a specific column by using the fully qualified identifier in the item's key (as seen in the second item above.) If you omit the item's key (as seen in the first item above), the type will be registered based on its `getDatabaseType()` and will be used for all columns of that type that do not have an explicit mapping.
 
 Alternatively, you can register implementations of the `TypeResolverConfigurator` interface in the DI container. Tables will automatically pick them up and pass the `TypeResolver` to the configurators's `configure()` method.
 
@@ -371,8 +371,8 @@ Alternatively, you can register implementations of the `TypeResolverConfigurator
 All types implement the `Type` interface and its four methods:
 
 - `getPhpType(): PhpType` returns the scaffolder-compatible type of the represented PHP value;
-- `getDatabaseTypes(): string[]` returns a list of database type names – these are used when the type is registered using the `TypeResolver::addType($type)` method;
-- `toDatabase(mixed $value): mixed` maps a PHP value of given type to its database representation;
+- `getDatabaseType(): DatabaseType` returns the database type name – this is used when the type is registered using the `TypeResolver::addResolutionByTypeName($type)` method;
+- `toDatabase(mixed $value): Dibi\Expression` maps a PHP value of given type to its database representation;
 - `fromDatabase(mixed $value): mixed` maps a database representation to its respective PHP value.
 
 There are also a few helpers for creating the most common advanced types:
@@ -406,7 +406,11 @@ There is also a base class for describing composite types:
 $moneyType = new class extends CompositeType {
     public function __construct()
     {
-        parent::__construct(new DecimalType(), new CurrencyType());
+        parent::__construct(
+            new Database\NamedType(new Database\Identifier('public', 'money')),
+            new DecimalType(),
+            new CurrencyType(),
+        );
     }
 
     public function getPhpType(): PhpType
@@ -414,12 +418,7 @@ $moneyType = new class extends CompositeType {
         return resolve(Money::class);
     }
 
-    public function getDatabaseTypes(): array
-    {
-        return [];
-    }
-
-    public function toDatabase(mixed $value): mixed
+    public function toDatabase(mixed $value): Dibi\Expression
     {
         return $this->tupleToDatabase([
             $value->getAmount(),
@@ -427,7 +426,7 @@ $moneyType = new class extends CompositeType {
         ]);
     }
 
-    public function fromDatabase(mixed $value): mixed
+    public function fromDatabase(mixed $value): Money
     {
         [$amount, $currency] = $this->tupleFromDatabase($value);
         return Money::of($amount, $currency);
