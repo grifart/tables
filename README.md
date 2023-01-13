@@ -158,7 +158,7 @@ final class IsLike implements Condition
 		return new \Dibi\Expression(
 			'? LIKE ?',
 			$this->expression->toSql(),
-			mapToDatabase($this->pattern, new TextType()),
+			mapToDatabase($this->pattern, TextType::varchar()),
 		);
 	}
 }
@@ -221,7 +221,7 @@ final class Year implements Expression
 
     public function getType(): Type
     {
-        return new IntType();
+        return IntType::integer();
     }
 }
 ```
@@ -249,7 +249,7 @@ $rows = $table->findBy(
 You can also use the `expr()` function to create such expression:
 
 ```php
-$year = fn(Expression $expr) => expr(new IntType(), "EXTRACT ('year' FROM ?)", $expr->toSql());
+$year = fn(Expression $expr) => expr(IntType::integer(), "EXTRACT ('year' FROM ?)", $expr->toSql());
 $rows = $table->findBy(
     $year($table->createdAt())->is(equalTo(2021)),
 );
@@ -409,8 +409,8 @@ $moneyType = new class extends CompositeType {
     {
         parent::__construct(
             new Database\NamedType(new Database\Identifier('public', 'money')),
-            new DecimalType(),
-            new CurrencyType(),
+            DecimalType::decimal(),
+            new CurrencyType(), // custom type
         );
     }
 
