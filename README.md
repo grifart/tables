@@ -376,6 +376,36 @@ All types implement the `Type` interface and its four methods:
 - `toDatabase(mixed $value): Dibi\Expression` maps a PHP value of given type to its database representation;
 - `fromDatabase(mixed $value): mixed` maps a database representation to its respective PHP value.
 
+This is an example of a custom currency type that maps instances of some `Currency` onto currency codes in the database's `char(3)`:
+
+```php
+/**
+ * @implements Type<Currency>
+ */
+final class CurrencyType implements Type
+{
+	public function getPhpType(): PhpType
+	{
+		return resolve(Currency::class);
+	}
+
+	public function getDatabaseType(): DatabaseType
+	{
+		return BuiltInType::char();
+	}
+
+	public function toDatabase(mixed $value): Expression
+	{
+		return $value->getCode();
+	}
+
+	public function fromDatabase(mixed $value): mixed
+	{
+		return Currency::of($value);
+	}
+}
+```
+
 There are also a few helpers for creating the most common advanced types:
 
 ##### Array types
@@ -410,7 +440,7 @@ $moneyType = new class extends CompositeType {
         parent::__construct(
             new Database\NamedType(new Database\Identifier('public', 'money')),
             DecimalType::decimal(),
-            new CurrencyType(), // custom type
+            new CurrencyType(), // custom type from above
         );
     }
 
