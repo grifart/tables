@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Grifart\Tables;
 
 use Dibi\Expression as DibiExpression;
+use Grifart\Tables\Database\Identifier;
 
 /**
  * @template TableType of Table
@@ -55,7 +56,7 @@ final class Column extends ExpressionWithShorthands
 		TypeResolver $typeResolver,
 	): self
 	{
-		$location = "{$table::getSchema()}.{$table::getTableName()}.{$column->getName()}";
+		$location = new Identifier($table::getSchema(), $table::getTableName(), $column->getName());
 		$resolvedType = $typeResolver->resolveType($column->getType(), $location);
 
 		/** @var Column<FromTableType, mixed> $column */

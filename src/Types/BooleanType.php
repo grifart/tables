@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace Grifart\Tables\Types;
 
+use Dibi\Expression;
 use Grifart\ClassScaffolder\Definition\Types\Type as PhpType;
+use Grifart\Tables\Database\BuiltInType;
+use Grifart\Tables\Database\DatabaseType;
 use Grifart\Tables\Type;
 use function Grifart\ClassScaffolder\Definition\Types\resolve;
 
@@ -18,14 +21,14 @@ final class BooleanType implements Type
 		return resolve('bool');
 	}
 
-	public function getDatabaseTypes(): array
+	public function getDatabaseType(): DatabaseType
 	{
-		return ['boolean'];
+		return BuiltInType::boolean();
 	}
 
-	public function toDatabase(mixed $value): string
+	public function toDatabase(mixed $value): Expression
 	{
-		return $value ? 't' : 'f';
+		return new Expression('%b', $value);
 	}
 
 	public function fromDatabase(mixed $value): bool

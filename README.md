@@ -158,7 +158,7 @@ final class IsLike implements Condition
 		return new \Dibi\Expression(
 			'? LIKE ?',
 			$this->expression->toSql(),
-			mapToDatabase($this->pattern, new TextType()),
+			mapToDatabase($this->pattern, TextType::varchar()),
 		);
 	}
 }
@@ -221,7 +221,7 @@ final class Year implements Expression
 
     public function getType(): Type
     {
-        return new IntType();
+        return IntType::integer();
     }
 }
 ```
@@ -249,7 +249,7 @@ $rows = $table->findBy(
 You can also use the `expr()` function to create such expression:
 
 ```php
-$year = fn(Expression $expr) => expr(new IntType(), "EXTRACT ('year' FROM ?)", $expr->toSql());
+$year = fn(Expression $expr) => expr(IntType::integer(), "EXTRACT ('year' FROM ?)", $expr->toSql());
 $rows = $table->findBy(
     $year($table->createdAt())->is(equalTo(2021)),
 );
@@ -358,11 +358,12 @@ You can register your own types in the config file:
 ```neon
 tables:
     types:
-        byName:
-            typeName: App\Tables\MyType
-        byLocation:
-            schema.table.column: App\Tables\MyType
+        - App\Tables\MyType
+        - App\Tables\MyType::decimal(10, 5) # named constructor with parameters
+        schema.table.column: App\Tables\MyType
 ```
+
+You can explicitly map the type to a specific column by using the fully qualified identifier in the item's key (as seen in the second item above.) If you omit the item's key (as seen in the first item above), the type will be registered based on its `getDatabaseType()` and will be used for all columns of that type that do not have an explicit mapping.
 
 Alternatively, you can register implementations of the `TypeResolverConfigurator` interface in the DI container. Tables will automatically pick them up and pass the `TypeResolver` to the configurators's `configure()` method.
 
@@ -371,13 +372,43 @@ Alternatively, you can register implementations of the `TypeResolverConfigurator
 All types implement the `Type` interface and its four methods:
 
 - `getPhpType(): PhpType` returns the scaffolder-compatible type of the represented PHP value;
-- `getDatabaseTypes(): string[]` returns a list of database type names – these are used when the type is registered using the `TypeResolver::addType($type)` method;
-- `toDatabase(mixed $value): mixed` maps a PHP value of given type to its database representation;
+- `getDatabaseType(): DatabaseType` returns the database type name – this is used when the type is registered using the `TypeResolver::addResolutionByTypeName($type)` method;
+- `toDatabase(mixed $value): Dibi\Expression` maps a PHP value of given type to its database representation;
 - `fromDatabase(mixed $value): mixed` maps a database representation to its respective PHP value.
+
+This is an example of a custom currency type that maps instances of some `Currency` onto currency codes in the database's `char(3)`:
+
+```php
+/**
+ * @implements Type<Currency>
+ */
+final class CurrencyType implements Type
+{
+	public function getPhpType(): PhpType
+	{
+		return resolve(Currency::class);
+	}
+
+	public function getDatabaseType(): DatabaseType
+	{
+		return BuiltInType::char();
+	}
+
+	public function toDatabase(mixed $value): Expression
+	{
+		return $value->getCode();
+	}
+
+	public function fromDatabase(mixed $value): mixed
+	{
+		return Currency::of($value);
+	}
+}
+```
 
 There are also a few helpers for creating the most common advanced types:
 
-#### Array types
+##### Array types
 
 You can map values to an array via the `ArrayType`. This formats the items using the declared subtype, and serializes them into a PostgreSQL array. Example of an array of dates:
 
@@ -385,7 +416,7 @@ You can map values to an array via the `ArrayType`. This formats the items using
 $dateArrayType = ArrayType::of(new DateType());
 ```
 
-#### Enum types
+##### Enum types
 
 You can map native PHP enumerations to PostgreSQL's enums using the `EnumType`. This requires that the provided enum is a `\BackedEnum`, and serializes it to its backing value:
 
@@ -398,7 +429,7 @@ enum Status: string {
 $statusType = EnumType::of(Status::class);
 ```
 
-#### Composite types
+##### Composite types
 
 There is also a base class for describing composite types:
 
@@ -406,7 +437,11 @@ There is also a base class for describing composite types:
 $moneyType = new class extends CompositeType {
     public function __construct()
     {
-        parent::__construct(new DecimalType(), new CurrencyType());
+        parent::__construct(
+            new Database\NamedType(new Database\Identifier('public', 'money')),
+            DecimalType::decimal(),
+            new CurrencyType(), // custom type from above
+        );
     }
 
     public function getPhpType(): PhpType
@@ -414,12 +449,7 @@ $moneyType = new class extends CompositeType {
         return resolve(Money::class);
     }
 
-    public function getDatabaseTypes(): array
-    {
-        return [];
-    }
-
-    public function toDatabase(mixed $value): mixed
+    public function toDatabase(mixed $value): Dibi\Expression
     {
         return $this->tupleToDatabase([
             $value->getAmount(),
@@ -427,7 +457,7 @@ $moneyType = new class extends CompositeType {
         ]);
     }
 
-    public function fromDatabase(mixed $value): mixed
+    public function fromDatabase(mixed $value): Money
     {
         [$amount, $currency] = $this->tupleFromDatabase($value);
         return Money::of($amount, $currency);

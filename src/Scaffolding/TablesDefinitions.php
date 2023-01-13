@@ -7,6 +7,7 @@ namespace Grifart\Tables\Scaffolding;
 use Grifart\ClassScaffolder\Definition\ClassDefinition;
 use Grifart\ClassScaffolder\Definition\Types\Type as PhpType;
 use Grifart\Tables\ColumnMetadata;
+use Grifart\Tables\Database\Identifier;
 use Grifart\Tables\Row;
 use Grifart\Tables\Type;
 use Grifart\Tables\TypeResolver;
@@ -42,7 +43,7 @@ final class TablesDefinitions
 		$columnResolvedTypes = map(
 			$columnMetadata,
 			function (ColumnMetadata $column) use ($schema, $table): Type {
-				$location = "$schema.$table.{$column->getName()}";
+				$location = new Identifier($schema, $table, $column->getName());
 				return $this->typeResolver->resolveType($column->getType(), $location);
 			},
 		);

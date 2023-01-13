@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace Grifart\Tables\Types;
 
+use Dibi\Expression;
 use Grifart\ClassScaffolder\Definition\Types\Type as PhpType;
+use Grifart\Tables\Database\BuiltInType;
+use Grifart\Tables\Database\DatabaseType;
 use Grifart\Tables\Type;
 use function Grifart\ClassScaffolder\Definition\Types\resolve;
 
@@ -13,19 +16,38 @@ use function Grifart\ClassScaffolder\Definition\Types\resolve;
  */
 final class IntType implements Type
 {
+	private function __construct(
+		private DatabaseType $databaseType,
+	) {}
+
+	public static function smallint(): self
+	{
+		return new self(BuiltInType::smallint());
+	}
+
+	public static function integer(): self
+	{
+		return new self(BuiltInType::integer());
+	}
+
+	public static function bigint(): self
+	{
+		return new self(BuiltInType::bigint());
+	}
+
 	public function getPhpType(): PhpType
 	{
 		return resolve('int');
 	}
 
-	public function getDatabaseTypes(): array
+	public function getDatabaseType(): DatabaseType
 	{
-		return ['smallint', 'integer', 'bigint'];
+		return $this->databaseType;
 	}
 
-	public function toDatabase(mixed $value): int
+	public function toDatabase(mixed $value): Expression
 	{
-		return (int) $value;
+		return new Expression('%i', $value);
 	}
 
 	public function fromDatabase(mixed $value): int

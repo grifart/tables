@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace Grifart\Tables\Types;
 
+use Dibi\Expression;
+use Dibi\Literal;
 use Grifart\ClassScaffolder\Definition\Types\Type as PhpType;
+use Grifart\Tables\Database\ArrayType as DatabaseArrayType;
 use Grifart\Tables\Type;
 use function Functional\map;
 use function Grifart\ClassScaffolder\Definition\Types\listOf;
@@ -13,7 +16,7 @@ use function Grifart\ClassScaffolder\Definition\Types\listOf;
  * @template ItemType
  * @implements Type<ItemType[]>
  */
-final class ArrayType implements Type
+final class ArrayType implements Type // @todo: There is implicit support for nullable types, shouldn't it be explicit instead?
 {
 	/**
 	 * @param Type<ItemType> $itemType
@@ -45,32 +48,26 @@ final class ArrayType implements Type
 		return listOf($this->itemType->getPhpType());
 	}
 
-	public function getDatabaseTypes(): array
+	public function getDatabaseType(): DatabaseArrayType
 	{
-		return [];
+		return new DatabaseArrayType($this->itemType->getDatabaseType());
 	}
 
-	public function toDatabase(mixed $value): string
+	public function toDatabase(mixed $value): Expression
 	{
-		return \sprintf(
-			'{%s}',
-			\implode(',', map($value, function (mixed $item) {
-				if ($item === null) {
-					return 'NULL';
-				}
+		$args = [
+			new Literal('ARRAY['),
+			...map(
+				$value,
+				fn(mixed $item) => $item !== null ? $this->itemType->toDatabase($item) : new Literal('NULL'),
+			),
+			new Literal(']::'),
+			$this->getDatabaseType()->toSql(),
+		];
 
-				/** @var ItemType $item */
-				$mapped = (string) $this->itemType->toDatabase($item);
-				if ($mapped === '') {
-					return '""';
-				}
-
-				if (\preg_match('/[,\\"\s]/', $mapped) && ! ($this->itemType instanceof self)) {
-					return \sprintf('"%s"', \addcslashes($mapped, '"\\'));
-				}
-
-				return $mapped;
-			})),
+		return new Expression(
+			'?' . \implode(',', map($value, fn() => '?')) . '??',
+			...$args,
 		);
 	}
 

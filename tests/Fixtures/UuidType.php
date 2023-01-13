@@ -4,7 +4,11 @@ declare(strict_types=1);
 
 namespace Grifart\Tables\Tests\Fixtures;
 
+use Dibi\Expression;
 use Grifart\ClassScaffolder\Definition\Types\Type as PhpType;
+use Grifart\Tables\Database\DatabaseType;
+use Grifart\Tables\Database\Identifier;
+use Grifart\Tables\Database\NamedType;
 use Grifart\Tables\Type;
 use function Grifart\ClassScaffolder\Definition\Types\resolve;
 
@@ -18,14 +22,14 @@ final class UuidType implements Type
 		return resolve(Uuid::class);
 	}
 
-	public function getDatabaseTypes(): array
+	public function getDatabaseType(): DatabaseType
 	{
-		return ['uuid'];
+		return new NamedType(new Identifier('uuid'));
 	}
 
-	public function toDatabase(mixed $value): mixed
+	public function toDatabase(mixed $value): Expression
 	{
-		return $value->get();
+		return new Expression('%s', $value->get());
 	}
 
 	public function fromDatabase(mixed $value): mixed

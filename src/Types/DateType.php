@@ -5,7 +5,10 @@ declare(strict_types=1);
 namespace Grifart\Tables\Types;
 
 use Brick\DateTime\LocalDate;
+use Dibi\Expression;
 use Grifart\ClassScaffolder\Definition\Types\Type as PhpType;
+use Grifart\Tables\Database\BuiltInType;
+use Grifart\Tables\Database\DatabaseType;
 use Grifart\Tables\Type;
 use function Grifart\ClassScaffolder\Definition\Types\resolve;
 
@@ -19,14 +22,14 @@ final class DateType implements Type
 		return resolve(LocalDate::class);
 	}
 
-	public function getDatabaseTypes(): array
+	public function getDatabaseType(): DatabaseType
 	{
-		return ['date'];
+		return BuiltInType::date();
 	}
 
-	public function toDatabase(mixed $value): string
+	public function toDatabase(mixed $value): Expression
 	{
-		return (string) $value;
+		return new Expression('%s', (string) $value);
 	}
 
 	public function fromDatabase(mixed $value): LocalDate

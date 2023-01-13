@@ -28,7 +28,7 @@ $connection->nativeQuery("INSERT INTO public.test (id, score, details) VALUES ('
 
 $table = new TestsTable(
 	TestFixtures::createTableManager($connection),
-	TestFixtures::createTypeResolver(),
+	TestFixtures::createTypeResolver($connection),
 );
 
 $all = $table->getAll();
@@ -84,7 +84,7 @@ Assert::count(1, $nonNegativePaginated);
 Assert::same(42, $nonNegativePaginated[0]->getScore());
 Assert::same(2, $paginator->getItemCount());
 
-$abs = static fn(Expression $sub) => expr(new IntType(), 'ABS(?)', $sub);
+$abs = static fn(Expression $sub) => expr(IntType::integer(), 'ABS(?)', $sub);
 $filteredByExpression = $table->findBy(
 	[$abs($table->score())->is(lesserThanOrEqualTo(5))],
 	orderBy: [$abs($table->score())],

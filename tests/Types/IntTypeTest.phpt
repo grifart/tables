@@ -6,13 +6,19 @@ namespace Grifart\Tables\Tests\Types;
 
 use Grifart\Tables\Types\IntType;
 use Tester\Assert;
+use function Grifart\Tables\Tests\connect;
 
 require __DIR__ . '/../bootstrap.php';
 
-$type = new IntType();
+$connection = connect();
+
+$type = IntType::integer();
 
 Assert::same(42, $type->fromDatabase(42));
 Assert::same(42, $type->fromDatabase('42'));
 
-Assert::same(42, $type->toDatabase(42));
-Assert::same(42, $type->toDatabase('42'));
+Assert::same('42', $connection->translate($type->toDatabase(42)));
+Assert::same('42', $connection->translate($type->toDatabase('42')));
+
+// Exception: Expected number, 'NaN' given.
+Assert::exception(fn() => $connection->translate($type->toDatabase('NaN')), \Dibi\Exception::class);

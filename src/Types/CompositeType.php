@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Grifart\Tables\Types;
 
+use Dibi\Expression;
+use Dibi\Literal;
+use Grifart\Tables\Database\DatabaseType;
 use Grifart\Tables\Type;
 use function Functional\map;
 
@@ -20,57 +23,46 @@ abstract class CompositeType implements Type
 	 * @param Type<mixed> $type
 	 * @param Type<mixed> ...$rest
 	 */
-	protected function __construct(Type $type, Type ...$rest)
+	protected function __construct(
+		private DatabaseType $databaseType,
+		Type $type,
+		Type ...$rest,
+	)
 	{
 		$this->types = [$type, ...$rest];
+	}
+
+	final public function getDatabaseType(): DatabaseType
+	{
+		return $this->databaseType;
 	}
 
 	/**
 	 * @param mixed[] $value
 	 */
-	protected function tupleToDatabase(array $value): string
+	protected function tupleToDatabase(array $value): Expression
 	{
-		\assert(\count($value) === \count($this->types));
-		return \sprintf(
-			'(%s)',
-			\implode(
-				',',
-				map(
-					$value,
-					function ($item, $index) {
-						if ($item === null) {
-							return '';
-						}
+		$args = [
+			new Literal('ROW('),
+			...map(
+				$value,
+				fn(mixed $item, int $index) => $item !== null ? $this->types[$index]->toDatabase($item) : new Literal('NULL'),
+			),
+			new Literal(')::'),
+			$this->getDatabaseType()->toSql(),
+		];
 
-						$mappedItem = $this->types[$index]->toDatabase($item);
-
-						if ($mappedItem === '') {
-							return '""';
-						}
-
-						if (\preg_match('/[,\s"()]/', (string) $mappedItem)) {
-							return \sprintf(
-								'"%s"',
-								\str_replace(['\\', '"'], ['\\\\', '\\"'], (string) $mappedItem),
-							);
-						}
-
-						return $mappedItem;
-					},
-				),
-			)
+		return new Expression(
+			'?' . \implode(',', map($value, fn() => '?')) . '??',
+			...$args,
 		);
 	}
 
 	/**
 	 * @return mixed[]
 	 */
-	protected function tupleFromDatabase(string $value): ?array
+	protected function tupleFromDatabase(string $value): array
 	{
-		if ($value === '') {
-			return null;
-		}
-
 		$result = $this->parseComposite($value);
 
 		\assert(\count($result) === \count($this->types));

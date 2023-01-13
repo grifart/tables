@@ -10,7 +10,10 @@ use Brick\DateTime\Parser\IsoParsers;
 use Brick\DateTime\Parser\PatternParser;
 use Brick\DateTime\Parser\PatternParserBuilder;
 use Brick\DateTime\TimeZone;
+use Dibi\Expression;
 use Grifart\ClassScaffolder\Definition\Types\Type as PhpType;
+use Grifart\Tables\Database\BuiltInType;
+use Grifart\Tables\Database\DatabaseType;
 use Grifart\Tables\Type;
 use function Grifart\ClassScaffolder\Definition\Types\resolve;
 
@@ -35,14 +38,14 @@ final class InstantType implements Type
 		return resolve(Instant::class);
 	}
 
-	public function getDatabaseTypes(): array
+	public function getDatabaseType(): DatabaseType
 	{
-		return ['timestamp without time zone'];
+		return BuiltInType::timestamp();
 	}
 
-	public function toDatabase(mixed $value): string
+	public function toDatabase(mixed $value): Expression
 	{
-		return (string) $value; // UTC
+		return new Expression('%s', (string) $value); // UTC
 	}
 
 	public function fromDatabase(mixed $value): Instant
