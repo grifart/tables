@@ -12,6 +12,7 @@ use Grifart\Tables\Types\BinaryType;
 use Grifart\Tables\Types\BooleanType;
 use Grifart\Tables\Types\DateType;
 use Grifart\Tables\Types\DecimalType;
+use Grifart\Tables\Types\FloatType;
 use Grifart\Tables\Types\InstantType;
 use Grifart\Tables\Types\IntType;
 use Grifart\Tables\Types\JsonType;
@@ -39,6 +40,8 @@ final class TypeResolver
 		$this->addResolutionByTypeName(IntType::smallint());
 		$this->addResolutionByTypeName(IntType::integer());
 		$this->addResolutionByTypeName(IntType::bigint());
+		$this->addResolutionByTypeName(FloatType::real());
+		$this->addResolutionByTypeName(FloatType::double());
 		$this->addResolutionByTypeName(new BooleanType());
 		$this->addResolutionByTypeName(new BinaryType());
 		$this->addResolutionByTypeName(JsonType::json());
