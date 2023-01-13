@@ -359,6 +359,7 @@ You can register your own types in the config file:
 tables:
     types:
         - App\Tables\MyType
+        - App\Tables\MyType::decimal(10, 5) # named constructor with parameters
         schema.table.column: App\Tables\MyType
 ```
 
