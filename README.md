@@ -378,7 +378,7 @@ All types implement the `Type` interface and its four methods:
 
 There are also a few helpers for creating the most common advanced types:
 
-#### Array types
+##### Array types
 
 You can map values to an array via the `ArrayType`. This formats the items using the declared subtype, and serializes them into a PostgreSQL array. Example of an array of dates:
 
@@ -386,7 +386,7 @@ You can map values to an array via the `ArrayType`. This formats the items using
 $dateArrayType = ArrayType::of(new DateType());
 ```
 
-#### Enum types
+##### Enum types
 
 You can map native PHP enumerations to PostgreSQL's enums using the `EnumType`. This requires that the provided enum is a `\BackedEnum`, and serializes it to its backing value:
 
@@ -399,7 +399,7 @@ enum Status: string {
 $statusType = EnumType::of(Status::class);
 ```
 
-#### Composite types
+##### Composite types
 
 There is also a base class for describing composite types:
 
