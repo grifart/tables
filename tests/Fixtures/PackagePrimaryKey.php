@@ -19,8 +19,9 @@ use function Grifart\Tables\Conditions\equalTo;
  */
 final class PackagePrimaryKey implements PrimaryKey
 {
-	private function __construct(private string $name)
-	{
+	private function __construct(
+		private string $name,
+	) {
 	}
 
 

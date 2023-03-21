@@ -19,8 +19,9 @@ use function Grifart\Tables\Conditions\equalTo;
  */
 final class TestPrimaryKey implements PrimaryKey
 {
-	private function __construct(private Uuid $id)
-	{
+	private function __construct(
+		private Uuid $id,
+	) {
 	}
 
 
