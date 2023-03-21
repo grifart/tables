@@ -12,16 +12,16 @@ use Grifart\ClassScaffolder\FileProcessor;
 use Tester\Assert;
 use function Grifart\Tables\Tests\connect;
 
+
 require __DIR__ . '/../bootstrap.php';
 
 connect();
 
 $scaffolder = new ClassGenerator();
-
-$definitionFile = DefinitionFile::from(__DIR__ . '/../Fixtures/.definition.php');
 $fileProcessor = new FileProcessor();
+
 $results = $fileProcessor->processFile(
-	$definitionFile,
+	DefinitionFile::from(__DIR__ . '/../Fixtures/.definition.php'),
 	static function (ClassDefinition $definition) use ($scaffolder) {
 		$generated = $scaffolder->generateClass($definition);
 
