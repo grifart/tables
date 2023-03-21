@@ -6,6 +6,7 @@ namespace Grifart\Tables\Scaffolding;
 
 use Dibi\Connection;
 use Grifart\Tables\ColumnMetadata;
+use Grifart\Tables\MissingPrimaryIndex;
 use function Functional\map;
 use function Functional\reindex;
 
@@ -74,6 +75,10 @@ LEFT JOIN pg_catalog.pg_namespace ON pg_namespace.oid = pg_class.relnamespace
 WHERE pg_index.indisprimary AND pg_namespace.nspname = %s AND pg_class.relname = %s;
 SQL
 			, $schema, $table)->setType('indkey', null)->fetchSingle();
+
+		if ($rawPrimaryKeyColumnPositions === null) {
+			throw MissingPrimaryIndex::in($schema, $table);
+		}
 
 		$primaryKeyColumnPositions = \explode(' ', $rawPrimaryKeyColumnPositions);
 		return reindex(

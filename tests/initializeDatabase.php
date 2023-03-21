@@ -33,3 +33,9 @@ CREATE TABLE IF NOT EXISTS public.package (
     "previousVersions" public."packageVersion"[] NOT NULL
 );
 SQL);
+
+$connection->nativeQuery(<<<SQL
+CREATE TABLE IF NOT EXISTS public."missingPrimaryIndex" (
+    whatever text NOT NULL
+);
+SQL);
