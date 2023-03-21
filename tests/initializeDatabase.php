@@ -11,6 +11,10 @@ require __DIR__ . '/../vendor/autoload.php';
 $connection = require __DIR__ . '/createConnection.local.php';
 \assert($connection instanceof Connection);
 
+if (isset($_SERVER['argv'][1]) && $_SERVER['argv'][1] === '--reset') {
+	$connection->nativeQuery('DROP SCHEMA IF EXISTS public CASCADE');
+}
+
 $connection->nativeQuery('CREATE SCHEMA IF NOT EXISTS public');
 
 $connection->nativeQuery(<<<SQL
