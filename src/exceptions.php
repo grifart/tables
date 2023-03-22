@@ -5,6 +5,14 @@ namespace Grifart\Tables;
 abstract class UsageException extends \LogicException {}
 abstract class RuntimeException extends \RuntimeException {}
 
+final class MissingPrimaryIndex extends UsageException
+{
+	public static function in(string $schema, string $table): self
+	{
+		return new self(\sprintf('Table "%s"."%s" must have a primary index. Provide one and try again.', $schema, $table));
+	}
+}
+
 final class ProbablyBrokenPrimaryIndexImplementation extends UsageException {
 	public function __construct(Table $table, int $affectedRows)
 	{
