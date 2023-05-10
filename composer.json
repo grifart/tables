@@ -1,79 +1,72 @@
 {
-    "name": "grifart/tables",
-    "description": "Statically typed table gate with support for composite fields, arrays and more from PostgreSQL.",
-    "type": "library",
-    "license": "proprietary",
-    "authors": [
-        {
-            "name": "Jan Kuchař",
-            "email": "honza.kuchar@grifart.cz"
-        },
-        {
-            "name": "Jíří Pudil",
-            "email": "jiri.pudil@grifart.cz"
-        }
-    ],
-
-
-    "scripts": {
-        "verify": [
-            "@phpstan",
-            "@test"
-        ],
-        "phpstan": "phpstan analyze --no-interaction --error-format compact",
-        "test": "tester -C tests"
-    },
-
-
-    "require": {
-        "php": "^8.1",
-        "dibi/dibi": "^4.0.2",
-        "grifart/scaffolder": "^0.6.3",
-        "lstrojny/functional-php": "^1.17",
-        "nette/utils": "^3.0.1"
-    },
-    "require-dev": {
-        "brick/date-time": "^0.3.2",
-        "brick/math": "^0.9.3",
-        "grifart/phpstan-oneline": "^0.4.0",
-        "nette/bootstrap": "^3.1",
-        "nette/di": "^3.0",
-        "nette/tester": "^2.3",
-        "nikic/php-parser": "^4.13",
-        "phpstan/phpstan": "^1.0",
-        "ramsey/uuid": "^4.2"
-    },
-
-    "suggest": {
-		"brick/date-time": "if you want to use date-time types",
-        "brick/math": "if you want to use DecimalType",
-        "nette/di": "if you want to integrate with DI container",
-        "ramsey/uuid": "if you want to use UuidType"
+	"name": "grifart/tables",
+	"description": "Statically typed table gate with support for composite fields, arrays and more from PostgreSQL.",
+	"type": "library",
+	"license": "proprietary",
+	"authors": [
+		{
+			"name": "Jan Kuchař",
+			"email": "honza.kuchar@grifart.cz"
+		},
+		{
+			"name": "Jíří Pudil",
+			"email": "jiri.pudil@grifart.cz"
+		}
+	],
+	"scripts": {
+		"verify": [
+			"@phpstan",
+			"@test"
+		],
+		"phpstan": "phpstan analyze --no-interaction --error-format compact",
+		"test": "tester -C tests"
 	},
-
-
-    "autoload": {
-        "psr-4": {
-            "Grifart\\Tables\\": "src/"
-        },
-        "classmap": [
-            "src/exceptions.php"
-        ],
-        "files": [
+	"require": {
+		"php": "^8.1",
+		"dibi/dibi": "^4.0.2",
+		"grifart/scaffolder": "^0.6.3",
+		"lstrojny/functional-php": "^1.17",
+		"nette/utils": "^3.0.1"
+	},
+	"require-dev": {
+		"brick/date-time": "^0.3.2",
+		"brick/math": "^0.9.3",
+		"grifart/phpstan-oneline": "^0.4.0",
+		"nette/bootstrap": "^3.1",
+		"nette/di": "^3.0",
+		"nette/tester": "^2.3",
+		"nikic/php-parser": "^4.13",
+		"phpstan/phpstan": "^1.0",
+		"ramsey/uuid": "^4.2"
+	},
+	"suggest": {
+		"brick/date-time": "if you want to use date-time types",
+		"brick/math": "if you want to use DecimalType",
+		"nette/di": "if you want to integrate with DI container",
+		"ramsey/uuid": "if you want to use UuidType"
+	},
+	"autoload": {
+		"psr-4": {
+			"Grifart\\Tables\\": "src/"
+		},
+		"classmap": [
+			"src/exceptions.php"
+		],
+		"files": [
 			"src/functions.php",
 			"src/Conditions/functions.php",
-            "src/Types/functions.php"
-        ]
-    },
-    "autoload-dev": {
-        "psr-4": {
-            "Grifart\\Tables\\Tests\\": "tests/"
-        },
-        "files": [
-            "src/exceptions.php"
-        ]
-    },
-    "config": {
-        "sort-packages": true
-    }
+			"src/Types/functions.php"
+		]
+	},
+	"autoload-dev": {
+		"psr-4": {
+			"Grifart\\Tables\\Tests\\": "tests/"
+		},
+		"files": [
+			"src/exceptions.php"
+		]
+	},
+	"config": {
+		"sort-packages": true
+	}
 }
