@@ -12,6 +12,7 @@ use Grifart\Tables\Column;
 use Grifart\Tables\ColumnMetadata;
 use Grifart\Tables\ColumnNotFound;
 use Grifart\Tables\Conditions\Condition;
+use Grifart\Tables\DefaultValue;
 use Grifart\Tables\Expression;
 use Grifart\Tables\OrderBy\OrderBy;
 use Grifart\Tables\RowNotFound;
@@ -135,34 +136,50 @@ final class PackagesTable implements Table
 	}
 
 
-	public function newEmpty(): PackageModifications
-	{
-		return PackageModifications::new();
-	}
-
-
 	/**
 	 * @param array{int, int, int} $version
 	 * @param Version[] $previousVersions
 	 */
-	public function new(string $name, array $version, array $previousVersions): PackageModifications
+	public function new(string $name, array $version, array $previousVersions): PackageRow
 	{
+		$primaryKey = PackagePrimaryKey::from(name: $name);
 		$modifications = PackageModifications::new();
 		$modifications->modifyName($name);
 		$modifications->modifyVersion($version);
 		$modifications->modifyPreviousVersions($previousVersions);
-		return $modifications;
+		$this->save($modifications);
+		return $this->get($primaryKey);
 	}
 
 
-	public function edit(PackageRow|PackagePrimaryKey $rowOrKey): PackageModifications
+	/**
+	 * @param array{int, int, int}|DefaultValue $version
+	 * @param Version[]|DefaultValue $previousVersions
+	 */
+	public function edit(
+		PackageRow|PackagePrimaryKey $rowOrKey,
+		string|DefaultValue $name = new DefaultValue,
+		array|DefaultValue $version = new DefaultValue,
+		array|DefaultValue $previousVersions = new DefaultValue,
+	): PackageRow
 	{
 		$primaryKey = $rowOrKey instanceof PackagePrimaryKey ? $rowOrKey : PackagePrimaryKey::fromRow($rowOrKey);
-		return PackageModifications::update($primaryKey);
+		$modifications = PackageModifications::update($primaryKey);
+		if (!$name instanceof DefaultValue) {
+			$modifications->modifyName($name);
+		}
+		if (!$version instanceof DefaultValue) {
+			$modifications->modifyVersion($version);
+		}
+		if (!$previousVersions instanceof DefaultValue) {
+			$modifications->modifyPreviousVersions($previousVersions);
+		}
+		$this->save($modifications);
+		return $this->get($primaryKey);
 	}
 
 
-	public function save(PackageModifications $changes): void
+	private function save(PackageModifications $changes): void
 	{
 		$this->tableManager->save($this, $changes);
 	}

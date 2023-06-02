@@ -11,6 +11,7 @@ use Grifart\Tables\Database\Identifier;
 use Grifart\Tables\Row;
 use Grifart\Tables\Type;
 use Grifart\Tables\TypeResolver;
+use function array_keys;
 use function Functional\map;
 use function Grifart\ClassScaffolder\Capabilities\constructorWithPromotedProperties;
 use function Grifart\ClassScaffolder\Capabilities\getters;
@@ -98,6 +99,7 @@ final class TablesDefinitions
 				$modificationsClassName,
 				$columnMetadata,
 				$columnPhpTypes,
+				$primaryKeyFields,
 			));
 
 		return Definitions::from($rowClass, $modificationsClass, $primaryKeyClass, $tableClass);

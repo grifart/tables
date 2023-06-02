@@ -12,6 +12,7 @@ use Grifart\Tables\Column;
 use Grifart\Tables\ColumnMetadata;
 use Grifart\Tables\ColumnNotFound;
 use Grifart\Tables\Conditions\Condition;
+use Grifart\Tables\DefaultValue;
 use Grifart\Tables\Expression;
 use Grifart\Tables\OrderBy\OrderBy;
 use Grifart\Tables\RowNotFound;
@@ -135,29 +136,44 @@ final class TestsTable implements Table
 	}
 
 
-	public function newEmpty(): TestModifications
+	public function new(Uuid $id, int $score, string|DefaultValue|null $details = new DefaultValue): TestRow
 	{
-		return TestModifications::new();
-	}
-
-
-	public function new(Uuid $id, int $score): TestModifications
-	{
+		$primaryKey = TestPrimaryKey::from(id: $id);
 		$modifications = TestModifications::new();
 		$modifications->modifyId($id);
 		$modifications->modifyScore($score);
-		return $modifications;
+		if (!$details instanceof DefaultValue) {
+			$modifications->modifyDetails($details);
+		}
+		$this->save($modifications);
+		return $this->get($primaryKey);
 	}
 
 
-	public function edit(TestRow|TestPrimaryKey $rowOrKey): TestModifications
+	public function edit(
+		TestRow|TestPrimaryKey $rowOrKey,
+		Uuid|DefaultValue $id = new DefaultValue,
+		int|DefaultValue $score = new DefaultValue,
+		string|DefaultValue|null $details = new DefaultValue,
+	): TestRow
 	{
 		$primaryKey = $rowOrKey instanceof TestPrimaryKey ? $rowOrKey : TestPrimaryKey::fromRow($rowOrKey);
-		return TestModifications::update($primaryKey);
+		$modifications = TestModifications::update($primaryKey);
+		if (!$id instanceof DefaultValue) {
+			$modifications->modifyId($id);
+		}
+		if (!$score instanceof DefaultValue) {
+			$modifications->modifyScore($score);
+		}
+		if (!$details instanceof DefaultValue) {
+			$modifications->modifyDetails($details);
+		}
+		$this->save($modifications);
+		return $this->get($primaryKey);
 	}
 
 
-	public function save(TestModifications $changes): void
+	private function save(TestModifications $changes): void
 	{
 		$this->tableManager->save($this, $changes);
 	}

@@ -8,11 +8,13 @@ use Grifart\ClassScaffolder\Capabilities\Capability;
 use Grifart\ClassScaffolder\ClassInNamespace;
 use Grifart\ClassScaffolder\Definition\ClassDefinition;
 use Grifart\ClassScaffolder\Definition\Types\Type as PhpType;
+use Grifart\ClassScaffolder\Definition\Types\UnionType;
 use Grifart\Tables\CaseConversion;
 use Grifart\Tables\Column;
 use Grifart\Tables\ColumnMetadata;
 use Grifart\Tables\ColumnNotFound;
 use Grifart\Tables\Conditions\Condition;
+use Grifart\Tables\DefaultValue;
 use Grifart\Tables\Expression;
 use Grifart\Tables\RowNotFound;
 use Grifart\Tables\OrderBy\OrderBy;
@@ -23,12 +25,16 @@ use Grifart\Tables\Type;
 use Grifart\Tables\TypeResolver;
 use Nette\PhpGenerator as Code;
 use Nette\Utils\Paginator;
+use function Functional\map;
+use function Grifart\ClassScaffolder\Definition\Types\resolve;
+use function usort;
 
 final class TableImplementation implements Capability
 {
 	/**
 	 * @param array<string, ColumnMetadata> $columnMetadata
 	 * @param array<string, PhpType> $columnPhpTypes
+	 * @param array<string, PhpType> $primaryKeyFields
 	 */
 	public function __construct(
 		private string $schema,
@@ -38,6 +44,7 @@ final class TableImplementation implements Capability
 		private string $modificationClass,
 		private array $columnMetadata,
 		private array $columnPhpTypes,
+		private array $primaryKeyFields,
 	) {}
 
 	public function applyTo(
@@ -63,7 +70,7 @@ final class TableImplementation implements Capability
 
 		// column info:
 		$namespace->addUse(ColumnMetadata::class);
-		$columnsDefinitions = []; // name => PhpLiteral
+		$columnsDefinitions = []; // name => Literal
 		$columnsArrayTemplate = [];
 		foreach($this->columnMetadata as $column) {
 			$columnsArrayTemplate[] = "\t? => new ColumnMetadata(?, ?, ?, ?)";
@@ -96,7 +103,7 @@ final class TableImplementation implements Capability
 				'$row = $this->tableManager->find($this, $primaryKey);' . "\n" .
 				'\assert($row instanceof ? || $row === NULL);' . "\n" .
 				'return $row;',
-				[new Code\PhpLiteral($namespace->simplifyName($this->rowClass))]
+				[new Code\Literal($namespace->simplifyName($this->rowClass))]
 			);
 
 		$namespace->addUse(RowNotFound::class);
@@ -129,7 +136,7 @@ final class TableImplementation implements Capability
 				"/** @var ?[] \$result */\n" .
 				"\$result = \$this->tableManager->getAll(\$this, \$orderBy, \$paginator);\n" .
 				'return $result;',
-				[new Code\PhpLiteral($namespace->simplifyName($this->rowClass))],
+				[new Code\Literal($namespace->simplifyName($this->rowClass))],
 			);
 
 		$namespace->addUse(Condition::class);
@@ -145,7 +152,7 @@ final class TableImplementation implements Capability
 			->addComment('@param array<OrderBy|Expression<mixed>> $orderBy')
 			->addComment('@return ' . $namespace->simplifyName($this->rowClass) . '[]')
 			->setReturnType('array')
-			->addBody('/** @var ?[] $result */', [new Code\PhpLiteral($namespace->simplifyName($this->rowClass))])
+			->addBody('/** @var ?[] $result */', [new Code\Literal($namespace->simplifyName($this->rowClass))])
 			->addBody('$result = $this->tableManager->findBy($this, $conditions, $orderBy, $paginator);')
 			->addBody('return $result;');
 
@@ -165,59 +172,88 @@ final class TableImplementation implements Capability
 			->addBody('return $result[0];');
 
 
-		$classType->addMethod('newEmpty')
-			->setReturnType($this->modificationClass)
-			->setBody(
-				'return ?::new();',
-				[new Code\PhpLiteral($namespace->simplifyName($this->modificationClass))],
-			);
-
 		$newMethod = $classType->addMethod('new')
-			->setReturnType($this->modificationClass)
+			->setReturnType($this->rowClass)
+			->addBody('$primaryKey = ?::from(...?:);', [
+				new Code\Literal($namespace->simplifyName($this->primaryKeyClass)),
+				map(
+					$this->primaryKeyFields,
+					static fn($_, string $name) => new Code\Literal('$' . $name),
+				),
+			])
 			->addBody(
 				'$modifications = ?::new();',
-				[new Code\PhpLiteral($namespace->simplifyName($this->modificationClass))],
+				[new Code\Literal($namespace->simplifyName($this->modificationClass))],
 			);
 
-		foreach ($this->columnMetadata as $columnMetadata) {
-			if ( ! $columnMetadata->hasDefaultValue()) {
+		$editMethod = $classType->addMethod('edit')
+			->setReturnType($this->rowClass)
+			->setParameters([
+				(new Code\Parameter('rowOrKey'))->setType($this->rowClass . '|' . $this->primaryKeyClass),
+			])
+			->addBody('$primaryKey = $rowOrKey instanceof ? \? $rowOrKey : ?::fromRow($rowOrKey);', [
+				new Code\Literal($namespace->simplifyName($this->primaryKeyClass)),
+				new Code\Literal($namespace->simplifyName($this->primaryKeyClass)),
+			])
+			->addBody('$modifications = ?::update($primaryKey);', [new Code\Literal($namespace->simplifyName($this->modificationClass))]);
+
+		$columns = $this->columnMetadata;
+		usort($columns, fn (ColumnMetadata $a, ColumnMetadata $b) => $a->hasDefaultValue() <=> $b->hasDefaultValue());
+
+		foreach ([$newMethod, $editMethod] as $method) {
+			foreach ($columns as $columnMetadata) {
+				$hasDefaultValue = $columnMetadata->hasDefaultValue() || $method === $editMethod;
+
 				$fieldName = $columnMetadata->getName();
 				$fieldType = $this->columnPhpTypes[$fieldName];
+				$isNullable = $fieldType->isNullable();
 
-				$newMethod->addParameter($fieldName)
+				if ($hasDefaultValue) {
+					$namespace->addUse(DefaultValue::class);
+					$fieldType = new UnionType($fieldType, resolve(DefaultValue::class));
+				}
+
+
+				$parameter = $method->addParameter($fieldName)
 					->setType($fieldType->getTypeHint())
-					->setNullable($fieldType->isNullable());
+					->setNullable($isNullable);
+
+				if ($hasDefaultValue) {
+					$parameter->setDefaultValue(new Code\Literal('new ?', [new Code\Literal($namespace->simplifyName(DefaultValue::class))]));
+				}
 
 				if ($fieldType->requiresDocComment()) {
-					$newMethod->addComment(\sprintf(
+					$method->addComment(\sprintf(
 						'@param %s $%s',
 						$fieldType->getDocCommentType($namespace),
 						$fieldName,
 					));
 				}
 
-				$newMethod->addBody(
-					'$modifications->modify' . \ucfirst($fieldName) . '(?);',
-					[new Code\PhpLiteral('$' . $fieldName)],
+				if ($hasDefaultValue) {
+					$method->addBody(
+						'if (!? instanceof ?) {',
+						[new Code\Literal('$' . $fieldName), new Code\Literal($namespace->simplifyName(DefaultValue::class))],
+					);
+				}
+
+				$method->addBody(
+					($hasDefaultValue ? "\t" : '') . '$modifications->modify' . \ucfirst($fieldName) . '(?);',
+					[new Code\Literal('$' . $fieldName)],
 				);
+
+				if ($hasDefaultValue) {
+					$method->addBody('}');
+				}
 			}
+
+			$method->addBody('$this->save($modifications);');
+			$method->addBody('return $this->get($primaryKey);');
 		}
 
-		$newMethod->addBody('return $modifications;');
-
-
-		$classType->addMethod('edit')
-			->setReturnType($this->modificationClass)
-			->setParameters([
-				(new Code\Parameter('rowOrKey'))->setType($this->rowClass . '|' . $this->primaryKeyClass),
-			])
-			->addBody('$primaryKey = $rowOrKey instanceof ? \? $rowOrKey : ?::fromRow($rowOrKey);', [
-				new Code\PhpLiteral($namespace->simplifyName($this->primaryKeyClass)),
-				new Code\PhpLiteral($namespace->simplifyName($this->primaryKeyClass)),
-			])
-			->addBody('return ?::update($primaryKey);', [new Code\PhpLiteral($namespace->simplifyName($this->modificationClass))]);
 
 		$classType->addMethod('save')
+			->setPrivate()
 			->setReturnType('void')
 			->setParameters([
 				(new Code\Parameter('changes'))->setType($this->modificationClass)
@@ -232,8 +268,8 @@ final class TableImplementation implements Capability
 				(new Code\Parameter('rowOrKey'))->setType($this->rowClass . '|' . $this->primaryKeyClass)
 			])
 			->addBody('$primaryKey = $rowOrKey instanceof ? \? $rowOrKey : ?::fromRow($rowOrKey);', [
-				new Code\PhpLiteral($namespace->simplifyName($this->primaryKeyClass)),
-				new Code\PhpLiteral($namespace->simplifyName($this->primaryKeyClass)),
+				new Code\Literal($namespace->simplifyName($this->primaryKeyClass)),
+				new Code\Literal($namespace->simplifyName($this->primaryKeyClass)),
 			])
 			->addBody('$this->tableManager->delete($this, $primaryKey);');
 
@@ -273,7 +309,7 @@ final class TableImplementation implements Capability
 
 			$constructor->addBody(\sprintf('/** @var Column<self, %s> $%s */', $docCommentType, $columnName));
 			$constructor->addBody('$? = Column::from($this, self::getDatabaseColumns()[?], $this->typeResolver);', [$columnName, $columnName]);
-			$columnInitializers[$columnName] = new Code\PhpLiteral('$?', [$columnName]);
+			$columnInitializers[$columnName] = new Code\Literal('$?', [$columnName]);
 		}
 
 		$columnsProperty->addComment(\sprintf('@var array{%s}', \implode(', ', $columnsShape)));
@@ -297,7 +333,7 @@ final class TableImplementation implements Capability
 	private function implementConfigMethodReturningClass(Code\PhpNamespace $namespace, Code\ClassType $classType, string $name, string $class): void
 	{
 		$namespace->addUse($class);
-		$this->implementConfigMethod($classType, $name, new Code\PhpLiteral($namespace->simplifyName($class) . '::class'));
+		$this->implementConfigMethod($classType, $name, new Code\Literal($namespace->simplifyName($class) . '::class'));
 	}
 
 	private function implementConfigMethod(Code\ClassType $classType, string $name, mixed $value): void

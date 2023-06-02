@@ -37,9 +37,7 @@ Assert::count(2, $all);
 $all2 = $table->findBy([]);
 Assert::equal($all, $all2);
 
-$changeSet = $table->new(new Uuid('9493decd-4b9c-45d6-9960-0c94dc9be353'), -5);
-$changeSet->modifyDetails('👎');
-$table->save($changeSet);
+$table->new(new Uuid('9493decd-4b9c-45d6-9960-0c94dc9be353'), -5, details: '👎');
 
 $all = $table->getAll();
 Assert::count(3, $all);
@@ -115,12 +113,11 @@ Assert::same(0, $nullDetails[0]->getScore());
 $unique = $table->getBy($table->score()->is(42));
 Assert::same(42, $unique->getScore());
 
-$zero = $table->get(TestPrimaryKey::from(new Uuid('2bec3f23-a210-455c-b907-bb69a99d07b2')));
-$zeroChangeSet = $table->edit($zero);
-$zeroChangeSet->modifyDetails('nada');
-$table->save($zeroChangeSet);
-
-$updatedZero = $table->get(TestPrimaryKey::from(new Uuid('2bec3f23-a210-455c-b907-bb69a99d07b2')));
+$updatedZero = $table->edit(
+	TestPrimaryKey::from(new Uuid('2bec3f23-a210-455c-b907-bb69a99d07b2')),
+	details: 'nada',
+);
+Assert::same(0, $updatedZero->getScore());
 Assert::same('nada', $updatedZero->getDetails());
 
 $table->delete(TestPrimaryKey::fromRow($updatedZero));
