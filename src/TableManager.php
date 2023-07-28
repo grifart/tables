@@ -8,6 +8,7 @@ use Dibi\Connection;
 use Grifart\Tables\Conditions\Composite;
 use Grifart\Tables\Conditions\Condition;
 use Grifart\Tables\OrderBy\OrderBy;
+use Grifart\Tables\OrderBy\OrderByDirection;
 use Nette\Utils\Paginator;
 use function Functional\map;
 
@@ -85,7 +86,7 @@ final class TableManager
 			'ORDER BY %by', \count($orderBy) > 0
 				? map($orderBy, function (OrderBy|Expression $orderBy) {
 					if ($orderBy instanceof Expression) {
-						$orderBy = new OrderBy($orderBy);
+						$orderBy = new OrderByDirection($orderBy);
 					}
 
 					return $orderBy->toSql()->getValues();

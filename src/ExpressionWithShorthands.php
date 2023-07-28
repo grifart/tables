@@ -10,6 +10,8 @@ use Grifart\Tables\Conditions\IsNull;
 use Grifart\Tables\OrderBy\Direction;
 use Grifart\Tables\OrderBy\Nulls;
 use Grifart\Tables\OrderBy\OrderBy;
+use Grifart\Tables\OrderBy\OrderByDirection;
+use Grifart\Tables\OrderBy\OrderByValues;
 
 /**
  * @template ValueType
@@ -35,11 +37,19 @@ abstract class ExpressionWithShorthands implements Expression
 
 	public function ascending(Nulls|null $nulls = null): OrderBy
 	{
-		return new OrderBy($this, nulls: $nulls);
+		return new OrderByDirection($this, nulls: $nulls);
 	}
 
 	public function descending(Nulls|null $nulls = null): OrderBy
 	{
-		return new OrderBy($this, direction: Direction::Descending, nulls: $nulls);
+		return new OrderByDirection($this, direction: Direction::Descending, nulls: $nulls);
+	}
+
+	/**
+	 * @param list<ValueType> $values
+	 */
+	public function byValues(array $values): OrderBy
+	{
+		return new OrderByValues($this, $values);
 	}
 }
