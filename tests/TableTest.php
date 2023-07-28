@@ -72,6 +72,16 @@ $orderByNullsLast = $table->findBy([], orderBy: [$table->details()->ascending(Nu
 Assert::count(3, $orderByNullsLast);
 Assert::same(null, $orderByNullsLast[2]->getDetails());
 
+$orderByValues = $table->findBy([], orderBy: [$table->id()->byValues([
+	new Uuid('2bec3f23-a210-455c-b907-bb69a99d07b2'),
+	new Uuid('9493decd-4b9c-45d6-9960-0c94dc9be353'),
+	new Uuid('fb05a832-5729-4b1f-b064-fbc08cacbe43'),
+])]);
+Assert::count(3, $orderByValues);
+Assert::same('2bec3f23-a210-455c-b907-bb69a99d07b2', $orderByValues[0]->getId()->get());
+Assert::same('9493decd-4b9c-45d6-9960-0c94dc9be353', $orderByValues[1]->getId()->get());
+Assert::same('fb05a832-5729-4b1f-b064-fbc08cacbe43', $orderByValues[2]->getId()->get());
+
 $paginator = new Paginator();
 $paginator->setItemsPerPage(1);
 $paginator->setPage(2);
