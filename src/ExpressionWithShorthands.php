@@ -46,7 +46,7 @@ abstract class ExpressionWithShorthands implements Expression
 	}
 
 	/**
-	 * @param list<ValueType> $values
+	 * @param array<ValueType> $values
 	 */
 	public function byValues(array $values): OrderBy
 	{
