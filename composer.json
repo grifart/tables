@@ -23,7 +23,7 @@
 	},
 	"require": {
 		"php": "^8.1",
-		"dibi/dibi": "^4.0.2",
+		"dibi/dibi": "^4.0.2||^5.0",
 		"grifart/scaffolder": "^0.6.3",
 		"lstrojny/functional-php": "^1.17",
 		"nette/utils": "^3.0.1||^4.0"
