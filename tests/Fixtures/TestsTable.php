@@ -12,7 +12,7 @@ use Grifart\Tables\Column;
 use Grifart\Tables\ColumnMetadata;
 use Grifart\Tables\ColumnNotFound;
 use Grifart\Tables\Conditions\Condition;
-use Grifart\Tables\DefaultValue;
+use Grifart\Tables\DefaultOrExistingValue;
 use Grifart\Tables\Expression;
 use Grifart\Tables\OrderBy\OrderBy;
 use Grifart\Tables\RowNotFound;
@@ -136,44 +136,66 @@ final class TestsTable implements Table
 	}
 
 
-	public function new(Uuid $id, int $score, string|DefaultValue|null $details = new DefaultValue): TestRow
+	public function new(
+		Uuid $id,
+		int $score,
+		string|DefaultOrExistingValue|null $details = \Grifart\Tables\DefaultValue,
+	): TestModifications
 	{
-		$primaryKey = TestPrimaryKey::from(id: $id);
 		$modifications = TestModifications::new();
 		$modifications->modifyId($id);
 		$modifications->modifyScore($score);
-		if (!$details instanceof DefaultValue) {
+		if (!$details instanceof DefaultOrExistingValue) {
 			$modifications->modifyDetails($details);
 		}
-		$this->save($modifications);
-		return $this->get($primaryKey);
+		return $modifications;
 	}
 
 
 	public function edit(
 		TestRow|TestPrimaryKey $rowOrKey,
-		Uuid|DefaultValue $id = new DefaultValue,
-		int|DefaultValue $score = new DefaultValue,
-		string|DefaultValue|null $details = new DefaultValue,
-	): TestRow
+		Uuid|DefaultOrExistingValue $id = \Grifart\Tables\Unchanged,
+		int|DefaultOrExistingValue $score = \Grifart\Tables\Unchanged,
+		string|DefaultOrExistingValue|null $details = \Grifart\Tables\Unchanged,
+	): TestModifications
 	{
 		$primaryKey = $rowOrKey instanceof TestPrimaryKey ? $rowOrKey : TestPrimaryKey::fromRow($rowOrKey);
 		$modifications = TestModifications::update($primaryKey);
-		if (!$id instanceof DefaultValue) {
+		if (!$id instanceof DefaultOrExistingValue) {
 			$modifications->modifyId($id);
 		}
-		if (!$score instanceof DefaultValue) {
+		if (!$score instanceof DefaultOrExistingValue) {
 			$modifications->modifyScore($score);
 		}
-		if (!$details instanceof DefaultValue) {
+		if (!$details instanceof DefaultOrExistingValue) {
 			$modifications->modifyDetails($details);
 		}
-		$this->save($modifications);
-		return $this->get($primaryKey);
+		return $modifications;
 	}
 
 
-	private function save(TestModifications $changes): void
+	/**
+	 * @deprecated
+	 */
+	public function save(TestModifications $changes): void
+	{
+		$this->tableManager->save($this, $changes);
+	}
+
+
+	public function insert(TestModifications $changes): void
+	{
+		$this->tableManager->insert($this, $changes);
+	}
+
+
+	public function update(TestModifications $changes): void
+	{
+		$this->tableManager->update($this, $changes);
+	}
+
+
+	public function insertOrUpdate(TestModifications $changes): void
 	{
 		$this->tableManager->save($this, $changes);
 	}

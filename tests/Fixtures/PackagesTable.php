@@ -12,7 +12,7 @@ use Grifart\Tables\Column;
 use Grifart\Tables\ColumnMetadata;
 use Grifart\Tables\ColumnNotFound;
 use Grifart\Tables\Conditions\Condition;
-use Grifart\Tables\DefaultValue;
+use Grifart\Tables\DefaultOrExistingValue;
 use Grifart\Tables\Expression;
 use Grifart\Tables\OrderBy\OrderBy;
 use Grifart\Tables\RowNotFound;
@@ -140,46 +140,64 @@ final class PackagesTable implements Table
 	 * @param array{int, int, int} $version
 	 * @param Version[] $previousVersions
 	 */
-	public function new(string $name, array $version, array $previousVersions): PackageRow
+	public function new(string $name, array $version, array $previousVersions): PackageModifications
 	{
-		$primaryKey = PackagePrimaryKey::from(name: $name);
 		$modifications = PackageModifications::new();
 		$modifications->modifyName($name);
 		$modifications->modifyVersion($version);
 		$modifications->modifyPreviousVersions($previousVersions);
-		$this->save($modifications);
-		return $this->get($primaryKey);
+		return $modifications;
 	}
 
 
 	/**
-	 * @param array{int, int, int}|DefaultValue $version
-	 * @param Version[]|DefaultValue $previousVersions
+	 * @param array{int, int, int}|DefaultOrExistingValue $version
+	 * @param Version[]|DefaultOrExistingValue $previousVersions
 	 */
 	public function edit(
 		PackageRow|PackagePrimaryKey $rowOrKey,
-		string|DefaultValue $name = new DefaultValue,
-		array|DefaultValue $version = new DefaultValue,
-		array|DefaultValue $previousVersions = new DefaultValue,
-	): PackageRow
+		string|DefaultOrExistingValue $name = \Grifart\Tables\Unchanged,
+		array|DefaultOrExistingValue $version = \Grifart\Tables\Unchanged,
+		array|DefaultOrExistingValue $previousVersions = \Grifart\Tables\Unchanged,
+	): PackageModifications
 	{
 		$primaryKey = $rowOrKey instanceof PackagePrimaryKey ? $rowOrKey : PackagePrimaryKey::fromRow($rowOrKey);
 		$modifications = PackageModifications::update($primaryKey);
-		if (!$name instanceof DefaultValue) {
+		if (!$name instanceof DefaultOrExistingValue) {
 			$modifications->modifyName($name);
 		}
-		if (!$version instanceof DefaultValue) {
+		if (!$version instanceof DefaultOrExistingValue) {
 			$modifications->modifyVersion($version);
 		}
-		if (!$previousVersions instanceof DefaultValue) {
+		if (!$previousVersions instanceof DefaultOrExistingValue) {
 			$modifications->modifyPreviousVersions($previousVersions);
 		}
-		$this->save($modifications);
-		return $this->get($primaryKey);
+		return $modifications;
 	}
 
 
-	private function save(PackageModifications $changes): void
+	/**
+	 * @deprecated
+	 */
+	public function save(PackageModifications $changes): void
+	{
+		$this->tableManager->save($this, $changes);
+	}
+
+
+	public function insert(PackageModifications $changes): void
+	{
+		$this->tableManager->insert($this, $changes);
+	}
+
+
+	public function update(PackageModifications $changes): void
+	{
+		$this->tableManager->update($this, $changes);
+	}
+
+
+	public function insertOrUpdate(PackageModifications $changes): void
 	{
 		$this->tableManager->save($this, $changes);
 	}

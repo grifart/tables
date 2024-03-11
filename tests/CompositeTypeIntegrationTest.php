@@ -20,7 +20,9 @@ $table = new PackagesTable(
 	TestFixtures::createTypeResolver($connection),
 );
 
-$table->new('grifart/tables', [0, 8, 0], [new Version(0, 7, 0)]);
+$table->insert(
+	$table->new('grifart/tables', [0, 8, 0], [new Version(0, 7, 0)]),
+);
 
 $byVersion = $table->findBy([
 	$table->version()->is([0, 8, 0]),

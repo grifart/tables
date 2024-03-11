@@ -99,7 +99,6 @@ final class TablesDefinitions
 				$modificationsClassName,
 				$columnMetadata,
 				$columnPhpTypes,
-				$primaryKeyFields,
 			));
 
 		return Definitions::from($rowClass, $modificationsClass, $primaryKeyClass, $tableClass);

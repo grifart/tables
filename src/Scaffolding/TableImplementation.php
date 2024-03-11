@@ -34,7 +34,6 @@ final class TableImplementation implements Capability
 	/**
 	 * @param array<string, ColumnMetadata> $columnMetadata
 	 * @param array<string, PhpType> $columnPhpTypes
-	 * @param array<string, PhpType> $primaryKeyFields
 	 */
 	public function __construct(
 		private string $schema,
@@ -44,7 +43,6 @@ final class TableImplementation implements Capability
 		private string $modificationClass,
 		private array $columnMetadata,
 		private array $columnPhpTypes,
-		private array $primaryKeyFields,
 	) {}
 
 	public function applyTo(
@@ -173,21 +171,14 @@ final class TableImplementation implements Capability
 
 
 		$newMethod = $classType->addMethod('new')
-			->setReturnType($this->rowClass)
-			->addBody('$primaryKey = ?::from(...?:);', [
-				new Code\Literal($namespace->simplifyName($this->primaryKeyClass)),
-				map(
-					$this->primaryKeyFields,
-					static fn($_, string $name) => new Code\Literal('$' . $name),
-				),
-			])
+			->setReturnType($this->modificationClass)
 			->addBody(
 				'$modifications = ?::new();',
 				[new Code\Literal($namespace->simplifyName($this->modificationClass))],
 			);
 
 		$editMethod = $classType->addMethod('edit')
-			->setReturnType($this->rowClass)
+			->setReturnType($this->modificationClass)
 			->setParameters([
 				(new Code\Parameter('rowOrKey'))->setType($this->rowClass . '|' . $this->primaryKeyClass),
 			])
@@ -202,7 +193,8 @@ final class TableImplementation implements Capability
 
 		foreach ([$newMethod, $editMethod] as $method) {
 			foreach ($columns as $columnMetadata) {
-				$hasDefaultValue = $columnMetadata->hasDefaultValue() || $method === $editMethod;
+				$isEditMethod = $method === $editMethod;
+				$hasDefaultValue = $columnMetadata->hasDefaultValue() || $isEditMethod;
 
 				$fieldName = $columnMetadata->getName();
 				$fieldType = $this->columnPhpTypes[$fieldName];
@@ -254,19 +246,45 @@ final class TableImplementation implements Capability
 				}
 			}
 
-			$method->addBody('$this->save($modifications);');
-			$method->addBody('return $this->get($primaryKey);');
+			$method->addBody('return $modifications;');
 		}
 
 
 		$classType->addMethod('save')
-			->setPrivate()
+			->addComment('@deprecated')
 			->setReturnType('void')
 			->setParameters([
 				(new Code\Parameter('changes'))->setType($this->modificationClass)
 			])
 			->setBody(
 				'$this->tableManager->save($this, $changes);'
+			);
+
+		$classType->addMethod('insert')
+			->setReturnType('void')
+			->setParameters([
+				(new Code\Parameter('changes'))->setType($this->modificationClass),
+			])
+			->setBody(
+				'$this->tableManager->insert($this, $changes);',
+			);
+
+		$classType->addMethod('update')
+			->setReturnType('void')
+			->setParameters([
+				(new Code\Parameter('changes'))->setType($this->modificationClass),
+			])
+			->setBody(
+				'$this->tableManager->update($this, $changes);',
+			);
+
+		$classType->addMethod('insertOrUpdate')
+			->setReturnType('void')
+			->setParameters([
+				(new Code\Parameter('changes'))->setType($this->modificationClass),
+			])
+			->setBody(
+				'$this->tableManager->save($this, $changes);',
 			);
 
 		$classType->addMethod('delete')
