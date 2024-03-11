@@ -14,8 +14,10 @@ use Grifart\Tables\ColumnNotFound;
 use Grifart\Tables\Conditions\Condition;
 use Grifart\Tables\DefaultOrExistingValue;
 use Grifart\Tables\Expression;
+use Grifart\Tables\GivenSearchCriteriaHaveNotMatchedAnyRows;
 use Grifart\Tables\OrderBy\OrderBy;
 use Grifart\Tables\RowNotFound;
+use Grifart\Tables\RowWithGivenPrimaryKeyAlreadyExists;
 use Grifart\Tables\Table;
 use Grifart\Tables\TableManager;
 use Grifart\Tables\TooManyRowsFound;
@@ -176,6 +178,8 @@ final class TestsTable implements Table
 
 	/**
 	 * @deprecated
+	 * @throws RowWithGivenPrimaryKeyAlreadyExists
+	 * @throws GivenSearchCriteriaHaveNotMatchedAnyRows
 	 */
 	public function save(TestModifications $changes): void
 	{
@@ -183,18 +187,28 @@ final class TestsTable implements Table
 	}
 
 
+	/**
+	 * @throws RowWithGivenPrimaryKeyAlreadyExists
+	 */
 	public function insert(TestModifications $changes): void
 	{
 		$this->tableManager->insert($this, $changes);
 	}
 
 
+	/**
+	 * @throws GivenSearchCriteriaHaveNotMatchedAnyRows
+	 */
 	public function update(TestModifications $changes): void
 	{
 		$this->tableManager->update($this, $changes);
 	}
 
 
+	/**
+	 * @throws RowWithGivenPrimaryKeyAlreadyExists
+	 * @throws GivenSearchCriteriaHaveNotMatchedAnyRows
+	 */
 	public function insertOrUpdate(TestModifications $changes): void
 	{
 		$this->tableManager->save($this, $changes);

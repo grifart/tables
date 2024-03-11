@@ -16,8 +16,10 @@ use Grifart\Tables\ColumnNotFound;
 use Grifart\Tables\Conditions\Condition;
 use Grifart\Tables\DefaultOrExistingValue;
 use Grifart\Tables\Expression;
+use Grifart\Tables\GivenSearchCriteriaHaveNotMatchedAnyRows;
 use Grifart\Tables\RowNotFound;
 use Grifart\Tables\OrderBy\OrderBy;
+use Grifart\Tables\RowWithGivenPrimaryKeyAlreadyExists;
 use Grifart\Tables\Table;
 use Grifart\Tables\TableManager;
 use Grifart\Tables\TooManyRowsFound;
@@ -249,9 +251,13 @@ final class TableImplementation implements Capability
 			$method->addBody('return $modifications;');
 		}
 
+		$namespace->addUse(RowWithGivenPrimaryKeyAlreadyExists::class);
+		$namespace->addUse(GivenSearchCriteriaHaveNotMatchedAnyRows::class);
 
 		$classType->addMethod('save')
 			->addComment('@deprecated')
+			->addComment('@throws RowWithGivenPrimaryKeyAlreadyExists')
+			->addComment('@throws GivenSearchCriteriaHaveNotMatchedAnyRows')
 			->setReturnType('void')
 			->setParameters([
 				(new Code\Parameter('changes'))->setType($this->modificationClass)
@@ -261,6 +267,7 @@ final class TableImplementation implements Capability
 			);
 
 		$classType->addMethod('insert')
+			->addComment('@throws RowWithGivenPrimaryKeyAlreadyExists')
 			->setReturnType('void')
 			->setParameters([
 				(new Code\Parameter('changes'))->setType($this->modificationClass),
@@ -270,6 +277,7 @@ final class TableImplementation implements Capability
 			);
 
 		$classType->addMethod('update')
+			->addComment('@throws GivenSearchCriteriaHaveNotMatchedAnyRows')
 			->setReturnType('void')
 			->setParameters([
 				(new Code\Parameter('changes'))->setType($this->modificationClass),
@@ -279,6 +287,8 @@ final class TableImplementation implements Capability
 			);
 
 		$classType->addMethod('insertOrUpdate')
+			->addComment('@throws RowWithGivenPrimaryKeyAlreadyExists')
+			->addComment('@throws GivenSearchCriteriaHaveNotMatchedAnyRows')
 			->setReturnType('void')
 			->setParameters([
 				(new Code\Parameter('changes'))->setType($this->modificationClass),
