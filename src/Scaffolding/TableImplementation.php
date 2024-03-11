@@ -14,7 +14,7 @@ use Grifart\Tables\Column;
 use Grifart\Tables\ColumnMetadata;
 use Grifart\Tables\ColumnNotFound;
 use Grifart\Tables\Conditions\Condition;
-use Grifart\Tables\DefaultValue;
+use Grifart\Tables\DefaultOrExistingValue;
 use Grifart\Tables\Expression;
 use Grifart\Tables\RowNotFound;
 use Grifart\Tables\OrderBy\OrderBy;
@@ -209,8 +209,8 @@ final class TableImplementation implements Capability
 				$isNullable = $fieldType->isNullable();
 
 				if ($hasDefaultValue) {
-					$namespace->addUse(DefaultValue::class);
-					$fieldType = new UnionType($fieldType, resolve(DefaultValue::class));
+					$namespace->addUse(DefaultOrExistingValue::class);
+					$fieldType = new UnionType($fieldType, resolve(DefaultOrExistingValue::class));
 				}
 
 
@@ -219,7 +219,14 @@ final class TableImplementation implements Capability
 					->setNullable($isNullable);
 
 				if ($hasDefaultValue) {
-					$parameter->setDefaultValue(new Code\Literal('new ?', [new Code\Literal($namespace->simplifyName(DefaultValue::class))]));
+					$parameter->setDefaultValue(
+						new Code\Literal(
+							$namespace->simplifyName(
+								$isEditMethod ? 'Grifart\Tables\Unchanged' : 'Grifart\Tables\DefaultValue',
+								$namespace::NameConstant,
+							),
+						),
+					);
 				}
 
 				if ($fieldType->requiresDocComment()) {
@@ -233,7 +240,7 @@ final class TableImplementation implements Capability
 				if ($hasDefaultValue) {
 					$method->addBody(
 						'if (!? instanceof ?) {',
-						[new Code\Literal('$' . $fieldName), new Code\Literal($namespace->simplifyName(DefaultValue::class))],
+						[new Code\Literal('$' . $fieldName), new Code\Literal($namespace->simplifyName(DefaultOrExistingValue::class))],
 					);
 				}
 
