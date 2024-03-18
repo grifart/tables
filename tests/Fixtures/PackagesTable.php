@@ -179,7 +179,6 @@ final class PackagesTable implements Table
 
 
 	/**
-	 * @deprecated
 	 * @throws RowWithGivenPrimaryKeyAlreadyExists
 	 * @throws GivenSearchCriteriaHaveNotMatchedAnyRows
 	 */
@@ -204,16 +203,6 @@ final class PackagesTable implements Table
 	public function update(PackageModifications $changes): void
 	{
 		$this->tableManager->update($this, $changes);
-	}
-
-
-	/**
-	 * @throws RowWithGivenPrimaryKeyAlreadyExists
-	 * @throws GivenSearchCriteriaHaveNotMatchedAnyRows
-	 */
-	public function insertOrUpdate(PackageModifications $changes): void
-	{
-		$this->tableManager->save($this, $changes);
 	}
 
 

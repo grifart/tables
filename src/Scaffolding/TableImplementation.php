@@ -255,7 +255,6 @@ final class TableImplementation implements Capability
 		$namespace->addUse(GivenSearchCriteriaHaveNotMatchedAnyRows::class);
 
 		$classType->addMethod('save')
-			->addComment('@deprecated')
 			->addComment('@throws RowWithGivenPrimaryKeyAlreadyExists')
 			->addComment('@throws GivenSearchCriteriaHaveNotMatchedAnyRows')
 			->setReturnType('void')
@@ -284,17 +283,6 @@ final class TableImplementation implements Capability
 			])
 			->setBody(
 				'$this->tableManager->update($this, $changes);',
-			);
-
-		$classType->addMethod('insertOrUpdate')
-			->addComment('@throws RowWithGivenPrimaryKeyAlreadyExists')
-			->addComment('@throws GivenSearchCriteriaHaveNotMatchedAnyRows')
-			->setReturnType('void')
-			->setParameters([
-				(new Code\Parameter('changes'))->setType($this->modificationClass),
-			])
-			->setBody(
-				'$this->tableManager->save($this, $changes);',
 			);
 
 		$classType->addMethod('delete')

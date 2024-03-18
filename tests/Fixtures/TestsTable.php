@@ -177,7 +177,6 @@ final class TestsTable implements Table
 
 
 	/**
-	 * @deprecated
 	 * @throws RowWithGivenPrimaryKeyAlreadyExists
 	 * @throws GivenSearchCriteriaHaveNotMatchedAnyRows
 	 */
@@ -202,16 +201,6 @@ final class TestsTable implements Table
 	public function update(TestModifications $changes): void
 	{
 		$this->tableManager->update($this, $changes);
-	}
-
-
-	/**
-	 * @throws RowWithGivenPrimaryKeyAlreadyExists
-	 * @throws GivenSearchCriteriaHaveNotMatchedAnyRows
-	 */
-	public function insertOrUpdate(TestModifications $changes): void
-	{
-		$this->tableManager->save($this, $changes);
 	}
 
 
