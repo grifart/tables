@@ -53,6 +53,7 @@
 			"src/exceptions.php"
 		],
 		"files": [
+			"src/constants.php",
 			"src/functions.php",
 			"src/Conditions/functions.php",
 			"src/Types/functions.php"

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Grifart\Tables;
 
 use Dibi\Connection;
+use Dibi\UniqueConstraintViolationException;
 use Grifart\Tables\Conditions\Composite;
 use Grifart\Tables\Conditions\Condition;
 use Grifart\Tables\OrderBy\OrderBy;
@@ -26,18 +27,25 @@ final class TableManager
 	 * @template TableType of Table
 	 * @param TableType $table
 	 * @param Modifications<TableType> $changes
+	 * @throws RowWithGivenPrimaryKeyAlreadyExists
 	 */
 	public function insert(Table $table, Modifications $changes): void
 	{
 		\assert($changes->getPrimaryKey() === NULL);
-		$this->connection->query(
-			'INSERT',
-			'INTO %n.%n', $table::getSchema(), $table::getTableName(),
-			map(
-				$changes->getModifications(),
-				static fn(mixed $value, string $columnName) => $value !== null ? $table->getTypeOf($columnName)->toDatabase($value) : null,
-			),
-		);
+
+		try {
+			$this->connection->query(
+				'INSERT',
+				'INTO %n.%n', $table::getSchema(), $table::getTableName(),
+				map(
+					$changes->getModifications(),
+					static fn(mixed $value, string $columnName) => $value !== null ? $table->getTypeOf($columnName)->toDatabase($value) : null,
+				),
+			);
+		} catch (UniqueConstraintViolationException $e) {
+			throw new RowWithGivenPrimaryKeyAlreadyExists(previous: $e);
+		}
+
 		\assert($this->connection->getAffectedRows() === 1);
 	}
 
@@ -177,6 +185,7 @@ final class TableManager
 	 * @template TableType of Table
 	 * @param TableType $table
 	 * @param Modifications<TableType> $changes
+	 * @throws RowWithGivenPrimaryKeyAlreadyExists
 	 * @throws GivenSearchCriteriaHaveNotMatchedAnyRows
 	 */
 	public function save(Table $table, Modifications $changes): void {

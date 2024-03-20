@@ -292,16 +292,16 @@ $changeSet = $table->new(
 );
 ```
 
-The method returns a change set which you can further modify, and eventually save:
+The method returns a change set which you can further modify, and eventually insert:
 
 ```php
 $changeSet->modifyText('Post text');
-$table->save($changeSet);
+$table->insert($changeSet);
 ```
 
 ### Update
 
-To update a record in the table, first you need to get an instance of change set for the specific record. You can get one for any given primary key or row:
+To update a record in the table, you need to get an instance of change set for the specific record. You can get one for any given primary key or row:
 
 ```php
 $changeSet = $table->edit(ArticlePrimaryKey::from($articleId));
@@ -309,11 +309,20 @@ $changeSet = $table->edit(ArticlePrimaryKey::from($articleId));
 $changeSet = $table->edit($articleRow);
 ```
 
-Then you can add modifications to the change set and finally save it:
+You can use named parameters to provide the values to update right within the method call:
+
+```php
+$changeSet = $table->edit(
+    $articleRow,
+    deletedAt: \Brick\DateTime\Instant::now(),
+);
+```
+
+As before, you can also add modifications to the change set afterward, and finally save it:
 
 ```php
 $changeSet->modifyDeletedAt(\Brick\DateTime\Instant::now());
-$table->save($changeSet);
+$table->update($changeSet);
 ```
 
 ### Delete

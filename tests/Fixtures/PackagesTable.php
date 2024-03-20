@@ -12,9 +12,12 @@ use Grifart\Tables\Column;
 use Grifart\Tables\ColumnMetadata;
 use Grifart\Tables\ColumnNotFound;
 use Grifart\Tables\Conditions\Condition;
+use Grifart\Tables\DefaultOrExistingValue;
 use Grifart\Tables\Expression;
+use Grifart\Tables\GivenSearchCriteriaHaveNotMatchedAnyRows;
 use Grifart\Tables\OrderBy\OrderBy;
 use Grifart\Tables\RowNotFound;
+use Grifart\Tables\RowWithGivenPrimaryKeyAlreadyExists;
 use Grifart\Tables\Table;
 use Grifart\Tables\TableManager;
 use Grifart\Tables\TooManyRowsFound;
@@ -135,12 +138,6 @@ final class PackagesTable implements Table
 	}
 
 
-	public function newEmpty(): PackageModifications
-	{
-		return PackageModifications::new();
-	}
-
-
 	/**
 	 * @param array{int, int, int} $version
 	 * @param Version[] $previousVersions
@@ -155,16 +152,57 @@ final class PackagesTable implements Table
 	}
 
 
-	public function edit(PackageRow|PackagePrimaryKey $rowOrKey): PackageModifications
+	/**
+	 * @param array{int, int, int}|DefaultOrExistingValue $version
+	 * @param Version[]|DefaultOrExistingValue $previousVersions
+	 */
+	public function edit(
+		PackageRow|PackagePrimaryKey $rowOrKey,
+		string|DefaultOrExistingValue $name = \Grifart\Tables\Unchanged,
+		array|DefaultOrExistingValue $version = \Grifart\Tables\Unchanged,
+		array|DefaultOrExistingValue $previousVersions = \Grifart\Tables\Unchanged,
+	): PackageModifications
 	{
 		$primaryKey = $rowOrKey instanceof PackagePrimaryKey ? $rowOrKey : PackagePrimaryKey::fromRow($rowOrKey);
-		return PackageModifications::update($primaryKey);
+		$modifications = PackageModifications::update($primaryKey);
+		if (!$name instanceof DefaultOrExistingValue) {
+			$modifications->modifyName($name);
+		}
+		if (!$version instanceof DefaultOrExistingValue) {
+			$modifications->modifyVersion($version);
+		}
+		if (!$previousVersions instanceof DefaultOrExistingValue) {
+			$modifications->modifyPreviousVersions($previousVersions);
+		}
+		return $modifications;
 	}
 
 
+	/**
+	 * @throws RowWithGivenPrimaryKeyAlreadyExists
+	 * @throws GivenSearchCriteriaHaveNotMatchedAnyRows
+	 */
 	public function save(PackageModifications $changes): void
 	{
 		$this->tableManager->save($this, $changes);
+	}
+
+
+	/**
+	 * @throws RowWithGivenPrimaryKeyAlreadyExists
+	 */
+	public function insert(PackageModifications $changes): void
+	{
+		$this->tableManager->insert($this, $changes);
+	}
+
+
+	/**
+	 * @throws GivenSearchCriteriaHaveNotMatchedAnyRows
+	 */
+	public function update(PackageModifications $changes): void
+	{
+		$this->tableManager->update($this, $changes);
 	}
 
 

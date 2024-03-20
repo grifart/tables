@@ -12,9 +12,12 @@ use Grifart\Tables\Column;
 use Grifart\Tables\ColumnMetadata;
 use Grifart\Tables\ColumnNotFound;
 use Grifart\Tables\Conditions\Condition;
+use Grifart\Tables\DefaultOrExistingValue;
 use Grifart\Tables\Expression;
+use Grifart\Tables\GivenSearchCriteriaHaveNotMatchedAnyRows;
 use Grifart\Tables\OrderBy\OrderBy;
 use Grifart\Tables\RowNotFound;
+use Grifart\Tables\RowWithGivenPrimaryKeyAlreadyExists;
 use Grifart\Tables\Table;
 use Grifart\Tables\TableManager;
 use Grifart\Tables\TooManyRowsFound;
@@ -135,31 +138,69 @@ final class TestsTable implements Table
 	}
 
 
-	public function newEmpty(): TestModifications
-	{
-		return TestModifications::new();
-	}
-
-
-	public function new(Uuid $id, int $score): TestModifications
+	public function new(
+		Uuid $id,
+		int $score,
+		string|DefaultOrExistingValue|null $details = \Grifart\Tables\DefaultValue,
+	): TestModifications
 	{
 		$modifications = TestModifications::new();
 		$modifications->modifyId($id);
 		$modifications->modifyScore($score);
+		if (!$details instanceof DefaultOrExistingValue) {
+			$modifications->modifyDetails($details);
+		}
 		return $modifications;
 	}
 
 
-	public function edit(TestRow|TestPrimaryKey $rowOrKey): TestModifications
+	public function edit(
+		TestRow|TestPrimaryKey $rowOrKey,
+		Uuid|DefaultOrExistingValue $id = \Grifart\Tables\Unchanged,
+		int|DefaultOrExistingValue $score = \Grifart\Tables\Unchanged,
+		string|DefaultOrExistingValue|null $details = \Grifart\Tables\Unchanged,
+	): TestModifications
 	{
 		$primaryKey = $rowOrKey instanceof TestPrimaryKey ? $rowOrKey : TestPrimaryKey::fromRow($rowOrKey);
-		return TestModifications::update($primaryKey);
+		$modifications = TestModifications::update($primaryKey);
+		if (!$id instanceof DefaultOrExistingValue) {
+			$modifications->modifyId($id);
+		}
+		if (!$score instanceof DefaultOrExistingValue) {
+			$modifications->modifyScore($score);
+		}
+		if (!$details instanceof DefaultOrExistingValue) {
+			$modifications->modifyDetails($details);
+		}
+		return $modifications;
 	}
 
 
+	/**
+	 * @throws RowWithGivenPrimaryKeyAlreadyExists
+	 * @throws GivenSearchCriteriaHaveNotMatchedAnyRows
+	 */
 	public function save(TestModifications $changes): void
 	{
 		$this->tableManager->save($this, $changes);
+	}
+
+
+	/**
+	 * @throws RowWithGivenPrimaryKeyAlreadyExists
+	 */
+	public function insert(TestModifications $changes): void
+	{
+		$this->tableManager->insert($this, $changes);
+	}
+
+
+	/**
+	 * @throws GivenSearchCriteriaHaveNotMatchedAnyRows
+	 */
+	public function update(TestModifications $changes): void
+	{
+		$this->tableManager->update($this, $changes);
 	}
 
 
