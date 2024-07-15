@@ -2,9 +2,8 @@ stages:
   - install
   - test
 
-install:
+.install:
   stage: install
-  image: grifart/php8.1-with-all-modules-and-various-tools
   interruptible: true
   script:
     - composer install
@@ -13,29 +12,21 @@ install:
       - vendor/
     expire_in: 1 day
 
-install.php-next:
-  extends: install
-  allow_failure: true
-  script:
-    # install dibi/dibi from master, as support is in no stable version yet
-    - composer require dibi/dibi:dev-master --ignore-platform-reqs
-  image: grifart/php-next
-
-phpstan:
-  stage: test
+install.php81:
+  extends: .install
   image: grifart/php8.1-with-all-modules-and-various-tools
-  interruptible: true
-  dependencies:
-    - install
-  script:
-    - composer run phpstan
 
-tests:
+install.php82:
+  extends: .install
+  image: grifart/php8.2-with-all-modules-and-various-tools
+
+install.php83:
+  extends: .install
+  image: grifart/php8.3-with-all-modules-and-various-tools
+
+.tests:
   stage: test
-  image: grifart/php8.1-with-all-modules-and-various-tools
   interruptible: true
-  dependencies:
-    - install
   services:
     - postgres:14-alpine
   variables:
@@ -48,9 +39,29 @@ tests:
   script:
     - composer run test
 
-tests.php-next:
-  extends: tests
-  image: grifart/php-next
-  allow_failure: true
+tests.php81:
+  extends: .tests
+  image: grifart/php8.1-with-all-modules-and-various-tools
   dependencies:
-    - install.php-next
+    - install.php81
+
+tests.php82:
+  extends: .tests
+  image: grifart/php8.2-with-all-modules-and-various-tools
+  dependencies:
+    - install.php82
+
+tests.php83:
+  extends: .tests
+  image: grifart/php8.3-with-all-modules-and-various-tools
+  dependencies:
+    - install.php83
+
+phpstan:
+  stage: test
+  image: grifart/php8.3-with-all-modules-and-various-tools
+  interruptible: true
+  dependencies:
+    - install.php83
+  script:
+    - composer run phpstan
