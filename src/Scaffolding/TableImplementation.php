@@ -73,12 +73,13 @@ final class TableImplementation implements Capability
 		$columnsDefinitions = []; // name => Literal
 		$columnsArrayTemplate = [];
 		foreach($this->columnMetadata as $column) {
-			$columnsArrayTemplate[] = "\t? => new ColumnMetadata(?, ?, ?, ?)";
+			$columnsArrayTemplate[] = "\t? => new ColumnMetadata(?, ?, ?, ?, ?)";
 			$columnsDefinitions[] = $column->getName();
 			$columnsDefinitions[] = $column->getName();
 			$columnsDefinitions[] = $column->getType();
 			$columnsDefinitions[] = $column->isNullable();
 			$columnsDefinitions[] = $column->hasDefaultValue();
+			$columnsDefinitions[] = $column->isGenerated();
 		}
 		$columnsArrayTemplate = \implode(",\n", $columnsArrayTemplate);
 
@@ -197,6 +198,11 @@ final class TableImplementation implements Capability
 			foreach ($columns as $columnMetadata) {
 				$isEditMethod = $method === $editMethod;
 				$hasDefaultValue = $columnMetadata->hasDefaultValue() || $isEditMethod;
+
+				$isGenerated = $columnMetadata->isGenerated();
+				if ($isGenerated) {
+					continue;
+				}
 
 				$fieldName = $columnMetadata->getName();
 				$fieldType = $this->columnPhpTypes[$fieldName];

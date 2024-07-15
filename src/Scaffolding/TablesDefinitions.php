@@ -75,7 +75,7 @@ final class TablesDefinitions
 
 		// row modification class
 		$modificationsClass = $addTableFields(new ClassDefinition($modificationsClassName))
-			->with(new ModificationsImplementation($tableClassName, $primaryKeyClassName));
+			->with(new ModificationsImplementation($tableClassName, $primaryKeyClassName, $columnMetadata));
 
 		$primaryKeyColumnNames = $this->pgReflector->retrievePrimaryKeyColumns($schema, $table);
 		$primaryKeyFields = map($primaryKeyColumnNames, static fn(string $name) => $columnPhpTypes[$name]);

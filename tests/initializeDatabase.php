@@ -39,3 +39,11 @@ CREATE TABLE IF NOT EXISTS public."missingPrimaryIndex" (
     whatever text NOT NULL
 );
 SQL);
+
+$connection->nativeQuery(<<<SQL
+CREATE TABLE IF NOT EXISTS public.generated (
+    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    double INT NOT NULL GENERATED ALWAYS AS (id * 2) STORED,
+    direct INT NOT NULL
+)
+SQL);
