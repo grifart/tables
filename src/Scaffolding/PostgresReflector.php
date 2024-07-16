@@ -28,7 +28,8 @@ final class PostgresReflector
 		pg_attribute.attname as name,
 		pg_catalog.format_type(pg_attribute.atttypid, NULL) as type,
 		not(pg_attribute.attnotnull) AS nullable,
-		pg_attribute.atthasdef AS `hasDefaultValue`
+		pg_attribute.atthasdef OR pg_attribute.attidentity != '' AS `hasDefaultValue`,
+		pg_attribute.attgenerated != '' OR pg_attribute.attidentity = 'a' AS `isGenerated`
 	FROM pg_catalog.pg_attribute pg_attribute
 	WHERE pg_attribute.attnum > 0
 		AND NOT pg_attribute.attisdropped
@@ -48,6 +49,7 @@ SQL
 				$columnInfo['type'],
 				$columnInfo['nullable'],
 				$columnInfo['hasDefaultValue'] xor $columnInfo['nullable'], // it has explicit default value or it has not, but it is nullable so `null` is its implicit default value – see https://gitlab.grifart.cz/grifart/tables/-/issues/9
+				$columnInfo['isGenerated'],
 			);
 		}
 		return $results;

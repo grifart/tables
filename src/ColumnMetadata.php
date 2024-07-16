@@ -12,6 +12,7 @@ final class ColumnMetadata
 		private string $type,
 		private bool $nullable,
 		private bool $hasDefaultValue,
+		private bool $isGenerated,
 	) {}
 
 	public function getName(): string
@@ -32,6 +33,11 @@ final class ColumnMetadata
 	public function hasDefaultValue(): bool
 	{
 		return $this->hasDefaultValue;
+	}
+
+	public function isGenerated(): bool
+	{
+		return $this->isGenerated;
 	}
 
 }

@@ -25,13 +25,13 @@ use Grifart\Tables\Type;
 use Grifart\Tables\TypeResolver;
 use Nette\Utils\Paginator;
 
-final class TestsTable implements Table
+final class GeneratedTable implements Table
 {
 	public const ID = 'id';
-	public const SCORE = 'score';
-	public const DETAILS = 'details';
+	public const DOUBLE = 'double';
+	public const DIRECT = 'direct';
 
-	/** @var array{id: Column<self, Uuid>, score: Column<self, int>, details: Column<self, string|null>} */
+	/** @var array{id: Column<self, int>, double: Column<self, int>, direct: Column<self, int>} */
 	private array $columns;
 
 
@@ -43,25 +43,25 @@ final class TestsTable implements Table
 
 	public static function getTableName(): string
 	{
-		return 'test';
+		return 'generated';
 	}
 
 
 	public static function getPrimaryKeyClass(): string
 	{
-		return TestPrimaryKey::class;
+		return GeneratedPrimaryKey::class;
 	}
 
 
 	public static function getRowClass(): string
 	{
-		return TestRow::class;
+		return GeneratedRow::class;
 	}
 
 
 	public static function getModificationClass(): string
 	{
-		return TestModifications::class;
+		return GeneratedModifications::class;
 	}
 
 
@@ -71,17 +71,17 @@ final class TestsTable implements Table
 	public static function getDatabaseColumns(): array
 	{
 		return [
-			'id' => new ColumnMetadata('id', 'uuid', false, false, false),
-			'score' => new ColumnMetadata('score', 'integer', false, false, false),
-			'details' => new ColumnMetadata('details', 'character varying', true, true, false)
+			'id' => new ColumnMetadata('id', 'integer', false, true, true),
+			'double' => new ColumnMetadata('double', 'integer', false, true, true),
+			'direct' => new ColumnMetadata('direct', 'integer', false, false, false)
 		];
 	}
 
 
-	public function find(TestPrimaryKey $primaryKey): ?TestRow
+	public function find(GeneratedPrimaryKey $primaryKey): ?GeneratedRow
 	{
 		$row = $this->tableManager->find($this, $primaryKey);
-		\assert($row instanceof TestRow || $row === NULL);
+		\assert($row instanceof GeneratedRow || $row === NULL);
 		return $row;
 	}
 
@@ -89,7 +89,7 @@ final class TestsTable implements Table
 	/**
 	 * @throws RowNotFound
 	 */
-	public function get(TestPrimaryKey $primaryKey): TestRow
+	public function get(GeneratedPrimaryKey $primaryKey): GeneratedRow
 	{
 		$row = $this->find($primaryKey);
 		if ($row === NULL) {
@@ -101,11 +101,11 @@ final class TestsTable implements Table
 
 	/**
 	 * @param OrderBy[] $orderBy
-	 * @return TestRow[]
+	 * @return GeneratedRow[]
 	 */
 	public function getAll(array $orderBy = [], ?Paginator $paginator = null): array
 	{
-		/** @var TestRow[] $result */
+		/** @var GeneratedRow[] $result */
 		$result = $this->tableManager->getAll($this, $orderBy, $paginator);
 		return $result;
 	}
@@ -114,11 +114,11 @@ final class TestsTable implements Table
 	/**
 	 * @param Condition|Condition[] $conditions
 	 * @param array<OrderBy|Expression<mixed>> $orderBy
-	 * @return TestRow[]
+	 * @return GeneratedRow[]
 	 */
 	public function findBy(Condition|array $conditions, array $orderBy = [], ?Paginator $paginator = null): array
 	{
-		/** @var TestRow[] $result */
+		/** @var GeneratedRow[] $result */
 		$result = $this->tableManager->findBy($this, $conditions, $orderBy, $paginator);
 		return $result;
 	}
@@ -126,10 +126,10 @@ final class TestsTable implements Table
 
 	/**
 	 * @param Condition|Condition[] $conditions
-	 * @return TestRow
+	 * @return GeneratedRow
 	 * @throws RowNotFound
 	 */
-	public function getBy(Condition|array $conditions): TestRow
+	public function getBy(Condition|array $conditions): GeneratedRow
 	{
 		$result = $this->findBy($conditions);
 		if (\count($result) === 0) { throw new RowNotFound(); }
@@ -138,39 +138,23 @@ final class TestsTable implements Table
 	}
 
 
-	public function new(
-		Uuid $id,
-		int $score,
-		string|DefaultOrExistingValue|null $details = \Grifart\Tables\DefaultValue,
-	): TestModifications
+	public function new(int $direct): GeneratedModifications
 	{
-		$modifications = TestModifications::new();
-		$modifications->modifyId($id);
-		$modifications->modifyScore($score);
-		if (!$details instanceof DefaultOrExistingValue) {
-			$modifications->modifyDetails($details);
-		}
+		$modifications = GeneratedModifications::new();
+		$modifications->modifyDirect($direct);
 		return $modifications;
 	}
 
 
 	public function edit(
-		TestRow|TestPrimaryKey $rowOrKey,
-		Uuid|DefaultOrExistingValue $id = \Grifart\Tables\Unchanged,
-		int|DefaultOrExistingValue $score = \Grifart\Tables\Unchanged,
-		string|DefaultOrExistingValue|null $details = \Grifart\Tables\Unchanged,
-	): TestModifications
+		GeneratedRow|GeneratedPrimaryKey $rowOrKey,
+		int|DefaultOrExistingValue $direct = \Grifart\Tables\Unchanged,
+	): GeneratedModifications
 	{
-		$primaryKey = $rowOrKey instanceof TestPrimaryKey ? $rowOrKey : TestPrimaryKey::fromRow($rowOrKey);
-		$modifications = TestModifications::update($primaryKey);
-		if (!$id instanceof DefaultOrExistingValue) {
-			$modifications->modifyId($id);
-		}
-		if (!$score instanceof DefaultOrExistingValue) {
-			$modifications->modifyScore($score);
-		}
-		if (!$details instanceof DefaultOrExistingValue) {
-			$modifications->modifyDetails($details);
+		$primaryKey = $rowOrKey instanceof GeneratedPrimaryKey ? $rowOrKey : GeneratedPrimaryKey::fromRow($rowOrKey);
+		$modifications = GeneratedModifications::update($primaryKey);
+		if (!$direct instanceof DefaultOrExistingValue) {
+			$modifications->modifyDirect($direct);
 		}
 		return $modifications;
 	}
@@ -180,7 +164,7 @@ final class TestsTable implements Table
 	 * @throws RowWithGivenPrimaryKeyAlreadyExists
 	 * @throws GivenSearchCriteriaHaveNotMatchedAnyRows
 	 */
-	public function save(TestModifications $changes): void
+	public function save(GeneratedModifications $changes): void
 	{
 		$this->tableManager->save($this, $changes);
 	}
@@ -189,7 +173,7 @@ final class TestsTable implements Table
 	/**
 	 * @throws RowWithGivenPrimaryKeyAlreadyExists
 	 */
-	public function insert(TestModifications $changes): void
+	public function insert(GeneratedModifications $changes): void
 	{
 		$this->tableManager->insert($this, $changes);
 	}
@@ -198,15 +182,15 @@ final class TestsTable implements Table
 	/**
 	 * @throws GivenSearchCriteriaHaveNotMatchedAnyRows
 	 */
-	public function update(TestModifications $changes): void
+	public function update(GeneratedModifications $changes): void
 	{
 		$this->tableManager->update($this, $changes);
 	}
 
 
-	public function delete(TestRow|TestPrimaryKey $rowOrKey): void
+	public function delete(GeneratedRow|GeneratedPrimaryKey $rowOrKey): void
 	{
-		$primaryKey = $rowOrKey instanceof TestPrimaryKey ? $rowOrKey : TestPrimaryKey::fromRow($rowOrKey);
+		$primaryKey = $rowOrKey instanceof GeneratedPrimaryKey ? $rowOrKey : GeneratedPrimaryKey::fromRow($rowOrKey);
 		$this->tableManager->delete($this, $primaryKey);
 	}
 
@@ -215,18 +199,18 @@ final class TestsTable implements Table
 		private TableManager $tableManager,
 		private TypeResolver $typeResolver,
 	) {
-		/** @var Column<self, Uuid> $id */
+		/** @var Column<self, int> $id */
 		$id = Column::from($this, self::getDatabaseColumns()['id'], $this->typeResolver);
-		/** @var Column<self, int> $score */
-		$score = Column::from($this, self::getDatabaseColumns()['score'], $this->typeResolver);
-		/** @var Column<self, string|null> $details */
-		$details = Column::from($this, self::getDatabaseColumns()['details'], $this->typeResolver);
-		$this->columns = ['id' => $id, 'score' => $score, 'details' => $details];
+		/** @var Column<self, int> $double */
+		$double = Column::from($this, self::getDatabaseColumns()['double'], $this->typeResolver);
+		/** @var Column<self, int> $direct */
+		$direct = Column::from($this, self::getDatabaseColumns()['direct'], $this->typeResolver);
+		$this->columns = ['id' => $id, 'double' => $double, 'direct' => $direct];
 	}
 
 
 	/**
-	 * @return Column<self, Uuid>
+	 * @return Column<self, int>
 	 */
 	public function id(): Column
 	{
@@ -237,18 +221,18 @@ final class TestsTable implements Table
 	/**
 	 * @return Column<self, int>
 	 */
-	public function score(): Column
+	public function double(): Column
 	{
-		return $this->columns['score'];
+		return $this->columns['double'];
 	}
 
 
 	/**
-	 * @return Column<self, string|null>
+	 * @return Column<self, int>
 	 */
-	public function details(): Column
+	public function direct(): Column
 	{
-		return $this->columns['details'];
+		return $this->columns['direct'];
 	}
 
 

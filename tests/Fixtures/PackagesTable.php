@@ -71,9 +71,9 @@ final class PackagesTable implements Table
 	public static function getDatabaseColumns(): array
 	{
 		return [
-			'name' => new ColumnMetadata('name', 'text', false, false),
-			'version' => new ColumnMetadata('version', '"packageVersion"', false, false),
-			'previousVersions' => new ColumnMetadata('previousVersions', '"packageVersion"[]', false, false)
+			'name' => new ColumnMetadata('name', 'text', false, false, false),
+			'version' => new ColumnMetadata('version', '"packageVersion"', false, false, false),
+			'previousVersions' => new ColumnMetadata('previousVersions', '"packageVersion"[]', false, false, false)
 		];
 	}
 

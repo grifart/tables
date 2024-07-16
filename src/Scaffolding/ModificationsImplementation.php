@@ -6,6 +6,7 @@ namespace Grifart\Tables\Scaffolding;
 use Grifart\ClassScaffolder\Capabilities\Capability;
 use Grifart\ClassScaffolder\ClassInNamespace;
 use Grifart\ClassScaffolder\Definition\ClassDefinition;
+use Grifart\Tables\ColumnMetadata;
 use Grifart\Tables\Modifications;
 use Grifart\Tables\ModificationsTrait;
 use Nette\PhpGenerator\Parameter;
@@ -14,17 +15,17 @@ use Nette\PhpGenerator\PhpLiteral;
 final class ModificationsImplementation implements Capability
 {
 
-	private string $modificationsStorage;
+	private string $modificationsStorage = '$this->modifications';
 
-	private string $relatedTableClass;
-
-	private string $primaryKeyClass;
-
-	public function __construct(string $relatedTable, string $primaryKeyClass)
+	/**
+	 * @param array<string, ColumnMetadata> $columnMetadata
+	 */
+	public function __construct(
+		private string $relatedTableClass,
+		private string $primaryKeyClass,
+		private array $columnMetadata,
+	)
 	{
-		$this->modificationsStorage = '$this->modifications';
-		$this->relatedTableClass = $relatedTable;
-		$this->primaryKeyClass = $primaryKeyClass;
 	}
 
 
@@ -77,6 +78,10 @@ final class ModificationsImplementation implements Capability
 		foreach ($definition->getFields() as $field) {
 			$fieldName = $field->getName();
 			$type = $field->getType();
+
+			if ($this->columnMetadata[$fieldName]->isGenerated()) {
+				continue;
+			}
 
 			// add getter
 			$modifier = $classType->addMethod('modify' . \ucfirst($fieldName))

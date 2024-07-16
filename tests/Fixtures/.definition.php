@@ -31,5 +31,13 @@ return [
 		PackageModifications::class,
 		PackagesTable::class,
 		PackagePrimaryKey::class,
-	)
+	),
+	...$tableDefinitions->for(
+		'public',
+		'generated',
+		GeneratedRow::class,
+		GeneratedModifications::class,
+		GeneratedTable::class,
+		GeneratedPrimaryKey::class,
+	),
 ];
