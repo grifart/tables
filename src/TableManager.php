@@ -91,7 +91,7 @@ final class TableManager
 
 					return $orderBy->toSql()->getValues();
 				})
-				: [['%b', true]],
+				: [['%sql', 'true::boolean']],
 			'%lmt', $paginator?->getItemsPerPage(),
 			'%ofs', $paginator?->getOffset(),
 		);
