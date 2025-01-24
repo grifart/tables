@@ -9,8 +9,8 @@ use Dibi\Literal;
 use Grifart\ClassScaffolder\Definition\Types\Type as PhpType;
 use Grifart\Tables\Database\ArrayType as DatabaseArrayType;
 use Grifart\Tables\Type;
-use function Functional\map;
 use function Grifart\ClassScaffolder\Definition\Types\listOf;
+use function Phun\map;
 
 /**
  * @template ItemType

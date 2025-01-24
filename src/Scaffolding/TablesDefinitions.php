@@ -11,14 +11,14 @@ use Grifart\Tables\Database\Identifier;
 use Grifart\Tables\Row;
 use Grifart\Tables\Type;
 use Grifart\Tables\TypeResolver;
-use function array_keys;
-use function Functional\map;
 use function Grifart\ClassScaffolder\Capabilities\constructorWithPromotedProperties;
 use function Grifart\ClassScaffolder\Capabilities\getters;
 use function Grifart\ClassScaffolder\Capabilities\implementedInterface;
 use function Grifart\ClassScaffolder\Capabilities\namedConstructor;
 use function Grifart\ClassScaffolder\Capabilities\privatizedConstructor;
 use function Grifart\ClassScaffolder\Definition\Types\nullable;
+use function Phun\map;
+use function Phun\mapWithKeys;
 
 final class TablesDefinitions
 {
@@ -41,17 +41,17 @@ final class TablesDefinitions
 			throw new \LogicException('No columns found for given configuration. Does referenced table exist?');
 		}
 
-		$columnResolvedTypes = map(
+		$columnResolvedTypes = mapWithKeys(
 			$columnMetadata,
-			function (ColumnMetadata $column) use ($schema, $table): Type {
+			function ($_, ColumnMetadata $column) use ($schema, $table): Type {
 				$location = new Identifier($schema, $table, $column->getName());
 				return $this->typeResolver->resolveType($column->getType(), $location);
 			},
 		);
 
-		$columnPhpTypes = map(
+		$columnPhpTypes = mapWithKeys(
 			$columnMetadata,
-			static function (ColumnMetadata $column) use ($columnResolvedTypes): PhpType {
+			static function ($_, ColumnMetadata $column) use ($columnResolvedTypes): PhpType {
 				$type = $columnResolvedTypes[$column->getName()];
 				$phpType = $type->getPhpType();
 				return $column->isNullable() ? nullable($phpType) : $phpType;
@@ -78,7 +78,7 @@ final class TablesDefinitions
 			->with(new ModificationsImplementation($tableClassName, $primaryKeyClassName, $columnMetadata));
 
 		$primaryKeyColumnNames = $this->pgReflector->retrievePrimaryKeyColumns($schema, $table);
-		$primaryKeyFields = map($primaryKeyColumnNames, static fn(string $name) => $columnPhpTypes[$name]);
+		$primaryKeyFields = mapWithKeys($primaryKeyColumnNames, static fn($_, string $name) => $columnPhpTypes[$name]);
 		$primaryKeyClass = (new ClassDefinition($primaryKeyClassName))
 			->withFields($primaryKeyFields)
 			->with(

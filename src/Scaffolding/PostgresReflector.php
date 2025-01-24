@@ -7,8 +7,8 @@ namespace Grifart\Tables\Scaffolding;
 use Dibi\Connection;
 use Grifart\Tables\ColumnMetadata;
 use Grifart\Tables\MissingPrimaryIndex;
-use function Functional\map;
-use function Functional\reindex;
+use function Phun\map;
+use function Phun\reindex;
 
 final class PostgresReflector
 {

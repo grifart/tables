@@ -11,7 +11,8 @@ use Grifart\Tables\Conditions\Condition;
 use Grifart\Tables\OrderBy\OrderBy;
 use Grifart\Tables\OrderBy\OrderByDirection;
 use Nette\Utils\Paginator;
-use function Functional\map;
+use function Phun\map;
+use function Phun\mapWithKeys;
 
 // todo: error handling
 // todo: mapping of exceptions
@@ -37,9 +38,9 @@ final class TableManager
 			$this->connection->query(
 				'INSERT',
 				'INTO %n.%n', $table::getSchema(), $table::getTableName(),
-				map(
+				mapWithKeys(
 					$changes->getModifications(),
-					static fn(mixed $value, string $columnName) => $value !== null ? $table->getTypeOf($columnName)->toDatabase($value) : null,
+					static fn(string $columnName, mixed $value) => $value !== null ? $table->getTypeOf($columnName)->toDatabase($value) : null,
 				),
 			);
 		} catch (UniqueConstraintViolationException $e) {
@@ -60,7 +61,6 @@ final class TableManager
 		$rows = $this->findBy($table, $primaryKey->getCondition($table));
 		if (\count($rows) === 1) {
 			$row = \reset($rows);
-			\assert($row instanceof Row, 'It cannot return false as there must be one element in array');
 			return $row;
 		}
 		\assert(\count($rows) === 0);
@@ -110,15 +110,15 @@ final class TableManager
 
 		$dibiRows = $result->fetchAll();
 
-		/** @var Row $rowClass */
+		/** @var class-string<Row> $rowClass */
 		$rowClass = $table::getRowClass();
 		$modelRows = [];
 		foreach ($dibiRows as $dibiRow) {
 			\assert($dibiRow instanceof \Dibi\Row);
 			$modelRows[] = $rowClass::reconstitute(
-				map(
+				mapWithKeys(
 					$dibiRow->toArray(),
-					static fn(mixed $value, string $columnName) => $value !== null ? $table->getTypeOf($columnName)->fromDatabase($value) : null,
+					static fn(string $columnName, mixed $value) => $value !== null ? $table->getTypeOf($columnName)->fromDatabase($value) : null,
 				),
 			);
 		}
@@ -150,9 +150,9 @@ final class TableManager
 		$this->connection->query(
 			'UPDATE %n.%n', $table::getSchema(), $table::getTableName(),
 			'SET %a',
-			map(
+			mapWithKeys(
 				$changes->getModifications(),
-				static fn(mixed $value, string $columnName) => $value !== null ? $table->getTypeOf($columnName)->toDatabase($value) : null,
+				static fn(string $columnName, mixed $value) => $value !== null ? $table->getTypeOf($columnName)->toDatabase($value) : null,
 			),
 			'WHERE %ex', $primaryKey->getCondition($table)->toSql()->getValues(),
 		);

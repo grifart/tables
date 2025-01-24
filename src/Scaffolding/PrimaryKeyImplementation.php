@@ -13,7 +13,7 @@ use Grifart\Tables\Conditions\Condition;
 use Grifart\Tables\PrimaryKey;
 use Grifart\Tables\Table;
 use Nette\PhpGenerator\Literal;
-use function Functional\map;
+use function Phun\map;
 
 final class PrimaryKeyImplementation implements Capability
 {

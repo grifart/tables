@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Grifart\Tables;
 
 use Dibi\Expression as DibiExpression;
-use function Functional\map;
+use function Phun\map;
 
 /**
  * @template ValueType

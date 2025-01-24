@@ -94,8 +94,7 @@ function notIn(array $values): \Closure {
 }
 
 /**
- * @template ValueType
- * @return \Closure(Expression<ValueType>): IsNull
+ * @return \Closure(Expression<*>): IsNull
  */
 function null(): \Closure
 {
@@ -103,8 +102,7 @@ function null(): \Closure
 }
 
 /**
- * @template ValueType
- * @return \Closure(Expression<ValueType>): IsNotNull
+ * @return \Closure(Expression<*>): IsNotNull
  */
 function notNull(): \Closure
 {

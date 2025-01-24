@@ -27,8 +27,8 @@ use Grifart\Tables\Type;
 use Grifart\Tables\TypeResolver;
 use Nette\PhpGenerator as Code;
 use Nette\Utils\Paginator;
-use function Functional\map;
 use function Grifart\ClassScaffolder\Definition\Types\resolve;
+use function Phun\map;
 use function usort;
 
 final class TableImplementation implements Capability

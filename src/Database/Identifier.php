@@ -5,7 +5,7 @@ namespace Grifart\Tables\Database;
 
 use Dibi\Expression;
 use Dibi\Literal;
-use function Functional\map;
+use function Phun\map;
 
 final class Identifier
 {

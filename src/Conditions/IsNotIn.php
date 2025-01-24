@@ -6,8 +6,8 @@ namespace Grifart\Tables\Conditions;
 
 use Dibi\Expression as DibiExpression;
 use Grifart\Tables\Expression;
-use function Functional\map;
 use function Grifart\Tables\Types\mapToDatabase;
+use function Phun\map;
 
 /**
  * @template ValueType
