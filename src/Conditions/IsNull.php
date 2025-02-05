@@ -10,7 +10,7 @@ use Grifart\Tables\Expression;
 final class IsNull implements Condition
 {
 	/**
-	 * @param Expression<mixed> $expression
+	 * @param Expression<*> $expression
 	 */
 	public function __construct(
 		private Expression $expression,

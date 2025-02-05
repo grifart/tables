@@ -9,8 +9,8 @@ use Dibi\Literal;
 use Grifart\ClassScaffolder\Definition\Types\Type as PhpType;
 use Grifart\Tables\Database\ArrayType as DatabaseArrayType;
 use Grifart\Tables\Type;
-use function Functional\map;
 use function Grifart\ClassScaffolder\Definition\Types\listOf;
+use function Phun\map;
 
 /**
  * @template ItemType
@@ -74,7 +74,7 @@ final class ArrayType implements Type // @todo: There is implicit support for nu
 	public function fromDatabase(mixed $value): array
 	{
 		$result = $this->parseArray($value);
-		return map(
+		return map( // @phpstan-ignore return.type (will be fixed in later commits)
 			$result,
 			fn($item) => $item !== null ? $this->itemType->fromDatabase($item) : null,
 		);

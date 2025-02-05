@@ -27,8 +27,8 @@ use Grifart\Tables\Type;
 use Grifart\Tables\TypeResolver;
 use Nette\PhpGenerator as Code;
 use Nette\Utils\Paginator;
-use function Functional\map;
 use function Grifart\ClassScaffolder\Definition\Types\resolve;
+use function Phun\map;
 use function usort;
 
 final class TableImplementation implements Capability
@@ -208,7 +208,7 @@ final class TableImplementation implements Capability
 				$fieldType = $this->columnPhpTypes[$fieldName];
 				$isNullable = $fieldType->isNullable();
 
-				if ($hasDefaultValue) {
+				if ($hasDefaultValue && $fieldType->getTypeHint() !== 'mixed') {
 					$namespace->addUse(DefaultOrExistingValue::class);
 					$fieldType = new UnionType($fieldType, resolve(DefaultOrExistingValue::class));
 				}

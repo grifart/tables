@@ -12,10 +12,6 @@ stages:
       - vendor/
     expire_in: 1 day
 
-install.php81:
-  extends: .install
-  image: grifart/php8.1-with-all-modules-and-various-tools
-
 install.php82:
   extends: .install
   image: grifart/php8.2-with-all-modules-and-various-tools
@@ -24,11 +20,15 @@ install.php83:
   extends: .install
   image: grifart/php8.3-with-all-modules-and-various-tools
 
+install.php84:
+  extends: .install
+  image: grifart/php8.4-with-all-modules-and-various-tools
+
 .tests:
   stage: test
   interruptible: true
   services:
-    - postgres:14-alpine
+    - postgres:16-alpine
   variables:
     POSTGRES_DB: tables
     POSTGRES_USER: postgres
@@ -38,12 +38,6 @@ install.php83:
     - php tests/initializeDatabase.php
   script:
     - composer run test
-
-tests.php81:
-  extends: .tests
-  image: grifart/php8.1-with-all-modules-and-various-tools
-  dependencies:
-    - install.php81
 
 tests.php82:
   extends: .tests
@@ -57,11 +51,17 @@ tests.php83:
   dependencies:
     - install.php83
 
+tests.php84:
+  extends: .tests
+  image: grifart/php8.4-with-all-modules-and-various-tools
+  dependencies:
+    - install.php84
+
 phpstan:
   stage: test
-  image: grifart/php8.3-with-all-modules-and-various-tools
+  image: grifart/php8.4-with-all-modules-and-various-tools
   interruptible: true
   dependencies:
-    - install.php83
+    - install.php84
   script:
     - composer run phpstan

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Grifart\Tables\Conditions;
 
 use Dibi\Expression as DibiExpression;
-use function Functional\map;
+use function Phun\map;
 
 final class Composite implements Condition
 {

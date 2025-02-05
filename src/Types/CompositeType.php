@@ -8,7 +8,8 @@ use Dibi\Expression;
 use Dibi\Literal;
 use Grifart\Tables\Database\DatabaseType;
 use Grifart\Tables\Type;
-use function Functional\map;
+use function Phun\map;
+use function Phun\mapWithKeys;
 
 /**
  * @template T
@@ -44,9 +45,9 @@ abstract class CompositeType implements Type
 	{
 		$args = [
 			new Literal('ROW('),
-			...map(
+			...mapWithKeys(
 				$value,
-				fn(mixed $item, int $index) => $item !== null ? $this->types[$index]->toDatabase($item) : new Literal('NULL'),
+				fn(int $index, mixed $item) => $item !== null ? $this->types[$index]->toDatabase($item) : new Literal('NULL'),
 			),
 			new Literal(')::'),
 			$this->getDatabaseType()->toSql(),
@@ -66,9 +67,9 @@ abstract class CompositeType implements Type
 		$result = $this->parseComposite($value);
 
 		\assert(\count($result) === \count($this->types));
-		return map(
+		return mapWithKeys(
 			$result,
-			fn($item, $index) => $item !== null ? $this->types[$index]->fromDatabase($item) : null,
+			fn($index, $item) => $item !== null ? $this->types[$index]->fromDatabase($item) : null,
 		);
 	}
 
