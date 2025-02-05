@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Grifart\Tables;
 
-use Dibi\Connection;
+use Dibi\IConnection;
 use Dibi\UniqueConstraintViolationException;
 use Grifart\Tables\Conditions\Composite;
 use Grifart\Tables\Conditions\Condition;
@@ -21,7 +21,7 @@ final class TableManager
 {
 
 	public function __construct(
-		private Connection $connection,
+		private IConnection $connection,
 	) {}
 
 	/**
@@ -241,5 +241,25 @@ final class TableManager
 
 		// UPDATE:
 		$this->update($table, $changes);
+	}
+
+	/**
+	 * @template T
+	 * @param \Closure(): T $block
+	 * @return T
+	 */
+	public function withConnection(
+		IConnection $connection,
+		\Closure $block,
+	): mixed
+	{
+		$previousConnection = $this->connection;
+		$this->connection = $connection;
+
+		try {
+			return $block();
+		} finally {
+			$this->connection = $previousConnection;
+		}
 	}
 }
