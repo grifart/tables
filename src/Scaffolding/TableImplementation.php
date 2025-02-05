@@ -208,7 +208,7 @@ final class TableImplementation implements Capability
 				$fieldType = $this->columnPhpTypes[$fieldName];
 				$isNullable = $fieldType->isNullable();
 
-				if ($hasDefaultValue) {
+				if ($hasDefaultValue && $fieldType->getTypeHint() !== 'mixed') {
 					$namespace->addUse(DefaultOrExistingValue::class);
 					$fieldType = new UnionType($fieldType, resolve(DefaultOrExistingValue::class));
 				}
