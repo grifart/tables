@@ -10,6 +10,7 @@ use Grifart\Tables\Database\Identifier;
 use Grifart\Tables\Database\NamedType;
 use Grifart\Tables\Types\CompositeType;
 use Grifart\Tables\Types\IntType;
+use Grifart\Tables\Types\NullableType;
 use Grifart\Tables\Types\TextType;
 use Tester\Assert;
 use function Grifart\ClassScaffolder\Definition\Types\nullable;
@@ -26,11 +27,11 @@ $composite = new class extends CompositeType {
 		parent::__construct(
 			new NamedType(new Identifier('databaseType')),
 			IntType::integer(),
-			IntType::integer(),
+			NullableType::of(IntType::integer()),
 			TextType::text(),
 			TextType::text(),
 			TextType::text(),
-			TextType::text(),
+			NullableType::of(TextType::text()),
 		);
 	}
 

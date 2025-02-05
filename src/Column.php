@@ -6,6 +6,7 @@ namespace Grifart\Tables;
 
 use Dibi\Expression as DibiExpression;
 use Grifart\Tables\Database\Identifier;
+use Grifart\Tables\Types\NullableType;
 
 /**
  * @template TableType of Table
@@ -58,6 +59,10 @@ final class Column extends ExpressionWithShorthands
 	{
 		$location = new Identifier($table::getSchema(), $table::getTableName(), $column->getName());
 		$resolvedType = $typeResolver->resolveType($column->getType(), $location);
+
+		if ($column->isNullable()) {
+			$resolvedType = NullableType::of($resolvedType);
+		}
 
 		/** @var Column<FromTableType, mixed> $column */
 		$column = new self($column, $resolvedType);

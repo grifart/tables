@@ -6,7 +6,6 @@ namespace Grifart\Tables\Conditions;
 
 use Dibi\Expression as DibiExpression;
 use Grifart\Tables\Expression;
-use function Grifart\Tables\Types\mapToDatabase;
 
 /**
  * @template ValueType
@@ -27,7 +26,7 @@ final class IsNotEqualTo implements Condition
 		return new DibiExpression(
 			'? != ?',
 			$this->expression->toSql(),
-			mapToDatabase($this->value, $this->expression->getType()),
+			$this->expression->getType()->toDatabase($this->value),
 		);
 	}
 }

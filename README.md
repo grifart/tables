@@ -149,7 +149,6 @@ Take a look at how a `LIKE` condition could be implemented. It maps to a `LIKE` 
 ```php
 use Grifart\Tables\Expression;
 use Grifart\Tables\Types\TextType;
-use function Grifart\Tables\Types\mapToDatabase;
 
 final class IsLike implements Condition
 {
@@ -166,7 +165,7 @@ final class IsLike implements Condition
 		return new \Dibi\Expression(
 			'? LIKE ?',
 			$this->expression->toSql(),
-			mapToDatabase($this->pattern, TextType::varchar()),
+			TextType::varchar()->toDatabase($this->pattern),
 		);
 	}
 }

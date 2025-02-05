@@ -47,7 +47,7 @@ abstract class CompositeType implements Type
 			new Literal('ROW('),
 			...mapWithKeys(
 				$value,
-				fn(int $index, mixed $item) => $item !== null ? $this->types[$index]->toDatabase($item) : new Literal('NULL'),
+				fn(int $index, mixed $item) => $this->types[$index]->toDatabase($item),
 			),
 			new Literal(')::'),
 			$this->getDatabaseType()->toSql(),
@@ -69,7 +69,7 @@ abstract class CompositeType implements Type
 		\assert(\count($result) === \count($this->types));
 		return mapWithKeys(
 			$result,
-			fn($index, $item) => $item !== null ? $this->types[$index]->fromDatabase($item) : null,
+			fn($index, $item) => $this->types[$index]->fromDatabase($item),
 		);
 	}
 

@@ -16,7 +16,7 @@ use function Phun\map;
  * @template ItemType
  * @implements Type<ItemType[]>
  */
-final class ArrayType implements Type // @todo: There is implicit support for nullable types, shouldn't it be explicit instead?
+final class ArrayType implements Type
 {
 	/**
 	 * @param Type<ItemType> $itemType
@@ -59,7 +59,7 @@ final class ArrayType implements Type // @todo: There is implicit support for nu
 			new Literal('ARRAY['),
 			...map(
 				$value,
-				fn(mixed $item) => $item !== null ? $this->itemType->toDatabase($item) : new Literal('NULL'),
+				fn(mixed $item) => $this->itemType->toDatabase($item),
 			),
 			new Literal(']::'),
 			$this->getDatabaseType()->toSql(),
@@ -74,9 +74,9 @@ final class ArrayType implements Type // @todo: There is implicit support for nu
 	public function fromDatabase(mixed $value): array
 	{
 		$result = $this->parseArray($value);
-		return map( // @phpstan-ignore return.type (will be fixed in later commits)
+		return map(
 			$result,
-			fn($item) => $item !== null ? $this->itemType->fromDatabase($item) : null,
+			fn($item) => $this->itemType->fromDatabase($item),
 		);
 	}
 
