@@ -28,7 +28,6 @@ use Grifart\Tables\TypeResolver;
 use Nette\PhpGenerator as Code;
 use Nette\Utils\Paginator;
 use function Grifart\ClassScaffolder\Definition\Types\resolve;
-use function Phun\map;
 use function usort;
 
 final class TableImplementation implements Capability
@@ -159,7 +158,7 @@ final class TableImplementation implements Capability
 
 
 		$namespace->addUse(TooManyRowsFound::class);
-		$classType->addMethod('getBy')
+		$classType->addMethod('getOneBy')
 			->setParameters([
 				(new Code\Parameter('conditions'))->setType(Condition::class . '|array'),
 			])
@@ -167,10 +166,67 @@ final class TableImplementation implements Capability
 			->addComment('@return ' . $namespace->simplifyName($this->rowClass))
 			->addComment('@throws RowNotFound')
 			->setReturnType($this->rowClass)
-			->addBody('$result = $this->findBy($conditions);')
-			->addBody('if (\count($result) === 0) { throw new RowNotFound(); }')
-			->addBody('if (\count($result) > 1) { throw new TooManyRowsFound(); }')
-			->addBody('return $result[0];');
+			->addBody('[$row, $count] = $this->tableManager->findOneBy($this, $conditions);')
+			->addBody('\assert($row instanceof ? || $row === null);', [new Code\Literal($namespace->simplifyName($this->rowClass))])
+			->addBody('if ($row === null) { throw new RowNotFound(); }')
+			->addBody('if ($count > 1) { throw new TooManyRowsFound(); }')
+			->addBody('return $row;');
+
+		$classType->addMethod('findOneBy')
+			->setParameters([
+				(new Code\Parameter('conditions'))->setType(Condition::class . '|array'),
+			])
+			->addComment('@param Condition|Condition[] $conditions')
+			->addComment('@return ' . $namespace->simplifyName($this->rowClass))
+			->addComment('@throws RowNotFound')
+			->setReturnType($this->rowClass)
+			->setReturnNullable()
+			->addBody('[$row, $count] = $this->tableManager->findOneBy($this, $conditions);')
+			->addBody('\assert($row instanceof ? || $row === null);', [new Code\Literal($namespace->simplifyName($this->rowClass))])
+			->addBody('if ($count > 1) { throw new TooManyRowsFound(); }')
+			->addBody('return $row;');
+
+		$classType->addMethod('getFirstBy')
+			->setParameters([
+				(new Code\Parameter('conditions'))->setType(Condition::class . '|array'),
+				(new Code\Parameter('orderBy'))->setType('array')->setDefaultValue([]),
+			])
+			->addComment('@param Condition|Condition[] $conditions')
+			->addComment('@param array<OrderBy|Expression<mixed>> $orderBy')
+			->addComment('@return ' . $namespace->simplifyName($this->rowClass))
+			->addComment('@throws RowNotFound')
+			->setReturnType($this->rowClass)
+			->addBody('[$row] = $this->tableManager->findOneBy($this, $conditions, $orderBy, checkCount: false);')
+			->addBody('\assert($row instanceof ? || $row === null);', [new Code\Literal($namespace->simplifyName($this->rowClass))])
+			->addBody('if ($row === null) { throw new RowNotFound(); }')
+			->addBody('return $row;');
+
+		$classType->addMethod('findFirstBy')
+			->setParameters([
+				(new Code\Parameter('conditions'))->setType(Condition::class . '|array'),
+				(new Code\Parameter('orderBy'))->setType('array')->setDefaultValue([]),
+			])
+			->addComment('@param Condition|Condition[] $conditions')
+			->addComment('@param array<OrderBy|Expression<mixed>> $orderBy')
+			->addComment('@return ' . $namespace->simplifyName($this->rowClass))
+			->addComment('@throws RowNotFound')
+			->setReturnType($this->rowClass)
+			->setReturnNullable()
+			->addBody('[$row] = $this->tableManager->findOneBy($this, $conditions, $orderBy, checkCount: false);')
+			->addBody('\assert($row instanceof ? || $row === null);', [new Code\Literal($namespace->simplifyName($this->rowClass))])
+			->addBody('return $row;');
+
+
+		$classType->addMethod('getBy')
+			->setParameters([
+				(new Code\Parameter('conditions'))->setType(Condition::class . '|array'),
+			])
+			->addComment('@param Condition|Condition[] $conditions')
+			->addComment('@return ' . $namespace->simplifyName($this->rowClass))
+			->addComment('@throws RowNotFound')
+			->addAttribute(\Deprecated::class, ['Use getOneBy() instead.'])
+			->setReturnType($this->rowClass)
+			->addBody('return $this->getOneBy($conditions);');
 
 
 		$newMethod = $classType->addMethod('new')

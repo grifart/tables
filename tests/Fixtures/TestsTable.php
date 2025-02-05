@@ -129,12 +129,68 @@ final class TestsTable implements Table
 	 * @return TestRow
 	 * @throws RowNotFound
 	 */
+	public function getOneBy(Condition|array $conditions): TestRow
+	{
+		[$row, $count] = $this->tableManager->findOneBy($this, $conditions);
+		\assert($row instanceof TestRow || $row === null);
+		if ($row === null) { throw new RowNotFound(); }
+		if ($count > 1) { throw new TooManyRowsFound(); }
+		return $row;
+	}
+
+
+	/**
+	 * @param Condition|Condition[] $conditions
+	 * @return TestRow
+	 * @throws RowNotFound
+	 */
+	public function findOneBy(Condition|array $conditions): ?TestRow
+	{
+		[$row, $count] = $this->tableManager->findOneBy($this, $conditions);
+		\assert($row instanceof TestRow || $row === null);
+		if ($count > 1) { throw new TooManyRowsFound(); }
+		return $row;
+	}
+
+
+	/**
+	 * @param Condition|Condition[] $conditions
+	 * @param array<OrderBy|Expression<mixed>> $orderBy
+	 * @return TestRow
+	 * @throws RowNotFound
+	 */
+	public function getFirstBy(Condition|array $conditions, array $orderBy = []): TestRow
+	{
+		[$row] = $this->tableManager->findOneBy($this, $conditions, $orderBy, checkCount: false);
+		\assert($row instanceof TestRow || $row === null);
+		if ($row === null) { throw new RowNotFound(); }
+		return $row;
+	}
+
+
+	/**
+	 * @param Condition|Condition[] $conditions
+	 * @param array<OrderBy|Expression<mixed>> $orderBy
+	 * @return TestRow
+	 * @throws RowNotFound
+	 */
+	public function findFirstBy(Condition|array $conditions, array $orderBy = []): ?TestRow
+	{
+		[$row] = $this->tableManager->findOneBy($this, $conditions, $orderBy, checkCount: false);
+		\assert($row instanceof TestRow || $row === null);
+		return $row;
+	}
+
+
+	/**
+	 * @param Condition|Condition[] $conditions
+	 * @return TestRow
+	 * @throws RowNotFound
+	 */
+	#[\Deprecated('Use getOneBy() instead.')]
 	public function getBy(Condition|array $conditions): TestRow
 	{
-		$result = $this->findBy($conditions);
-		if (\count($result) === 0) { throw new RowNotFound(); }
-		if (\count($result) > 1) { throw new TooManyRowsFound(); }
-		return $result[0];
+		return $this->getOneBy($conditions);
 	}
 
 

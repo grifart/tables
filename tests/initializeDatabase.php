@@ -26,6 +26,14 @@ CREATE TABLE IF NOT EXISTS public.test (
 SQL);
 
 $connection->nativeQuery(<<<SQL
+CREATE TABLE IF NOT EXISTS public.config (
+    id uuid NOT NULL PRIMARY KEY,
+    key text NOT NULL UNIQUE,
+    value text NOT NULL
+);
+SQL);
+
+$connection->nativeQuery(<<<SQL
 CREATE TYPE public."packageVersion" AS (major int, minor int, patch int);
 CREATE TABLE IF NOT EXISTS public.package (
     name text NOT NULL PRIMARY KEY,

@@ -25,13 +25,13 @@ use Grifart\Tables\Type;
 use Grifart\Tables\TypeResolver;
 use Nette\Utils\Paginator;
 
-final class GeneratedTable implements Table
+final class ConfigTable implements Table
 {
 	public const ID = 'id';
-	public const DOUBLE = 'double';
-	public const DIRECT = 'direct';
+	public const KEY = 'key';
+	public const VALUE = 'value';
 
-	/** @var array{id: Column<self, int>, double: Column<self, int>, direct: Column<self, int>} */
+	/** @var array{id: Column<self, Uuid>, key: Column<self, string>, value: Column<self, string>} */
 	private array $columns;
 
 
@@ -43,25 +43,25 @@ final class GeneratedTable implements Table
 
 	public static function getTableName(): string
 	{
-		return 'generated';
+		return 'config';
 	}
 
 
 	public static function getPrimaryKeyClass(): string
 	{
-		return GeneratedPrimaryKey::class;
+		return ConfigPrimaryKey::class;
 	}
 
 
 	public static function getRowClass(): string
 	{
-		return GeneratedRow::class;
+		return ConfigRow::class;
 	}
 
 
 	public static function getModificationClass(): string
 	{
-		return GeneratedModifications::class;
+		return ConfigModifications::class;
 	}
 
 
@@ -71,17 +71,17 @@ final class GeneratedTable implements Table
 	public static function getDatabaseColumns(): array
 	{
 		return [
-			'id' => new ColumnMetadata('id', 'integer', false, true, true),
-			'double' => new ColumnMetadata('double', 'integer', false, true, true),
-			'direct' => new ColumnMetadata('direct', 'integer', false, false, false)
+			'id' => new ColumnMetadata('id', 'uuid', false, false, false),
+			'key' => new ColumnMetadata('key', 'text', false, false, false),
+			'value' => new ColumnMetadata('value', 'text', false, false, false)
 		];
 	}
 
 
-	public function find(GeneratedPrimaryKey $primaryKey): ?GeneratedRow
+	public function find(ConfigPrimaryKey $primaryKey): ?ConfigRow
 	{
 		$row = $this->tableManager->find($this, $primaryKey);
-		\assert($row instanceof GeneratedRow || $row === NULL);
+		\assert($row instanceof ConfigRow || $row === NULL);
 		return $row;
 	}
 
@@ -89,7 +89,7 @@ final class GeneratedTable implements Table
 	/**
 	 * @throws RowNotFound
 	 */
-	public function get(GeneratedPrimaryKey $primaryKey): GeneratedRow
+	public function get(ConfigPrimaryKey $primaryKey): ConfigRow
 	{
 		$row = $this->find($primaryKey);
 		if ($row === NULL) {
@@ -101,11 +101,11 @@ final class GeneratedTable implements Table
 
 	/**
 	 * @param OrderBy[] $orderBy
-	 * @return GeneratedRow[]
+	 * @return ConfigRow[]
 	 */
 	public function getAll(array $orderBy = [], ?Paginator $paginator = null): array
 	{
-		/** @var GeneratedRow[] $result */
+		/** @var ConfigRow[] $result */
 		$result = $this->tableManager->getAll($this, $orderBy, $paginator);
 		return $result;
 	}
@@ -114,11 +114,11 @@ final class GeneratedTable implements Table
 	/**
 	 * @param Condition|Condition[] $conditions
 	 * @param array<OrderBy|Expression<mixed>> $orderBy
-	 * @return GeneratedRow[]
+	 * @return ConfigRow[]
 	 */
 	public function findBy(Condition|array $conditions, array $orderBy = [], ?Paginator $paginator = null): array
 	{
-		/** @var GeneratedRow[] $result */
+		/** @var ConfigRow[] $result */
 		$result = $this->tableManager->findBy($this, $conditions, $orderBy, $paginator);
 		return $result;
 	}
@@ -126,13 +126,13 @@ final class GeneratedTable implements Table
 
 	/**
 	 * @param Condition|Condition[] $conditions
-	 * @return GeneratedRow
+	 * @return ConfigRow
 	 * @throws RowNotFound
 	 */
-	public function getOneBy(Condition|array $conditions): GeneratedRow
+	public function getOneBy(Condition|array $conditions): ConfigRow
 	{
 		[$row, $count] = $this->tableManager->findOneBy($this, $conditions);
-		\assert($row instanceof GeneratedRow || $row === null);
+		\assert($row instanceof ConfigRow || $row === null);
 		if ($row === null) { throw new RowNotFound(); }
 		if ($count > 1) { throw new TooManyRowsFound(); }
 		return $row;
@@ -141,13 +141,13 @@ final class GeneratedTable implements Table
 
 	/**
 	 * @param Condition|Condition[] $conditions
-	 * @return GeneratedRow
+	 * @return ConfigRow
 	 * @throws RowNotFound
 	 */
-	public function findOneBy(Condition|array $conditions): ?GeneratedRow
+	public function findOneBy(Condition|array $conditions): ?ConfigRow
 	{
 		[$row, $count] = $this->tableManager->findOneBy($this, $conditions);
-		\assert($row instanceof GeneratedRow || $row === null);
+		\assert($row instanceof ConfigRow || $row === null);
 		if ($count > 1) { throw new TooManyRowsFound(); }
 		return $row;
 	}
@@ -156,13 +156,13 @@ final class GeneratedTable implements Table
 	/**
 	 * @param Condition|Condition[] $conditions
 	 * @param array<OrderBy|Expression<mixed>> $orderBy
-	 * @return GeneratedRow
+	 * @return ConfigRow
 	 * @throws RowNotFound
 	 */
-	public function getFirstBy(Condition|array $conditions, array $orderBy = []): GeneratedRow
+	public function getFirstBy(Condition|array $conditions, array $orderBy = []): ConfigRow
 	{
 		[$row] = $this->tableManager->findOneBy($this, $conditions, $orderBy, checkCount: false);
-		\assert($row instanceof GeneratedRow || $row === null);
+		\assert($row instanceof ConfigRow || $row === null);
 		if ($row === null) { throw new RowNotFound(); }
 		return $row;
 	}
@@ -171,46 +171,56 @@ final class GeneratedTable implements Table
 	/**
 	 * @param Condition|Condition[] $conditions
 	 * @param array<OrderBy|Expression<mixed>> $orderBy
-	 * @return GeneratedRow
+	 * @return ConfigRow
 	 * @throws RowNotFound
 	 */
-	public function findFirstBy(Condition|array $conditions, array $orderBy = []): ?GeneratedRow
+	public function findFirstBy(Condition|array $conditions, array $orderBy = []): ?ConfigRow
 	{
 		[$row] = $this->tableManager->findOneBy($this, $conditions, $orderBy, checkCount: false);
-		\assert($row instanceof GeneratedRow || $row === null);
+		\assert($row instanceof ConfigRow || $row === null);
 		return $row;
 	}
 
 
 	/**
 	 * @param Condition|Condition[] $conditions
-	 * @return GeneratedRow
+	 * @return ConfigRow
 	 * @throws RowNotFound
 	 */
 	#[\Deprecated('Use getOneBy() instead.')]
-	public function getBy(Condition|array $conditions): GeneratedRow
+	public function getBy(Condition|array $conditions): ConfigRow
 	{
 		return $this->getOneBy($conditions);
 	}
 
 
-	public function new(int $direct): GeneratedModifications
+	public function new(Uuid $id, string $key, string $value): ConfigModifications
 	{
-		$modifications = GeneratedModifications::new();
-		$modifications->modifyDirect($direct);
+		$modifications = ConfigModifications::new();
+		$modifications->modifyId($id);
+		$modifications->modifyKey($key);
+		$modifications->modifyValue($value);
 		return $modifications;
 	}
 
 
 	public function edit(
-		GeneratedRow|GeneratedPrimaryKey $rowOrKey,
-		int|DefaultOrExistingValue $direct = \Grifart\Tables\Unchanged,
-	): GeneratedModifications
+		ConfigRow|ConfigPrimaryKey $rowOrKey,
+		Uuid|DefaultOrExistingValue $id = \Grifart\Tables\Unchanged,
+		string|DefaultOrExistingValue $key = \Grifart\Tables\Unchanged,
+		string|DefaultOrExistingValue $value = \Grifart\Tables\Unchanged,
+	): ConfigModifications
 	{
-		$primaryKey = $rowOrKey instanceof GeneratedPrimaryKey ? $rowOrKey : GeneratedPrimaryKey::fromRow($rowOrKey);
-		$modifications = GeneratedModifications::update($primaryKey);
-		if (!$direct instanceof DefaultOrExistingValue) {
-			$modifications->modifyDirect($direct);
+		$primaryKey = $rowOrKey instanceof ConfigPrimaryKey ? $rowOrKey : ConfigPrimaryKey::fromRow($rowOrKey);
+		$modifications = ConfigModifications::update($primaryKey);
+		if (!$id instanceof DefaultOrExistingValue) {
+			$modifications->modifyId($id);
+		}
+		if (!$key instanceof DefaultOrExistingValue) {
+			$modifications->modifyKey($key);
+		}
+		if (!$value instanceof DefaultOrExistingValue) {
+			$modifications->modifyValue($value);
 		}
 		return $modifications;
 	}
@@ -220,7 +230,7 @@ final class GeneratedTable implements Table
 	 * @throws RowWithGivenPrimaryKeyAlreadyExists
 	 * @throws GivenSearchCriteriaHaveNotMatchedAnyRows
 	 */
-	public function save(GeneratedModifications $changes): void
+	public function save(ConfigModifications $changes): void
 	{
 		$this->tableManager->save($this, $changes);
 	}
@@ -229,7 +239,7 @@ final class GeneratedTable implements Table
 	/**
 	 * @throws RowWithGivenPrimaryKeyAlreadyExists
 	 */
-	public function insert(GeneratedModifications $changes): void
+	public function insert(ConfigModifications $changes): void
 	{
 		$this->tableManager->insert($this, $changes);
 	}
@@ -238,15 +248,15 @@ final class GeneratedTable implements Table
 	/**
 	 * @throws GivenSearchCriteriaHaveNotMatchedAnyRows
 	 */
-	public function update(GeneratedModifications $changes): void
+	public function update(ConfigModifications $changes): void
 	{
 		$this->tableManager->update($this, $changes);
 	}
 
 
-	public function delete(GeneratedRow|GeneratedPrimaryKey $rowOrKey): void
+	public function delete(ConfigRow|ConfigPrimaryKey $rowOrKey): void
 	{
-		$primaryKey = $rowOrKey instanceof GeneratedPrimaryKey ? $rowOrKey : GeneratedPrimaryKey::fromRow($rowOrKey);
+		$primaryKey = $rowOrKey instanceof ConfigPrimaryKey ? $rowOrKey : ConfigPrimaryKey::fromRow($rowOrKey);
 		$this->tableManager->delete($this, $primaryKey);
 	}
 
@@ -255,18 +265,18 @@ final class GeneratedTable implements Table
 		private TableManager $tableManager,
 		private TypeResolver $typeResolver,
 	) {
-		/** @var Column<self, int> $id */
+		/** @var Column<self, Uuid> $id */
 		$id = Column::from($this, self::getDatabaseColumns()['id'], $this->typeResolver);
-		/** @var Column<self, int> $double */
-		$double = Column::from($this, self::getDatabaseColumns()['double'], $this->typeResolver);
-		/** @var Column<self, int> $direct */
-		$direct = Column::from($this, self::getDatabaseColumns()['direct'], $this->typeResolver);
-		$this->columns = ['id' => $id, 'double' => $double, 'direct' => $direct];
+		/** @var Column<self, string> $key */
+		$key = Column::from($this, self::getDatabaseColumns()['key'], $this->typeResolver);
+		/** @var Column<self, string> $value */
+		$value = Column::from($this, self::getDatabaseColumns()['value'], $this->typeResolver);
+		$this->columns = ['id' => $id, 'key' => $key, 'value' => $value];
 	}
 
 
 	/**
-	 * @return Column<self, int>
+	 * @return Column<self, Uuid>
 	 */
 	public function id(): Column
 	{
@@ -275,20 +285,20 @@ final class GeneratedTable implements Table
 
 
 	/**
-	 * @return Column<self, int>
+	 * @return Column<self, string>
 	 */
-	public function double(): Column
+	public function key(): Column
 	{
-		return $this->columns['double'];
+		return $this->columns['key'];
 	}
 
 
 	/**
-	 * @return Column<self, int>
+	 * @return Column<self, string>
 	 */
-	public function direct(): Column
+	public function value(): Column
 	{
-		return $this->columns['direct'];
+		return $this->columns['value'];
 	}
 
 

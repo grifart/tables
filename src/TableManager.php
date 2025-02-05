@@ -140,6 +140,56 @@ final class TableManager
 	/**
 	 * @template TableType of Table
 	 * @param TableType $table
+	 * @param Condition|Condition[] $conditions
+	 * @param array<OrderBy|Expression<mixed>> $orderBy
+	 * @return array{Row|null, int}
+	 */
+	public function findOneBy(Table $table, Condition|array $conditions, array $orderBy = [], bool $checkCount = true): array
+	{
+		$result = $this->connection->query(
+			'SELECT *',
+			'FROM %n.%n', $table::getSchema(), $table::getTableName(),
+			'WHERE %ex', (\is_array($conditions) ? Composite::and(...$conditions) : $conditions)->toSql()->getValues(),
+			'ORDER BY %by', \count($orderBy) > 0
+				? map($orderBy, function (OrderBy|Expression $orderBy) {
+					if ($orderBy instanceof Expression) {
+						$orderBy = new OrderByDirection($orderBy);
+					}
+
+					return $orderBy->toSql()->getValues();
+				})
+				: [['%sql', 'true::boolean']],
+			'%lmt', $checkCount ? 2 : 1,
+		);
+
+		foreach ($table::getDatabaseColumns() as $column) {
+			$result->setType($column->getName(), NULL);
+		}
+
+		$dibiRows = $result->fetchAll();
+
+		/** @var class-string<Row> $rowClass */
+		$rowClass = $table::getRowClass();
+		$modelRows = [];
+		foreach ($dibiRows as $dibiRow) {
+			\assert($dibiRow instanceof \Dibi\Row);
+			$modelRows[] = $rowClass::reconstitute(
+				mapWithKeys(
+					$dibiRow->toArray(),
+					static fn(string $columnName, mixed $value) => $value !== null ? $table->getTypeOf($columnName)->fromDatabase($value) : null,
+				),
+			);
+		}
+
+		return [
+			$modelRows[0] ?? null,
+			\count($modelRows),
+		];
+	}
+
+	/**
+	 * @template TableType of Table
+	 * @param TableType $table
 	 * @param Modifications<TableType> $changes
 	 * @throws GivenSearchCriteriaHaveNotMatchedAnyRows if no rows matches given criteria
 	 */

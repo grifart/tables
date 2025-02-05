@@ -26,6 +26,7 @@ final class TestFixtures
 		$typeResolver = new TypeResolver($connection);
 		$typeResolver->addResolutionByLocation(new Identifier('public', 'test', 'id'), new UuidType());
 		$typeResolver->addResolutionByLocation(new Identifier('public', 'test', 'score'), IntType::integer());
+		$typeResolver->addResolutionByLocation(new Identifier('public', 'config', 'id'), new UuidType());
 		$typeResolver->addResolutionByLocation(new Identifier('public', 'package', 'version'), new TupleVersionType());
 		$typeResolver->addResolutionByLocation(new Identifier('public', 'package', 'previousVersions'), ArrayType::of(new VersionType()));
 		return $typeResolver;
