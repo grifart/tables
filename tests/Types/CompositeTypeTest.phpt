@@ -12,6 +12,7 @@ use Grifart\Tables\Types\CompositeType;
 use Grifart\Tables\Types\IntType;
 use Grifart\Tables\Types\NullableType;
 use Grifart\Tables\Types\TextType;
+use Grifart\Tables\UnexpectedNullValue;
 use Tester\Assert;
 use function Grifart\ClassScaffolder\Definition\Types\nullable;
 use function Grifart\ClassScaffolder\Definition\Types\tuple;
@@ -57,3 +58,6 @@ Assert::same(
 );
 
 Assert::same([42, null, 'com\\ple"\'x', '(', '', null], $composite->fromDatabase('(42,,"com\\\\ple""\'x","(","",)'));
+
+Assert::throws(fn() => $composite->toDatabase([null, null, 'foo', '', '', null]), UnexpectedNullValue::class);
+Assert::throws(fn() => $composite->fromDatabase('(,,"foo","","",)'), UnexpectedNullValue::class);

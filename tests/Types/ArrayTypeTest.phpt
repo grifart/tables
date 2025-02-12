@@ -8,6 +8,7 @@ use Grifart\Tables\Types\ArrayType;
 use Grifart\Tables\Types\IntType;
 use Grifart\Tables\Types\NullableType;
 use Grifart\Tables\Types\TextType;
+use Grifart\Tables\UnexpectedNullValue;
 use Tester\Assert;
 use function Grifart\Tables\Tests\connect;
 use function Grifart\Tables\Tests\executeExpressionInDatabase;
@@ -42,4 +43,10 @@ $connection = connect();
 	$dbResult = executeExpressionInDatabase($connection, $dbExpr);
 	Assert::same('{simple,"","co,m\\\\ple\\"\'x"}', $dbResult);
 	Assert::same($theInput, $textArrayType->fromDatabase($dbResult));
+})();
+
+(function() {
+	$textArrayType = ArrayType::of(TextType::text());
+	Assert::throws(fn() => $textArrayType->toDatabase([null]), UnexpectedNullValue::class);
+	Assert::throws(fn() => $textArrayType->fromDatabase('{NULL}'), UnexpectedNullValue::class);
 })();

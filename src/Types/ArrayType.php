@@ -9,6 +9,7 @@ use Dibi\Literal;
 use Grifart\ClassScaffolder\Definition\Types\Type as PhpType;
 use Grifart\Tables\Database\ArrayType as DatabaseArrayType;
 use Grifart\Tables\Type;
+use Grifart\Tables\UnexpectedNullValue;
 use function Grifart\ClassScaffolder\Definition\Types\listOf;
 use function Phun\map;
 
@@ -59,7 +60,13 @@ final class ArrayType implements Type
 			new Literal('ARRAY['),
 			...map(
 				$value,
-				fn(mixed $item) => $this->itemType->toDatabase($item),
+				function (mixed $item) {
+					if ($item === null && ! $this->itemType instanceof NullableType) {
+						throw new UnexpectedNullValue();
+					}
+
+					return $this->itemType->toDatabase($item);
+				},
 			),
 			new Literal(']::'),
 			$this->getDatabaseType()->toSql(),
@@ -76,7 +83,13 @@ final class ArrayType implements Type
 		$result = $this->parseArray($value);
 		return map(
 			$result,
-			fn($item) => $this->itemType->fromDatabase($item),
+			function ($item) {
+				if ($item === null && ! $this->itemType instanceof NullableType) {
+					throw new UnexpectedNullValue();
+				}
+
+				return $this->itemType->fromDatabase($item);
+			},
 		);
 	}
 
@@ -97,7 +110,7 @@ final class ArrayType implements Type
 
 			if ( ! $string && $char === '}') {
 				if ($item !== '') {
-					$result[] = $item;
+					$result[] = $item !== 'NULL' ? $item : null;
 				}
 				$end = $i;
 				break;
@@ -108,7 +121,7 @@ final class ArrayType implements Type
 				$subArrayStart = $i;
 				$this->parseArray($value, $i, $i);
 				$item = \substr($value, $subArrayStart, $i - $subArrayStart + 1);
-			} elseif ( ! $string && $char ===',') {
+			} elseif ( ! $string && $char === ',') {
 				$result[] = $item !== 'NULL' ? $item : null;
 				$item = '';
 			} elseif ( ! $string && $char === '"') {
