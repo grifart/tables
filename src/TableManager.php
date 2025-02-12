@@ -54,17 +54,12 @@ final class TableManager
 	 * @template TableType of Table
 	 * @param TableType $table
 	 * @param PrimaryKey<TableType> $primaryKey
-	 * @return null|Row
+	 * @return ($required is true ? Row : Row|null)
+	 * @throws RowNotFound
 	 */
-	public function find(Table $table, PrimaryKey $primaryKey): ?Row
+	public function find(Table $table, PrimaryKey $primaryKey, bool $required = true): ?Row
 	{
-		$rows = $this->findBy($table, $primaryKey->getCondition($table));
-		if (\count($rows) === 1) {
-			$row = \reset($rows);
-			return $row;
-		}
-		\assert(\count($rows) === 0);
-		return NULL;
+		return $this->findOneBy($table, $primaryKey->getCondition($table), required: $required);
 	}
 
 	/**
@@ -142,9 +137,10 @@ final class TableManager
 	 * @param TableType $table
 	 * @param Condition|Condition[] $conditions
 	 * @param array<OrderBy|Expression<mixed>> $orderBy
-	 * @return array{Row|null, int}
+	 * @return ($required is true ? Row : Row|null)
+	 * @throws RowNotFound
 	 */
-	public function findOneBy(Table $table, Condition|array $conditions, array $orderBy = [], bool $checkCount = true): array
+	public function findOneBy(Table $table, Condition|array $conditions, array $orderBy = [], bool $required = true, bool $unique = true): ?Row
 	{
 		$result = $this->connection->query(
 			'SELECT *',
@@ -159,32 +155,30 @@ final class TableManager
 					return $orderBy->toSql()->getValues();
 				})
 				: [['%sql', 'true::boolean']],
-			'%lmt', $checkCount ? 2 : 1,
 		);
 
 		foreach ($table::getDatabaseColumns() as $column) {
 			$result->setType($column->getName(), NULL);
 		}
 
-		$dibiRows = $result->fetchAll();
+		$dibiRow = $result->fetch();
+		if ($dibiRow === null) {
+			return ! $required ? null : throw new RowNotFound();
+		}
+
+		if ($unique && $result->fetch() !== null) {
+			throw new TooManyRowsFound();
+		}
 
 		/** @var class-string<Row> $rowClass */
 		$rowClass = $table::getRowClass();
-		$modelRows = [];
-		foreach ($dibiRows as $dibiRow) {
-			\assert($dibiRow instanceof \Dibi\Row);
-			$modelRows[] = $rowClass::reconstitute(
-				mapWithKeys(
-					$dibiRow->toArray(),
-					static fn(string $columnName, mixed $value) => $value !== null ? $table->getTypeOf($columnName)->fromDatabase($value) : null,
-				),
-			);
-		}
-
-		return [
-			$modelRows[0] ?? null,
-			\count($modelRows),
-		];
+		\assert($dibiRow instanceof \Dibi\Row);
+		return $rowClass::reconstitute(
+			mapWithKeys(
+				$dibiRow->toArray(),
+				static fn(string $columnName, mixed $value) => $value !== null ? $table->getTypeOf($columnName)->fromDatabase($value) : null,
+			),
+		);
 	}
 
 	/**

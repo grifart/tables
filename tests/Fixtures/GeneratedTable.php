@@ -80,8 +80,8 @@ final class GeneratedTable implements Table
 
 	public function find(GeneratedPrimaryKey $primaryKey): ?GeneratedRow
 	{
-		$row = $this->tableManager->find($this, $primaryKey);
-		\assert($row instanceof GeneratedRow || $row === NULL);
+		$row = $this->tableManager->find($this, $primaryKey, required: false);
+		\assert($row instanceof GeneratedRow || $row === null);
 		return $row;
 	}
 
@@ -91,10 +91,8 @@ final class GeneratedTable implements Table
 	 */
 	public function get(GeneratedPrimaryKey $primaryKey): GeneratedRow
 	{
-		$row = $this->find($primaryKey);
-		if ($row === NULL) {
-			throw new RowNotFound();
-		}
+		$row = $this->tableManager->find($this, $primaryKey, required: true);
+		\assert($row instanceof GeneratedRow);
 		return $row;
 	}
 
@@ -131,24 +129,21 @@ final class GeneratedTable implements Table
 	 */
 	public function getOneBy(Condition|array $conditions): GeneratedRow
 	{
-		[$row, $count] = $this->tableManager->findOneBy($this, $conditions);
-		\assert($row instanceof GeneratedRow || $row === null);
-		if ($row === null) { throw new RowNotFound(); }
-		if ($count > 1) { throw new TooManyRowsFound(); }
+		$row = $this->tableManager->findOneBy($this, $conditions, required: true, unique: true);
+		\assert($row instanceof GeneratedRow);
 		return $row;
 	}
 
 
 	/**
 	 * @param Condition|Condition[] $conditions
-	 * @return GeneratedRow
+	 * @return GeneratedRow|null
 	 * @throws RowNotFound
 	 */
 	public function findOneBy(Condition|array $conditions): ?GeneratedRow
 	{
-		[$row, $count] = $this->tableManager->findOneBy($this, $conditions);
+		$row = $this->tableManager->findOneBy($this, $conditions, required: false, unique: true);
 		\assert($row instanceof GeneratedRow || $row === null);
-		if ($count > 1) { throw new TooManyRowsFound(); }
 		return $row;
 	}
 
@@ -161,9 +156,8 @@ final class GeneratedTable implements Table
 	 */
 	public function getFirstBy(Condition|array $conditions, array $orderBy = []): GeneratedRow
 	{
-		[$row] = $this->tableManager->findOneBy($this, $conditions, $orderBy, checkCount: false);
-		\assert($row instanceof GeneratedRow || $row === null);
-		if ($row === null) { throw new RowNotFound(); }
+		$row = $this->tableManager->findOneBy($this, $conditions, $orderBy, required: true, unique: false);
+		\assert($row instanceof GeneratedRow);
 		return $row;
 	}
 
@@ -171,12 +165,11 @@ final class GeneratedTable implements Table
 	/**
 	 * @param Condition|Condition[] $conditions
 	 * @param array<OrderBy|Expression<mixed>> $orderBy
-	 * @return GeneratedRow
-	 * @throws RowNotFound
+	 * @return GeneratedRow|null
 	 */
 	public function findFirstBy(Condition|array $conditions, array $orderBy = []): ?GeneratedRow
 	{
-		[$row] = $this->tableManager->findOneBy($this, $conditions, $orderBy, checkCount: false);
+		$row = $this->tableManager->findOneBy($this, $conditions, $orderBy, required: false, unique: false);
 		\assert($row instanceof GeneratedRow || $row === null);
 		return $row;
 	}

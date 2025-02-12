@@ -80,8 +80,8 @@ final class TestsTable implements Table
 
 	public function find(TestPrimaryKey $primaryKey): ?TestRow
 	{
-		$row = $this->tableManager->find($this, $primaryKey);
-		\assert($row instanceof TestRow || $row === NULL);
+		$row = $this->tableManager->find($this, $primaryKey, required: false);
+		\assert($row instanceof TestRow || $row === null);
 		return $row;
 	}
 
@@ -91,10 +91,8 @@ final class TestsTable implements Table
 	 */
 	public function get(TestPrimaryKey $primaryKey): TestRow
 	{
-		$row = $this->find($primaryKey);
-		if ($row === NULL) {
-			throw new RowNotFound();
-		}
+		$row = $this->tableManager->find($this, $primaryKey, required: true);
+		\assert($row instanceof TestRow);
 		return $row;
 	}
 
@@ -131,24 +129,21 @@ final class TestsTable implements Table
 	 */
 	public function getOneBy(Condition|array $conditions): TestRow
 	{
-		[$row, $count] = $this->tableManager->findOneBy($this, $conditions);
-		\assert($row instanceof TestRow || $row === null);
-		if ($row === null) { throw new RowNotFound(); }
-		if ($count > 1) { throw new TooManyRowsFound(); }
+		$row = $this->tableManager->findOneBy($this, $conditions, required: true, unique: true);
+		\assert($row instanceof TestRow);
 		return $row;
 	}
 
 
 	/**
 	 * @param Condition|Condition[] $conditions
-	 * @return TestRow
+	 * @return TestRow|null
 	 * @throws RowNotFound
 	 */
 	public function findOneBy(Condition|array $conditions): ?TestRow
 	{
-		[$row, $count] = $this->tableManager->findOneBy($this, $conditions);
+		$row = $this->tableManager->findOneBy($this, $conditions, required: false, unique: true);
 		\assert($row instanceof TestRow || $row === null);
-		if ($count > 1) { throw new TooManyRowsFound(); }
 		return $row;
 	}
 
@@ -161,9 +156,8 @@ final class TestsTable implements Table
 	 */
 	public function getFirstBy(Condition|array $conditions, array $orderBy = []): TestRow
 	{
-		[$row] = $this->tableManager->findOneBy($this, $conditions, $orderBy, checkCount: false);
-		\assert($row instanceof TestRow || $row === null);
-		if ($row === null) { throw new RowNotFound(); }
+		$row = $this->tableManager->findOneBy($this, $conditions, $orderBy, required: true, unique: false);
+		\assert($row instanceof TestRow);
 		return $row;
 	}
 
@@ -171,12 +165,11 @@ final class TestsTable implements Table
 	/**
 	 * @param Condition|Condition[] $conditions
 	 * @param array<OrderBy|Expression<mixed>> $orderBy
-	 * @return TestRow
-	 * @throws RowNotFound
+	 * @return TestRow|null
 	 */
 	public function findFirstBy(Condition|array $conditions, array $orderBy = []): ?TestRow
 	{
-		[$row] = $this->tableManager->findOneBy($this, $conditions, $orderBy, checkCount: false);
+		$row = $this->tableManager->findOneBy($this, $conditions, $orderBy, required: false, unique: false);
 		\assert($row instanceof TestRow || $row === null);
 		return $row;
 	}
