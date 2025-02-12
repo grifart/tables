@@ -127,7 +127,7 @@ final class TestsTable implements Table
 	 * @return TestRow
 	 * @throws RowNotFound
 	 */
-	public function getOneBy(Condition|array $conditions): TestRow
+	public function getUniqueBy(Condition|array $conditions): TestRow
 	{
 		$row = $this->tableManager->findOneBy($this, $conditions, required: true, unique: true);
 		\assert($row instanceof TestRow);
@@ -140,7 +140,7 @@ final class TestsTable implements Table
 	 * @return TestRow|null
 	 * @throws RowNotFound
 	 */
-	public function findOneBy(Condition|array $conditions): ?TestRow
+	public function findUniqueBy(Condition|array $conditions): ?TestRow
 	{
 		$row = $this->tableManager->findOneBy($this, $conditions, required: false, unique: true);
 		\assert($row instanceof TestRow || $row === null);
@@ -180,10 +180,10 @@ final class TestsTable implements Table
 	 * @return TestRow
 	 * @throws RowNotFound
 	 */
-	#[\Deprecated('Use getOneBy() instead.')]
+	#[\Deprecated('Use getUniqueBy() instead.')]
 	public function getBy(Condition|array $conditions): TestRow
 	{
-		return $this->getOneBy($conditions);
+		return $this->getUniqueBy($conditions);
 	}
 
 

@@ -22,17 +22,17 @@ $table = new ConfigTable(
 	TestFixtures::createTypeResolver($connection),
 );
 
-$row = $table->getOneBy($table->key()->is('key1'));
+$row = $table->getUniqueBy($table->key()->is('key1'));
 Assert::same('same value', $row->getValue());
 
-Assert::throws(fn() => $table->getOneBy($table->key()->is('key4')), RowNotFound::class);
-Assert::throws(fn() => $table->getOneBy($table->value()->is('same value')), TooManyRowsFound::class);
+Assert::throws(fn() => $table->getUniqueBy($table->key()->is('key4')), RowNotFound::class);
+Assert::throws(fn() => $table->getUniqueBy($table->value()->is('same value')), TooManyRowsFound::class);
 
-$row = $table->findOneBy($table->key()->is('key1'));
+$row = $table->findUniqueBy($table->key()->is('key1'));
 Assert::same('same value', $row->getValue());
 
-Assert::null($table->findOneBy($table->key()->is('key4')));
-Assert::throws(fn() => $table->findOneBy($table->value()->is('same value')), TooManyRowsFound::class);
+Assert::null($table->findUniqueBy($table->key()->is('key4')));
+Assert::throws(fn() => $table->findUniqueBy($table->value()->is('same value')), TooManyRowsFound::class);
 
 $row = $table->getFirstBy($table->key()->is('key1'));
 Assert::same('same value', $row->getValue());

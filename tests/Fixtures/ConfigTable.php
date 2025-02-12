@@ -127,7 +127,7 @@ final class ConfigTable implements Table
 	 * @return ConfigRow
 	 * @throws RowNotFound
 	 */
-	public function getOneBy(Condition|array $conditions): ConfigRow
+	public function getUniqueBy(Condition|array $conditions): ConfigRow
 	{
 		$row = $this->tableManager->findOneBy($this, $conditions, required: true, unique: true);
 		\assert($row instanceof ConfigRow);
@@ -140,7 +140,7 @@ final class ConfigTable implements Table
 	 * @return ConfigRow|null
 	 * @throws RowNotFound
 	 */
-	public function findOneBy(Condition|array $conditions): ?ConfigRow
+	public function findUniqueBy(Condition|array $conditions): ?ConfigRow
 	{
 		$row = $this->tableManager->findOneBy($this, $conditions, required: false, unique: true);
 		\assert($row instanceof ConfigRow || $row === null);
@@ -180,10 +180,10 @@ final class ConfigTable implements Table
 	 * @return ConfigRow
 	 * @throws RowNotFound
 	 */
-	#[\Deprecated('Use getOneBy() instead.')]
+	#[\Deprecated('Use getUniqueBy() instead.')]
 	public function getBy(Condition|array $conditions): ConfigRow
 	{
-		return $this->getOneBy($conditions);
+		return $this->getUniqueBy($conditions);
 	}
 
 

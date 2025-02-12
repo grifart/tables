@@ -127,7 +127,7 @@ final class PackagesTable implements Table
 	 * @return PackageRow
 	 * @throws RowNotFound
 	 */
-	public function getOneBy(Condition|array $conditions): PackageRow
+	public function getUniqueBy(Condition|array $conditions): PackageRow
 	{
 		$row = $this->tableManager->findOneBy($this, $conditions, required: true, unique: true);
 		\assert($row instanceof PackageRow);
@@ -140,7 +140,7 @@ final class PackagesTable implements Table
 	 * @return PackageRow|null
 	 * @throws RowNotFound
 	 */
-	public function findOneBy(Condition|array $conditions): ?PackageRow
+	public function findUniqueBy(Condition|array $conditions): ?PackageRow
 	{
 		$row = $this->tableManager->findOneBy($this, $conditions, required: false, unique: true);
 		\assert($row instanceof PackageRow || $row === null);
@@ -180,10 +180,10 @@ final class PackagesTable implements Table
 	 * @return PackageRow
 	 * @throws RowNotFound
 	 */
-	#[\Deprecated('Use getOneBy() instead.')]
+	#[\Deprecated('Use getUniqueBy() instead.')]
 	public function getBy(Condition|array $conditions): PackageRow
 	{
-		return $this->getOneBy($conditions);
+		return $this->getUniqueBy($conditions);
 	}
 
 

@@ -148,7 +148,7 @@ final class TableImplementation implements Capability
 
 
 		$namespace->addUse(TooManyRowsFound::class);
-		$classType->addMethod('getOneBy')
+		$classType->addMethod('getUniqueBy')
 			->setParameters([
 				(new Code\Parameter('conditions'))->setType(Condition::class . '|array'),
 			])
@@ -160,7 +160,7 @@ final class TableImplementation implements Capability
 			->addBody('\assert($row instanceof ?);', [new Code\Literal($namespace->simplifyName($this->rowClass))])
 			->addBody('return $row;');
 
-		$classType->addMethod('findOneBy')
+		$classType->addMethod('findUniqueBy')
 			->setParameters([
 				(new Code\Parameter('conditions'))->setType(Condition::class . '|array'),
 			])
@@ -209,9 +209,9 @@ final class TableImplementation implements Capability
 			->addComment('@param Condition|Condition[] $conditions')
 			->addComment('@return ' . $namespace->simplifyName($this->rowClass))
 			->addComment('@throws RowNotFound')
-			->addAttribute(\Deprecated::class, ['Use getOneBy() instead.'])
+			->addAttribute(\Deprecated::class, ['Use getUniqueBy() instead.'])
 			->setReturnType($this->rowClass)
-			->addBody('return $this->getOneBy($conditions);');
+			->addBody('return $this->getUniqueBy($conditions);');
 
 
 		$newMethod = $classType->addMethod('new')

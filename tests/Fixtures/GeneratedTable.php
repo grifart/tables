@@ -127,7 +127,7 @@ final class GeneratedTable implements Table
 	 * @return GeneratedRow
 	 * @throws RowNotFound
 	 */
-	public function getOneBy(Condition|array $conditions): GeneratedRow
+	public function getUniqueBy(Condition|array $conditions): GeneratedRow
 	{
 		$row = $this->tableManager->findOneBy($this, $conditions, required: true, unique: true);
 		\assert($row instanceof GeneratedRow);
@@ -140,7 +140,7 @@ final class GeneratedTable implements Table
 	 * @return GeneratedRow|null
 	 * @throws RowNotFound
 	 */
-	public function findOneBy(Condition|array $conditions): ?GeneratedRow
+	public function findUniqueBy(Condition|array $conditions): ?GeneratedRow
 	{
 		$row = $this->tableManager->findOneBy($this, $conditions, required: false, unique: true);
 		\assert($row instanceof GeneratedRow || $row === null);
@@ -180,10 +180,10 @@ final class GeneratedTable implements Table
 	 * @return GeneratedRow
 	 * @throws RowNotFound
 	 */
-	#[\Deprecated('Use getOneBy() instead.')]
+	#[\Deprecated('Use getUniqueBy() instead.')]
 	public function getBy(Condition|array $conditions): GeneratedRow
 	{
-		return $this->getOneBy($conditions);
+		return $this->getUniqueBy($conditions);
 	}
 
 
