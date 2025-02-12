@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Grifart\Tables\Types;
 
+use Deprecated;
 use Grifart\Tables\Type;
 
 /**
@@ -11,11 +12,10 @@ use Grifart\Tables\Type;
  * @param ValueType $value
  * @param Type<ValueType> $type
  */
+#[Deprecated('Use $type->toDatabase($value) instead')]
 function mapToDatabase(mixed $value, Type $type): mixed
 {
-	return $value !== null
-		? $type->toDatabase($value)
-		: null;
+	return $type->toDatabase($value);
 }
 
 /**
@@ -23,9 +23,8 @@ function mapToDatabase(mixed $value, Type $type): mixed
  * @param Type<ValueType> $type
  * @return ValueType|null
  */
+#[Deprecated('Use $type->fromDatabase($value) instead')]
 function mapFromDatabase(mixed $value, Type $type): mixed
 {
-	return $value !== null
-		? $type->fromDatabase($value)
-		: null;
+	return $type->fromDatabase($value);
 }

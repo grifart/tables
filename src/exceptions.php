@@ -69,3 +69,5 @@ final class GivenSearchCriteriaHaveNotMatchedAnyRows extends RuntimeException {}
 final class RowWithGivenPrimaryKeyAlreadyExists extends RuntimeException {}
 final class RowNotFound extends RuntimeException {}
 final class TooManyRowsFound extends UsageException {}
+
+final class UnexpectedNullValue extends UsageException {}

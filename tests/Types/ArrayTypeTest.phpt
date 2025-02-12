@@ -6,7 +6,9 @@ namespace Grifart\Tables\Tests\Types;
 
 use Grifart\Tables\Types\ArrayType;
 use Grifart\Tables\Types\IntType;
+use Grifart\Tables\Types\NullableType;
 use Grifart\Tables\Types\TextType;
+use Grifart\Tables\UnexpectedNullValue;
 use Tester\Assert;
 use function Grifart\Tables\Tests\connect;
 use function Grifart\Tables\Tests\executeExpressionInDatabase;
@@ -18,7 +20,7 @@ $connection = connect();
 
 (function() use ($connection) {
 	$theInput = [42, null, -5];
-	$intArrayType = ArrayType::of(IntType::integer());
+	$intArrayType = ArrayType::of(NullableType::of(IntType::integer()));
 	Assert::same('ARRAY[42,NULL,-5]::integer[]', $connection->translate($dbExpr = $intArrayType->toDatabase($theInput)));
 	$dbResult = executeExpressionInDatabase($connection, $dbExpr);
 	Assert::same('{42,NULL,-5}', $dbResult);
@@ -35,10 +37,16 @@ $connection = connect();
 })();
 
 (function() use ($connection) {
-	$theInput = ['simple', null, '', 'co,m\\ple"\'x'];
+	$theInput = ['simple', '', 'co,m\\ple"\'x'];
 	$textArrayType = ArrayType::of(TextType::text());
-	Assert::same("ARRAY['simple',NULL,'','co,m\\ple\"''x']::text[]", $connection->translate($dbExpr = $textArrayType->toDatabase($theInput)));
+	Assert::same("ARRAY['simple','','co,m\\ple\"''x']::text[]", $connection->translate($dbExpr = $textArrayType->toDatabase($theInput)));
 	$dbResult = executeExpressionInDatabase($connection, $dbExpr);
-	Assert::same('{simple,NULL,"","co,m\\\\ple\\"\'x"}', $dbResult);
+	Assert::same('{simple,"","co,m\\\\ple\\"\'x"}', $dbResult);
 	Assert::same($theInput, $textArrayType->fromDatabase($dbResult));
+})();
+
+(function() {
+	$textArrayType = ArrayType::of(TextType::text());
+	Assert::throws(fn() => $textArrayType->toDatabase([null]), UnexpectedNullValue::class);
+	Assert::throws(fn() => $textArrayType->fromDatabase('{NULL}'), UnexpectedNullValue::class);
 })();

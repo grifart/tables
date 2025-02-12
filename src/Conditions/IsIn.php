@@ -6,7 +6,6 @@ namespace Grifart\Tables\Conditions;
 
 use Dibi\Expression as DibiExpression;
 use Grifart\Tables\Expression;
-use function Grifart\Tables\Types\mapToDatabase;
 use function Phun\map;
 
 /**
@@ -30,7 +29,7 @@ final class IsIn implements Condition
 			$this->expression->toSql(),
 			map(
 				$this->values,
-				fn(mixed $value) => mapToDatabase($value, $this->expression->getType()),
+				fn(mixed $value) => $this->expression->getType()->toDatabase($value),
 			),
 		);
 	}

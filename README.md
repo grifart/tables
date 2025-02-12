@@ -149,7 +149,6 @@ Take a look at how a `LIKE` condition could be implemented. It maps to a `LIKE` 
 ```php
 use Grifart\Tables\Expression;
 use Grifart\Tables\Types\TextType;
-use function Grifart\Tables\Types\mapToDatabase;
 
 final class IsLike implements Condition
 {
@@ -166,7 +165,7 @@ final class IsLike implements Condition
 		return new \Dibi\Expression(
 			'? LIKE ?',
 			$this->expression->toSql(),
-			mapToDatabase($this->pattern, TextType::varchar()),
+			TextType::varchar()->toDatabase($this->pattern),
 		);
 	}
 }
@@ -434,6 +433,12 @@ You can map values to an array via the `ArrayType`. This formats the items using
 $dateArrayType = ArrayType::of(new DateType());
 ```
 
+Note that while arrays in PostgreSQL can contain `NULL`, `ArrayType` rejects null values unless they are explicitly allowed:
+
+```php
+$nullableDateArrayType = ArrayType::of(NullableType::of(new DateType()));
+```
+
 ##### Enum types
 
 You can map native PHP enumerations to PostgreSQL's enums using the `EnumType`. This requires that the provided enum is a `\BackedEnum`, and serializes it to its backing value:
@@ -481,4 +486,25 @@ $moneyType = new class extends CompositeType {
         return Money::of($amount, $currency);
     }
 };
+```
+
+Similarly to arrays, in PostgreSQL, composite type fields are always nullable. However, `CompositeType` rejects null values except in positions where they are explicitly allowed:
+
+```php
+$nullableDateArrayType = ArrayType::of(NullableType::of(new DateType()));
+```
+
+```php
+$moneyType = new class extends CompositeType {
+    public function __construct()
+    {
+        parent::__construct(
+            new Database\NamedType(new Database\Identifier('public', 'money')),
+            NullableType::of(DecimalType::decimal()),
+            new CurrencyType(),
+        );
+    }
+
+    // ...
+}
 ```

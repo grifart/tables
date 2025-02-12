@@ -8,6 +8,7 @@ use Dibi\Expression;
 use Dibi\Literal;
 use Grifart\Tables\Database\DatabaseType;
 use Grifart\Tables\Type;
+use Grifart\Tables\UnexpectedNullValue;
 use function Phun\map;
 use function Phun\mapWithKeys;
 
@@ -47,7 +48,15 @@ abstract class CompositeType implements Type
 			new Literal('ROW('),
 			...mapWithKeys(
 				$value,
-				fn(int $index, mixed $item) => $item !== null ? $this->types[$index]->toDatabase($item) : new Literal('NULL'),
+				function (int $index, mixed $item) {
+					$itemType = $this->types[$index];
+
+					if ($item === null && ! $itemType instanceof NullableType) {
+						throw new UnexpectedNullValue();
+					}
+
+					return $itemType->toDatabase($item);
+				},
 			),
 			new Literal(')::'),
 			$this->getDatabaseType()->toSql(),
@@ -69,7 +78,15 @@ abstract class CompositeType implements Type
 		\assert(\count($result) === \count($this->types));
 		return mapWithKeys(
 			$result,
-			fn($index, $item) => $item !== null ? $this->types[$index]->fromDatabase($item) : null,
+			function (int $index, mixed $item) {
+				$itemType = $this->types[$index];
+
+				if ($item === null && ! $itemType instanceof NullableType) {
+					throw new UnexpectedNullValue();
+				}
+
+				return $itemType->fromDatabase($item);
+			},
 		);
 	}
 

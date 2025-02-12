@@ -40,7 +40,7 @@ final class TableManager
 				'INTO %n.%n', $table::getSchema(), $table::getTableName(),
 				mapWithKeys(
 					$changes->getModifications(),
-					static fn(string $columnName, mixed $value) => $value !== null ? $table->getTypeOf($columnName)->toDatabase($value) : null,
+					static fn(string $columnName, mixed $value) => $table->getTypeOf($columnName)->toDatabase($value),
 				),
 			);
 		} catch (UniqueConstraintViolationException $e) {
@@ -113,7 +113,7 @@ final class TableManager
 			$modelRows[] = $rowClass::reconstitute(
 				mapWithKeys(
 					$dibiRow->toArray(),
-					static fn(string $columnName, mixed $value) => $value !== null ? $table->getTypeOf($columnName)->fromDatabase($value) : null,
+					static fn(string $columnName, mixed $value) => $table->getTypeOf($columnName)->fromDatabase($value),
 				),
 			);
 		}
@@ -176,7 +176,7 @@ final class TableManager
 		return $rowClass::reconstitute(
 			mapWithKeys(
 				$dibiRow->toArray(),
-				static fn(string $columnName, mixed $value) => $value !== null ? $table->getTypeOf($columnName)->fromDatabase($value) : null,
+				static fn(string $columnName, mixed $value) => $table->getTypeOf($columnName)->fromDatabase($value),
 			),
 		);
 	}
@@ -196,7 +196,7 @@ final class TableManager
 			'SET %a',
 			mapWithKeys(
 				$changes->getModifications(),
-				static fn(string $columnName, mixed $value) => $value !== null ? $table->getTypeOf($columnName)->toDatabase($value) : null,
+				static fn(string $columnName, mixed $value) => $table->getTypeOf($columnName)->toDatabase($value),
 			),
 			'WHERE %ex', $primaryKey->getCondition($table)->toSql()->getValues(),
 		);
