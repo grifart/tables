@@ -26,6 +26,14 @@ return [
 	),
 	...$tableDefinitions->for(
 		'public',
+		'config',
+		ConfigRow::class,
+		ConfigModifications::class,
+		ConfigTable::class,
+		ConfigPrimaryKey::class,
+	),
+	...$tableDefinitions->for(
+		'public',
 		'package',
 		PackageRow::class,
 		PackageModifications::class,

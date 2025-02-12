@@ -80,8 +80,8 @@ final class PackagesTable implements Table
 
 	public function find(PackagePrimaryKey $primaryKey): ?PackageRow
 	{
-		$row = $this->tableManager->find($this, $primaryKey);
-		\assert($row instanceof PackageRow || $row === NULL);
+		$row = $this->tableManager->find($this, $primaryKey, required: false);
+		\assert($row instanceof PackageRow || $row === null);
 		return $row;
 	}
 
@@ -91,10 +91,8 @@ final class PackagesTable implements Table
 	 */
 	public function get(PackagePrimaryKey $primaryKey): PackageRow
 	{
-		$row = $this->find($primaryKey);
-		if ($row === NULL) {
-			throw new RowNotFound();
-		}
+		$row = $this->tableManager->find($this, $primaryKey, required: true);
+		\assert($row instanceof PackageRow);
 		return $row;
 	}
 
@@ -129,12 +127,63 @@ final class PackagesTable implements Table
 	 * @return PackageRow
 	 * @throws RowNotFound
 	 */
+	public function getUniqueBy(Condition|array $conditions): PackageRow
+	{
+		$row = $this->tableManager->findOneBy($this, $conditions, required: true, unique: true);
+		\assert($row instanceof PackageRow);
+		return $row;
+	}
+
+
+	/**
+	 * @param Condition|Condition[] $conditions
+	 * @return PackageRow|null
+	 * @throws RowNotFound
+	 */
+	public function findUniqueBy(Condition|array $conditions): ?PackageRow
+	{
+		$row = $this->tableManager->findOneBy($this, $conditions, required: false, unique: true);
+		\assert($row instanceof PackageRow || $row === null);
+		return $row;
+	}
+
+
+	/**
+	 * @param Condition|Condition[] $conditions
+	 * @param array<OrderBy|Expression<mixed>> $orderBy
+	 * @return PackageRow
+	 * @throws RowNotFound
+	 */
+	public function getFirstBy(Condition|array $conditions, array $orderBy = []): PackageRow
+	{
+		$row = $this->tableManager->findOneBy($this, $conditions, $orderBy, required: true, unique: false);
+		\assert($row instanceof PackageRow);
+		return $row;
+	}
+
+
+	/**
+	 * @param Condition|Condition[] $conditions
+	 * @param array<OrderBy|Expression<mixed>> $orderBy
+	 * @return PackageRow|null
+	 */
+	public function findFirstBy(Condition|array $conditions, array $orderBy = []): ?PackageRow
+	{
+		$row = $this->tableManager->findOneBy($this, $conditions, $orderBy, required: false, unique: false);
+		\assert($row instanceof PackageRow || $row === null);
+		return $row;
+	}
+
+
+	/**
+	 * @param Condition|Condition[] $conditions
+	 * @return PackageRow
+	 * @throws RowNotFound
+	 */
+	#[\Deprecated('Use getUniqueBy() instead.')]
 	public function getBy(Condition|array $conditions): PackageRow
 	{
-		$result = $this->findBy($conditions);
-		if (\count($result) === 0) { throw new RowNotFound(); }
-		if (\count($result) > 1) { throw new TooManyRowsFound(); }
-		return $result[0];
+		return $this->getUniqueBy($conditions);
 	}
 
 

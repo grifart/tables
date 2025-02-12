@@ -80,8 +80,8 @@ final class TestsTable implements Table
 
 	public function find(TestPrimaryKey $primaryKey): ?TestRow
 	{
-		$row = $this->tableManager->find($this, $primaryKey);
-		\assert($row instanceof TestRow || $row === NULL);
+		$row = $this->tableManager->find($this, $primaryKey, required: false);
+		\assert($row instanceof TestRow || $row === null);
 		return $row;
 	}
 
@@ -91,10 +91,8 @@ final class TestsTable implements Table
 	 */
 	public function get(TestPrimaryKey $primaryKey): TestRow
 	{
-		$row = $this->find($primaryKey);
-		if ($row === NULL) {
-			throw new RowNotFound();
-		}
+		$row = $this->tableManager->find($this, $primaryKey, required: true);
+		\assert($row instanceof TestRow);
 		return $row;
 	}
 
@@ -129,12 +127,63 @@ final class TestsTable implements Table
 	 * @return TestRow
 	 * @throws RowNotFound
 	 */
+	public function getUniqueBy(Condition|array $conditions): TestRow
+	{
+		$row = $this->tableManager->findOneBy($this, $conditions, required: true, unique: true);
+		\assert($row instanceof TestRow);
+		return $row;
+	}
+
+
+	/**
+	 * @param Condition|Condition[] $conditions
+	 * @return TestRow|null
+	 * @throws RowNotFound
+	 */
+	public function findUniqueBy(Condition|array $conditions): ?TestRow
+	{
+		$row = $this->tableManager->findOneBy($this, $conditions, required: false, unique: true);
+		\assert($row instanceof TestRow || $row === null);
+		return $row;
+	}
+
+
+	/**
+	 * @param Condition|Condition[] $conditions
+	 * @param array<OrderBy|Expression<mixed>> $orderBy
+	 * @return TestRow
+	 * @throws RowNotFound
+	 */
+	public function getFirstBy(Condition|array $conditions, array $orderBy = []): TestRow
+	{
+		$row = $this->tableManager->findOneBy($this, $conditions, $orderBy, required: true, unique: false);
+		\assert($row instanceof TestRow);
+		return $row;
+	}
+
+
+	/**
+	 * @param Condition|Condition[] $conditions
+	 * @param array<OrderBy|Expression<mixed>> $orderBy
+	 * @return TestRow|null
+	 */
+	public function findFirstBy(Condition|array $conditions, array $orderBy = []): ?TestRow
+	{
+		$row = $this->tableManager->findOneBy($this, $conditions, $orderBy, required: false, unique: false);
+		\assert($row instanceof TestRow || $row === null);
+		return $row;
+	}
+
+
+	/**
+	 * @param Condition|Condition[] $conditions
+	 * @return TestRow
+	 * @throws RowNotFound
+	 */
+	#[\Deprecated('Use getUniqueBy() instead.')]
 	public function getBy(Condition|array $conditions): TestRow
 	{
-		$result = $this->findBy($conditions);
-		if (\count($result) === 0) { throw new RowNotFound(); }
-		if (\count($result) > 1) { throw new TooManyRowsFound(); }
-		return $result[0];
+		return $this->getUniqueBy($conditions);
 	}
 
 

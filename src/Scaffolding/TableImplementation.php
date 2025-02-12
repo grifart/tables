@@ -28,7 +28,6 @@ use Grifart\Tables\TypeResolver;
 use Nette\PhpGenerator as Code;
 use Nette\Utils\Paginator;
 use function Grifart\ClassScaffolder\Definition\Types\resolve;
-use function Phun\map;
 use function usort;
 
 final class TableImplementation implements Capability
@@ -90,9 +89,6 @@ final class TableImplementation implements Capability
 			->setBody("return [\n".$columnsArrayTemplate."\n];", $columnsDefinitions);
 
 
-		// Column references
-		// todo add - use constants? Or references to Column class?
-
 		$classType->addMethod('find')
 			->setParameters([
 				(new Code\Parameter('primaryKey'))
@@ -100,12 +96,9 @@ final class TableImplementation implements Capability
 			])
 			->setReturnType($this->rowClass)
 			->setReturnNullable()
-			->setBody(
-				'$row = $this->tableManager->find($this, $primaryKey);' . "\n" .
-				'\assert($row instanceof ? || $row === NULL);' . "\n" .
-				'return $row;',
-				[new Code\Literal($namespace->simplifyName($this->rowClass))]
-			);
+			->addBody('$row = $this->tableManager->find($this, $primaryKey, required: false);')
+			->addBody('\assert($row instanceof ? || $row === null);', [new Code\Literal($namespace->simplifyName($this->rowClass))])
+			->addBody('return $row;');
 
 		$namespace->addUse(RowNotFound::class);
 		$classType->addMethod('get')
@@ -115,13 +108,9 @@ final class TableImplementation implements Capability
 			])
 			->setReturnType($this->rowClass)
 			->addComment('@throws RowNotFound')
-			->setBody(
-				'$row = $this->find($primaryKey);' . "\n" .
-				'if ($row === NULL) {' . "\n" .
-				'	throw new RowNotFound();' . "\n" .
-				'}' . "\n" .
-				'return $row;'
-			);
+			->addBody('$row = $this->tableManager->find($this, $primaryKey, required: true);')
+			->addBody('\assert($row instanceof ?);', [new Code\Literal($namespace->simplifyName($this->rowClass))])
+			->addBody('return $row;');
 
 		$namespace->addUse(OrderBy::class);
 		$namespace->addUse(Paginator::class);
@@ -159,7 +148,7 @@ final class TableImplementation implements Capability
 
 
 		$namespace->addUse(TooManyRowsFound::class);
-		$classType->addMethod('getBy')
+		$classType->addMethod('getUniqueBy')
 			->setParameters([
 				(new Code\Parameter('conditions'))->setType(Condition::class . '|array'),
 			])
@@ -167,10 +156,62 @@ final class TableImplementation implements Capability
 			->addComment('@return ' . $namespace->simplifyName($this->rowClass))
 			->addComment('@throws RowNotFound')
 			->setReturnType($this->rowClass)
-			->addBody('$result = $this->findBy($conditions);')
-			->addBody('if (\count($result) === 0) { throw new RowNotFound(); }')
-			->addBody('if (\count($result) > 1) { throw new TooManyRowsFound(); }')
-			->addBody('return $result[0];');
+			->addBody('$row = $this->tableManager->findOneBy($this, $conditions, required: true, unique: true);')
+			->addBody('\assert($row instanceof ?);', [new Code\Literal($namespace->simplifyName($this->rowClass))])
+			->addBody('return $row;');
+
+		$classType->addMethod('findUniqueBy')
+			->setParameters([
+				(new Code\Parameter('conditions'))->setType(Condition::class . '|array'),
+			])
+			->addComment('@param Condition|Condition[] $conditions')
+			->addComment('@return ' . $namespace->simplifyName($this->rowClass) . '|null')
+			->addComment('@throws RowNotFound')
+			->setReturnType($this->rowClass)
+			->setReturnNullable()
+			->addBody('$row = $this->tableManager->findOneBy($this, $conditions, required: false, unique: true);')
+			->addBody('\assert($row instanceof ? || $row === null);', [new Code\Literal($namespace->simplifyName($this->rowClass))])
+			->addBody('return $row;');
+
+		$classType->addMethod('getFirstBy')
+			->setParameters([
+				(new Code\Parameter('conditions'))->setType(Condition::class . '|array'),
+				(new Code\Parameter('orderBy'))->setType('array')->setDefaultValue([]),
+			])
+			->addComment('@param Condition|Condition[] $conditions')
+			->addComment('@param array<OrderBy|Expression<mixed>> $orderBy')
+			->addComment('@return ' . $namespace->simplifyName($this->rowClass))
+			->addComment('@throws RowNotFound')
+			->setReturnType($this->rowClass)
+			->addBody('$row = $this->tableManager->findOneBy($this, $conditions, $orderBy, required: true, unique: false);')
+			->addBody('\assert($row instanceof ?);', [new Code\Literal($namespace->simplifyName($this->rowClass))])
+			->addBody('return $row;');
+
+		$classType->addMethod('findFirstBy')
+			->setParameters([
+				(new Code\Parameter('conditions'))->setType(Condition::class . '|array'),
+				(new Code\Parameter('orderBy'))->setType('array')->setDefaultValue([]),
+			])
+			->addComment('@param Condition|Condition[] $conditions')
+			->addComment('@param array<OrderBy|Expression<mixed>> $orderBy')
+			->addComment('@return ' . $namespace->simplifyName($this->rowClass) . '|null')
+			->setReturnType($this->rowClass)
+			->setReturnNullable()
+			->addBody('$row = $this->tableManager->findOneBy($this, $conditions, $orderBy, required: false, unique: false);')
+			->addBody('\assert($row instanceof ? || $row === null);', [new Code\Literal($namespace->simplifyName($this->rowClass))])
+			->addBody('return $row;');
+
+
+		$classType->addMethod('getBy')
+			->setParameters([
+				(new Code\Parameter('conditions'))->setType(Condition::class . '|array'),
+			])
+			->addComment('@param Condition|Condition[] $conditions')
+			->addComment('@return ' . $namespace->simplifyName($this->rowClass))
+			->addComment('@throws RowNotFound')
+			->addAttribute(\Deprecated::class, ['Use getUniqueBy() instead.'])
+			->setReturnType($this->rowClass)
+			->addBody('return $this->getUniqueBy($conditions);');
 
 
 		$newMethod = $classType->addMethod('new')

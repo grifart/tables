@@ -112,7 +112,7 @@ $nullDetails = $table->findBy($table->details()->is(null));
 Assert::count(1, $nullDetails);
 Assert::same(0, $nullDetails[0]->getScore());
 
-$unique = $table->getBy($table->score()->is(42));
+$unique = $table->getUniqueBy($table->score()->is(42));
 Assert::same(42, $unique->getScore());
 
 $table->update($table->edit(

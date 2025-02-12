@@ -54,17 +54,12 @@ final class TableManager
 	 * @template TableType of Table
 	 * @param TableType $table
 	 * @param PrimaryKey<TableType> $primaryKey
-	 * @return null|Row
+	 * @return ($required is true ? Row : Row|null)
+	 * @throws RowNotFound
 	 */
-	public function find(Table $table, PrimaryKey $primaryKey): ?Row
+	public function find(Table $table, PrimaryKey $primaryKey, bool $required = true): ?Row
 	{
-		$rows = $this->findBy($table, $primaryKey->getCondition($table));
-		if (\count($rows) === 1) {
-			$row = \reset($rows);
-			return $row;
-		}
-		\assert(\count($rows) === 0);
-		return NULL;
+		return $this->findOneBy($table, $primaryKey->getCondition($table), required: $required);
 	}
 
 	/**
@@ -135,6 +130,55 @@ final class TableManager
 		}
 
 		return $modelRows;
+	}
+
+	/**
+	 * @template TableType of Table
+	 * @param TableType $table
+	 * @param Condition|Condition[] $conditions
+	 * @param array<OrderBy|Expression<mixed>> $orderBy
+	 * @return ($required is true ? Row : Row|null)
+	 * @throws RowNotFound
+	 */
+	public function findOneBy(Table $table, Condition|array $conditions, array $orderBy = [], bool $required = true, bool $unique = true): ?Row
+	{
+		$result = $this->connection->query(
+			'SELECT *',
+			'FROM %n.%n', $table::getSchema(), $table::getTableName(),
+			'WHERE %ex', (\is_array($conditions) ? Composite::and(...$conditions) : $conditions)->toSql()->getValues(),
+			'ORDER BY %by', \count($orderBy) > 0
+				? map($orderBy, function (OrderBy|Expression $orderBy) {
+					if ($orderBy instanceof Expression) {
+						$orderBy = new OrderByDirection($orderBy);
+					}
+
+					return $orderBy->toSql()->getValues();
+				})
+				: [['%sql', 'true::boolean']],
+		);
+
+		foreach ($table::getDatabaseColumns() as $column) {
+			$result->setType($column->getName(), NULL);
+		}
+
+		$dibiRow = $result->fetch();
+		if ($dibiRow === null) {
+			return ! $required ? null : throw new RowNotFound();
+		}
+
+		if ($unique && $result->fetch() !== null) {
+			throw new TooManyRowsFound();
+		}
+
+		/** @var class-string<Row> $rowClass */
+		$rowClass = $table::getRowClass();
+		\assert($dibiRow instanceof \Dibi\Row);
+		return $rowClass::reconstitute(
+			mapWithKeys(
+				$dibiRow->toArray(),
+				static fn(string $columnName, mixed $value) => $value !== null ? $table->getTypeOf($columnName)->fromDatabase($value) : null,
+			),
+		);
 	}
 
 	/**

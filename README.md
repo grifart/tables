@@ -95,10 +95,18 @@ To retrieve a list of records that match given criteria, you can use the `findBy
 $rows = $table->findBy($conditions, $orderBy, $paginator);
 ```
 
-There is also a helper method to retrieve a *single* record that matches given criteria. It throws an exception when the query doesn't yield exactly one result:
+There are also two pairs of helper methods to retrieve a *single* record that matches given criteria: `getUniqueBy()` and `findUniqueBy()` look for a unique record and throw an exception when the query yields more than one result. In addition, `getUniqueBy()` fails if no record is found, whereas `findUniqueBy()` returns null in such case.
 
 ```php
-$row = $table->getBy($conditions);
+$row = $table->getUniqueBy($conditions);
+$rowOrNull = $table->findUniqueBy($conditions);
+```
+
+And `getFirstBy()` and `findFirstBy()` return the first record that matches given criteria, regardless of whether there are more of them in the table.
+
+```php
+$row = $table->getFirstBy($conditions, $orderBy);
+$rowOrNull = $table->findFirstBy($conditions, $orderBy);
 ```
 
 #### Conditions
