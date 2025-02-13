@@ -17,7 +17,6 @@ use function Grifart\ClassScaffolder\Capabilities\implementedInterface;
 use function Grifart\ClassScaffolder\Capabilities\namedConstructor;
 use function Grifart\ClassScaffolder\Capabilities\privatizedConstructor;
 use function Grifart\ClassScaffolder\Definition\Types\nullable;
-use function Phun\map;
 use function Phun\mapWithKeys;
 
 final class TablesDefinitions
@@ -101,6 +100,9 @@ final class TablesDefinitions
 				$columnPhpTypes,
 			));
 
-		return Definitions::from($rowClass, $modificationsClass, $primaryKeyClass, $tableClass);
+		$factoryClass = (new ClassDefinition($tableClassName . 'Factory'))
+			->with(new TableFactoryImplementation($tableClassName));
+
+		return Definitions::from($rowClass, $modificationsClass, $primaryKeyClass, $tableClass, $factoryClass);
 	}
 }

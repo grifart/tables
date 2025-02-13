@@ -16,6 +16,7 @@ final class Definitions implements \IteratorAggregate
 		private ClassDefinition $modificationsClass,
 		private ?ClassDefinition $primaryKeyClass,
 		private ClassDefinition $tableClass,
+		private ?ClassDefinition $factoryClass,
 	) {}
 
 	public static function from(
@@ -23,6 +24,7 @@ final class Definitions implements \IteratorAggregate
 		ClassDefinition $modificationsClass,
 		ClassDefinition $primaryKeyClass,
 		ClassDefinition $tableClass,
+		ClassDefinition $factoryClass,
 	): self
 	{
 		return new self(
@@ -30,6 +32,7 @@ final class Definitions implements \IteratorAggregate
 			$modificationsClass,
 			$primaryKeyClass,
 			$tableClass,
+			$factoryClass,
 		);
 	}
 
@@ -63,6 +66,18 @@ final class Definitions implements \IteratorAggregate
 		return $this;
 	}
 
+	public function factoryClassWith(Capability $capability, Capability ...$capabilities): self
+	{
+		$this->factoryClass = $this->factoryClass?->with($capability, ...$capabilities);
+		return $this;
+	}
+
+	public function withoutFactory(): self
+	{
+		$this->factoryClass = null;
+		return $this;
+	}
+
 
 	public function getIterator(): \Traversable
 	{
@@ -71,6 +86,9 @@ final class Definitions implements \IteratorAggregate
 		yield $this->tableClass;
 		if ($this->primaryKeyClass !== null) {
 			yield $this->primaryKeyClass;
+		}
+		if ($this->factoryClass !== null) {
+			yield $this->factoryClass;
 		}
 	}
 
