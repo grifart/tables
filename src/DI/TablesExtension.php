@@ -7,6 +7,7 @@ namespace Grifart\Tables\DI;
 use Grifart\Tables\Database\Identifier;
 use Grifart\Tables\Scaffolding\PostgresReflector;
 use Grifart\Tables\Scaffolding\TablesDefinitions;
+use Grifart\Tables\SingleConnectionTableManager;
 use Grifart\Tables\TableManager;
 use Grifart\Tables\TypeResolver;
 use Nette\DI\CompilerExtension;
@@ -41,7 +42,8 @@ final class TablesExtension extends CompilerExtension
 		$builder = $this->getContainerBuilder();
 
 		$builder->addDefinition($this->prefix('tableManager'))
-			->setFactory(TableManager::class);
+			->setType(TableManager::class)
+			->setFactory(SingleConnectionTableManager::class);
 
 		$builder->addDefinition($this->prefix('scaffolding'))
 			->setFactory(TablesDefinitions::class);
