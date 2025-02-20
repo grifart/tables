@@ -449,7 +449,7 @@ enum Status: string {
     case PUBLISHED = 'published';
 }
 
-$statusType = EnumType::of(Status::class);
+$statusType = EnumType::of(Status::class, new Database\NamedType(new Database\Identifier('public', 'status')));
 ```
 
 ##### Composite types
@@ -489,10 +489,6 @@ $moneyType = new class extends CompositeType {
 ```
 
 Similarly to arrays, in PostgreSQL, composite type fields are always nullable. However, `CompositeType` rejects null values except in positions where they are explicitly allowed:
-
-```php
-$nullableDateArrayType = ArrayType::of(NullableType::of(new DateType()));
-```
 
 ```php
 $moneyType = new class extends CompositeType {
