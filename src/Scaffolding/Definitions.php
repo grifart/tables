@@ -11,12 +11,13 @@ use Grifart\ClassScaffolder\Definition\ClassDefinition;
  */
 final class Definitions implements \IteratorAggregate
 {
+	private ?ClassDefinition $factoryClass = null;
+
 	private function __construct(
 		private ClassDefinition $rowClass,
 		private ClassDefinition $modificationsClass,
 		private ?ClassDefinition $primaryKeyClass,
 		private ClassDefinition $tableClass,
-		private ?ClassDefinition $factoryClass,
 	) {}
 
 	public static function from(
@@ -24,7 +25,6 @@ final class Definitions implements \IteratorAggregate
 		ClassDefinition $modificationsClass,
 		ClassDefinition $primaryKeyClass,
 		ClassDefinition $tableClass,
-		ClassDefinition $factoryClass,
 	): self
 	{
 		return new self(
@@ -32,7 +32,6 @@ final class Definitions implements \IteratorAggregate
 			$modificationsClass,
 			$primaryKeyClass,
 			$tableClass,
-			$factoryClass,
 		);
 	}
 
@@ -66,18 +65,12 @@ final class Definitions implements \IteratorAggregate
 		return $this;
 	}
 
-	public function factoryClassWith(Capability $capability, Capability ...$capabilities): self
+	public function withFactory(): self
 	{
-		$this->factoryClass = $this->factoryClass?->with($capability, ...$capabilities);
+		$tableClassName = $this->tableClass->getFullyQualifiedName();
+		$this->factoryClass = (new ClassDefinition($tableClassName . 'Factory'))->with(new TableFactoryImplementation($tableClassName));
 		return $this;
 	}
-
-	public function withoutFactory(): self
-	{
-		$this->factoryClass = null;
-		return $this;
-	}
-
 
 	public function getIterator(): \Traversable
 	{

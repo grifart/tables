@@ -100,9 +100,6 @@ final class TablesDefinitions
 				$columnPhpTypes,
 			));
 
-		$factoryClass = (new ClassDefinition($tableClassName . 'Factory'))
-			->with(new TableFactoryImplementation($tableClassName));
-
-		return Definitions::from($rowClass, $modificationsClass, $primaryKeyClass, $tableClass, $factoryClass);
+		return Definitions::from($rowClass, $modificationsClass, $primaryKeyClass, $tableClass);
 	}
 }
