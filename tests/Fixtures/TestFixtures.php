@@ -6,7 +6,7 @@ namespace Grifart\Tables\Tests\Fixtures;
 
 use Dibi\Connection;
 use Grifart\Tables\Database\Identifier;
-use Grifart\Tables\TableManager;
+use Grifart\Tables\SingleConnectionTableManager;
 use Grifart\Tables\TypeResolver;
 use Grifart\Tables\Types\ArrayType;
 use Grifart\Tables\Types\IntType;
@@ -16,9 +16,9 @@ final class TestFixtures
 {
 	use StaticClass;
 
-	public static function createTableManager(Connection $connection): TableManager
+	public static function createTableManager(Connection $connection): SingleConnectionTableManager
 	{
-		return new TableManager($connection);
+		return new SingleConnectionTableManager($connection);
 	}
 
 	public static function createTypeResolver(Connection $connection): TypeResolver

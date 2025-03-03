@@ -23,7 +23,7 @@ return [
 		TestModifications::class,
 		TestsTable::class,
 		TestPrimaryKey::class,
-	),
+	)->withFactory(),
 	...$tableDefinitions->for(
 		'public',
 		'config',

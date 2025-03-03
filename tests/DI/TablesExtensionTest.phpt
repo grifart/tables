@@ -4,11 +4,10 @@ declare(strict_types=1);
 
 namespace Grifart\Tables\Tests\DI;
 
-use Dibi\Connection;
 use Grifart\Tables\Database\Identifier;
 use Grifart\Tables\Scaffolding\TablesDefinitions;
+use Grifart\Tables\SingleConnectionTableManager;
 use Grifart\Tables\TableManager;
-use Grifart\Tables\Tests\Fixtures\UuidType;
 use Grifart\Tables\Tests\Fixtures\VersionType;
 use Grifart\Tables\TypeResolver;
 use Grifart\Tables\Types\DecimalType;
@@ -40,7 +39,7 @@ $createContainer = function (string $configFile): Container
 
 (function () use ($createContainer) {
 	$container = $createContainer('default');
-	Assert::type(TableManager::class, $container->getByType(TableManager::class));
+	Assert::type(SingleConnectionTableManager::class, $container->getByType(TableManager::class));
 	Assert::type(TablesDefinitions::class, $container->getByType(TablesDefinitions::class));
 })();
 

@@ -11,6 +11,8 @@ use Grifart\ClassScaffolder\Definition\ClassDefinition;
  */
 final class Definitions implements \IteratorAggregate
 {
+	private ?ClassDefinition $factoryClass = null;
+
 	private function __construct(
 		private ClassDefinition $rowClass,
 		private ClassDefinition $modificationsClass,
@@ -63,6 +65,12 @@ final class Definitions implements \IteratorAggregate
 		return $this;
 	}
 
+	public function withFactory(): self
+	{
+		$tableClassName = $this->tableClass->getFullyQualifiedName();
+		$this->factoryClass = (new ClassDefinition($tableClassName . 'Factory'))->with(new TableFactoryImplementation($tableClassName));
+		return $this;
+	}
 
 	public function getIterator(): \Traversable
 	{
@@ -71,6 +79,9 @@ final class Definitions implements \IteratorAggregate
 		yield $this->tableClass;
 		if ($this->primaryKeyClass !== null) {
 			yield $this->primaryKeyClass;
+		}
+		if ($this->factoryClass !== null) {
+			yield $this->factoryClass;
 		}
 	}
 
