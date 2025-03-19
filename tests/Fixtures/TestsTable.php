@@ -253,10 +253,28 @@ final class TestsTable implements Table
 	}
 
 
+	/**
+	 * @param Condition|Condition[] $conditions
+	 */
+	public function updateBy(Condition|array $conditions, TestModifications $changes): void
+	{
+		$this->tableManager->updateBy($this, $conditions, $changes);
+	}
+
+
 	public function delete(TestRow|TestPrimaryKey $rowOrKey): void
 	{
 		$primaryKey = $rowOrKey instanceof TestPrimaryKey ? $rowOrKey : TestPrimaryKey::fromRow($rowOrKey);
 		$this->tableManager->delete($this, $primaryKey);
+	}
+
+
+	/**
+	 * @param Condition|Condition[] $conditions
+	 */
+	public function deleteBy(Condition|array $conditions): void
+	{
+		$this->tableManager->deleteBy($this, $conditions);
 	}
 
 

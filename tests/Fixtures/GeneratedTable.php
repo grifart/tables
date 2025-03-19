@@ -237,10 +237,28 @@ final class GeneratedTable implements Table
 	}
 
 
+	/**
+	 * @param Condition|Condition[] $conditions
+	 */
+	public function updateBy(Condition|array $conditions, GeneratedModifications $changes): void
+	{
+		$this->tableManager->updateBy($this, $conditions, $changes);
+	}
+
+
 	public function delete(GeneratedRow|GeneratedPrimaryKey $rowOrKey): void
 	{
 		$primaryKey = $rowOrKey instanceof GeneratedPrimaryKey ? $rowOrKey : GeneratedPrimaryKey::fromRow($rowOrKey);
 		$this->tableManager->delete($this, $primaryKey);
+	}
+
+
+	/**
+	 * @param Condition|Condition[] $conditions
+	 */
+	public function deleteBy(Condition|array $conditions): void
+	{
+		$this->tableManager->deleteBy($this, $conditions);
 	}
 
 

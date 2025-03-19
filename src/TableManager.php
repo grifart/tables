@@ -14,14 +14,6 @@ interface TableManager
 	/**
 	 * @template TableType of Table
 	 * @param TableType $table
-	 * @param Modifications<TableType> $changes
-	 * @throws RowWithGivenPrimaryKeyAlreadyExists
-	 */
-	public function insert(Table $table, Modifications $changes): void;
-
-	/**
-	 * @template TableType of Table
-	 * @param TableType $table
 	 * @param PrimaryKey<TableType> $primaryKey
 	 * @return ($required is true ? Row : Row|null)
 	 * @throws RowNotFound
@@ -59,9 +51,34 @@ interface TableManager
 	 * @template TableType of Table
 	 * @param TableType $table
 	 * @param Modifications<TableType> $changes
+	 * @throws RowWithGivenPrimaryKeyAlreadyExists
+	 * @throws GivenSearchCriteriaHaveNotMatchedAnyRows
+	 */
+	public function save(Table $table, Modifications $changes): void;
+
+	/**
+	 * @template TableType of Table
+	 * @param TableType $table
+	 * @param Modifications<TableType> $changes
+	 * @throws RowWithGivenPrimaryKeyAlreadyExists
+	 */
+	public function insert(Table $table, Modifications $changes): void;
+
+	/**
+	 * @template TableType of Table
+	 * @param TableType $table
+	 * @param Modifications<TableType> $changes
 	 * @throws GivenSearchCriteriaHaveNotMatchedAnyRows if no rows matches given criteria
 	 */
 	public function update(Table $table, Modifications $changes): void;
+
+	/**
+	 * @template TableType of Table
+	 * @param TableType $table
+	 * @param Condition|Condition[] $conditions
+	 * @param Modifications<TableType> $changes
+	 */
+	public function updateBy(Table $table, Condition|array $conditions, Modifications $changes): void;
 
 	/**
 	 * @template TableType of Table
@@ -73,9 +90,7 @@ interface TableManager
 	/**
 	 * @template TableType of Table
 	 * @param TableType $table
-	 * @param Modifications<TableType> $changes
-	 * @throws RowWithGivenPrimaryKeyAlreadyExists
-	 * @throws GivenSearchCriteriaHaveNotMatchedAnyRows
+	 * @param Condition|Condition[] $conditions
 	 */
-	public function save(Table $table, Modifications $changes): void;
+	public function deleteBy(Table $table, Condition|array $conditions): void;
 }

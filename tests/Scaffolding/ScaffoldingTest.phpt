@@ -34,5 +34,5 @@ $results = $fileProcessor->processFile(
 	},
 );
 
-Assert::count(17, $results->getDefinitions());
+Assert::count(21, $results->getDefinitions());
 Assert::true($results->isSuccessful());

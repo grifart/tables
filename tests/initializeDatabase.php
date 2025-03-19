@@ -55,3 +55,11 @@ CREATE TABLE IF NOT EXISTS public.generated (
     direct INT NOT NULL
 )
 SQL);
+
+$connection->nativeQuery(<<<SQL
+CREATE TABLE IF NOT EXISTS public.bulk (
+    id uuid NOT NULL PRIMARY KEY,
+    value int NOT NULL,
+    flagged boolean NOT NULL DEFAULT false
+)
+SQL);

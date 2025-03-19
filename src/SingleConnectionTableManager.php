@@ -27,32 +27,6 @@ final class SingleConnectionTableManager implements TableManager
 	/**
 	 * @template TableType of Table
 	 * @param TableType $table
-	 * @param Modifications<TableType> $changes
-	 * @throws RowWithGivenPrimaryKeyAlreadyExists
-	 */
-	public function insert(Table $table, Modifications $changes): void
-	{
-		\assert($changes->getPrimaryKey() === NULL);
-
-		try {
-			$this->connection->query(
-				'INSERT',
-				'INTO %n.%n', $table::getSchema(), $table::getTableName(),
-				mapWithKeys(
-					$changes->getModifications(),
-					static fn(string $columnName, mixed $value) => $table->getTypeOf($columnName)->toDatabase($value),
-				),
-			);
-		} catch (UniqueConstraintViolationException $e) {
-			throw new RowWithGivenPrimaryKeyAlreadyExists(previous: $e);
-		}
-
-		\assert($this->connection->getAffectedRows() === 1);
-	}
-
-	/**
-	 * @template TableType of Table
-	 * @param TableType $table
 	 * @param PrimaryKey<TableType> $primaryKey
 	 * @return ($required is true ? Row : Row|null)
 	 * @throws RowNotFound
@@ -185,6 +159,50 @@ final class SingleConnectionTableManager implements TableManager
 	 * @template TableType of Table
 	 * @param TableType $table
 	 * @param Modifications<TableType> $changes
+	 * @throws RowWithGivenPrimaryKeyAlreadyExists
+	 * @throws GivenSearchCriteriaHaveNotMatchedAnyRows
+	 */
+	public function save(Table $table, Modifications $changes): void {
+		if ($changes->getPrimaryKey() === NULL) {
+			// INSERT
+			$this->insert($table, $changes);
+			return;
+		}
+
+		// UPDATE:
+		$this->update($table, $changes);
+	}
+
+	/**
+	 * @template TableType of Table
+	 * @param TableType $table
+	 * @param Modifications<TableType> $changes
+	 * @throws RowWithGivenPrimaryKeyAlreadyExists
+	 */
+	public function insert(Table $table, Modifications $changes): void
+	{
+		\assert($changes->getPrimaryKey() === NULL);
+
+		try {
+			$this->connection->query(
+				'INSERT',
+				'INTO %n.%n', $table::getSchema(), $table::getTableName(),
+				mapWithKeys(
+					$changes->getModifications(),
+					static fn(string $columnName, mixed $value) => $table->getTypeOf($columnName)->toDatabase($value),
+				),
+			);
+		} catch (UniqueConstraintViolationException $e) {
+			throw new RowWithGivenPrimaryKeyAlreadyExists(previous: $e);
+		}
+
+		\assert($this->connection->getAffectedRows() === 1);
+	}
+
+	/**
+	 * @template TableType of Table
+	 * @param TableType $table
+	 * @param Modifications<TableType> $changes
 	 * @throws GivenSearchCriteriaHaveNotMatchedAnyRows if no rows matches given criteria
 	 */
 	public function update(Table $table, Modifications $changes): void
@@ -213,6 +231,27 @@ final class SingleConnectionTableManager implements TableManager
 	/**
 	 * @template TableType of Table
 	 * @param TableType $table
+	 * @param Condition|Condition[] $conditions
+	 * @param Modifications<TableType> $changes
+	 */
+	public function updateBy(Table $table, Condition|array $conditions, Modifications $changes): void
+	{
+		\assert($changes->getPrimaryKey() === null);
+
+		$this->connection->query(
+			'UPDATE %n.%n', $table::getSchema(), $table::getTableName(),
+			'SET %a',
+			mapWithKeys(
+				$changes->getModifications(),
+				static fn(string $columnName, mixed $value) => $table->getTypeOf($columnName)->toDatabase($value),
+			),
+			'WHERE %ex', (\is_array($conditions) ? Composite::and(...$conditions) : $conditions)->toSql()->getValues(),
+		);
+	}
+
+	/**
+	 * @template TableType of Table
+	 * @param TableType $table
 	 * @param PrimaryKey<TableType> $primaryKey
 	 */
 	public function delete(Table $table, PrimaryKey $primaryKey): void
@@ -228,18 +267,14 @@ final class SingleConnectionTableManager implements TableManager
 	/**
 	 * @template TableType of Table
 	 * @param TableType $table
-	 * @param Modifications<TableType> $changes
-	 * @throws RowWithGivenPrimaryKeyAlreadyExists
-	 * @throws GivenSearchCriteriaHaveNotMatchedAnyRows
+	 * @param Condition|Condition[] $conditions
 	 */
-	public function save(Table $table, Modifications $changes): void {
-		if ($changes->getPrimaryKey() === NULL) {
-			// INSERT
-			$this->insert($table, $changes);
-			return;
-		}
-
-		// UPDATE:
-		$this->update($table, $changes);
+	public function deleteBy(Table $table, Condition|array $conditions): void
+	{
+		$this->connection->query(
+			'DELETE',
+			'FROM %n.%n', $table::getSchema(), $table::getTableName(),
+			'WHERE %ex', (\is_array($conditions) ? Composite::and(...$conditions) : $conditions)->toSql()->getValues(),
+		);
 	}
 }

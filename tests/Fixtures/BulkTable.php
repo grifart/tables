@@ -25,13 +25,13 @@ use Grifart\Tables\Type;
 use Grifart\Tables\TypeResolver;
 use Nette\Utils\Paginator;
 
-final class ConfigTable implements Table
+final class BulkTable implements Table
 {
 	public const ID = 'id';
-	public const KEY = 'key';
 	public const VALUE = 'value';
+	public const FLAGGED = 'flagged';
 
-	/** @var array{id: Column<self, Uuid>, key: Column<self, string>, value: Column<self, string>} */
+	/** @var array{id: Column<self, Uuid>, value: Column<self, int>, flagged: Column<self, bool>} */
 	private array $columns;
 
 
@@ -43,25 +43,25 @@ final class ConfigTable implements Table
 
 	public static function getTableName(): string
 	{
-		return 'config';
+		return 'bulk';
 	}
 
 
 	public static function getPrimaryKeyClass(): string
 	{
-		return ConfigPrimaryKey::class;
+		return BulkPrimaryKey::class;
 	}
 
 
 	public static function getRowClass(): string
 	{
-		return ConfigRow::class;
+		return BulkRow::class;
 	}
 
 
 	public static function getModificationClass(): string
 	{
-		return ConfigModifications::class;
+		return BulkModifications::class;
 	}
 
 
@@ -72,16 +72,16 @@ final class ConfigTable implements Table
 	{
 		return [
 			'id' => new ColumnMetadata('id', 'uuid', false, false, false),
-			'key' => new ColumnMetadata('key', 'text', false, false, false),
-			'value' => new ColumnMetadata('value', 'text', false, false, false)
+			'value' => new ColumnMetadata('value', 'integer', false, false, false),
+			'flagged' => new ColumnMetadata('flagged', 'boolean', false, true, false)
 		];
 	}
 
 
-	public function find(ConfigPrimaryKey $primaryKey): ?ConfigRow
+	public function find(BulkPrimaryKey $primaryKey): ?BulkRow
 	{
 		$row = $this->tableManager->find($this, $primaryKey, required: false);
-		\assert($row instanceof ConfigRow || $row === null);
+		\assert($row instanceof BulkRow || $row === null);
 		return $row;
 	}
 
@@ -89,21 +89,21 @@ final class ConfigTable implements Table
 	/**
 	 * @throws RowNotFound
 	 */
-	public function get(ConfigPrimaryKey $primaryKey): ConfigRow
+	public function get(BulkPrimaryKey $primaryKey): BulkRow
 	{
 		$row = $this->tableManager->find($this, $primaryKey, required: true);
-		\assert($row instanceof ConfigRow);
+		\assert($row instanceof BulkRow);
 		return $row;
 	}
 
 
 	/**
 	 * @param OrderBy[] $orderBy
-	 * @return ConfigRow[]
+	 * @return BulkRow[]
 	 */
 	public function getAll(array $orderBy = [], ?Paginator $paginator = null): array
 	{
-		/** @var ConfigRow[] $result */
+		/** @var BulkRow[] $result */
 		$result = $this->tableManager->getAll($this, $orderBy, $paginator);
 		return $result;
 	}
@@ -112,11 +112,11 @@ final class ConfigTable implements Table
 	/**
 	 * @param Condition|Condition[] $conditions
 	 * @param array<OrderBy|Expression<mixed>> $orderBy
-	 * @return ConfigRow[]
+	 * @return BulkRow[]
 	 */
 	public function findBy(Condition|array $conditions, array $orderBy = [], ?Paginator $paginator = null): array
 	{
-		/** @var ConfigRow[] $result */
+		/** @var BulkRow[] $result */
 		$result = $this->tableManager->findBy($this, $conditions, $orderBy, $paginator);
 		return $result;
 	}
@@ -124,26 +124,26 @@ final class ConfigTable implements Table
 
 	/**
 	 * @param Condition|Condition[] $conditions
-	 * @return ConfigRow
+	 * @return BulkRow
 	 * @throws RowNotFound
 	 */
-	public function getUniqueBy(Condition|array $conditions): ConfigRow
+	public function getUniqueBy(Condition|array $conditions): BulkRow
 	{
 		$row = $this->tableManager->findOneBy($this, $conditions, required: true, unique: true);
-		\assert($row instanceof ConfigRow);
+		\assert($row instanceof BulkRow);
 		return $row;
 	}
 
 
 	/**
 	 * @param Condition|Condition[] $conditions
-	 * @return ConfigRow|null
+	 * @return BulkRow|null
 	 * @throws RowNotFound
 	 */
-	public function findUniqueBy(Condition|array $conditions): ?ConfigRow
+	public function findUniqueBy(Condition|array $conditions): ?BulkRow
 	{
 		$row = $this->tableManager->findOneBy($this, $conditions, required: false, unique: true);
-		\assert($row instanceof ConfigRow || $row === null);
+		\assert($row instanceof BulkRow || $row === null);
 		return $row;
 	}
 
@@ -151,13 +151,13 @@ final class ConfigTable implements Table
 	/**
 	 * @param Condition|Condition[] $conditions
 	 * @param array<OrderBy|Expression<mixed>> $orderBy
-	 * @return ConfigRow
+	 * @return BulkRow
 	 * @throws RowNotFound
 	 */
-	public function getFirstBy(Condition|array $conditions, array $orderBy = []): ConfigRow
+	public function getFirstBy(Condition|array $conditions, array $orderBy = []): BulkRow
 	{
 		$row = $this->tableManager->findOneBy($this, $conditions, $orderBy, required: true, unique: false);
-		\assert($row instanceof ConfigRow);
+		\assert($row instanceof BulkRow);
 		return $row;
 	}
 
@@ -165,55 +165,61 @@ final class ConfigTable implements Table
 	/**
 	 * @param Condition|Condition[] $conditions
 	 * @param array<OrderBy|Expression<mixed>> $orderBy
-	 * @return ConfigRow|null
+	 * @return BulkRow|null
 	 */
-	public function findFirstBy(Condition|array $conditions, array $orderBy = []): ?ConfigRow
+	public function findFirstBy(Condition|array $conditions, array $orderBy = []): ?BulkRow
 	{
 		$row = $this->tableManager->findOneBy($this, $conditions, $orderBy, required: false, unique: false);
-		\assert($row instanceof ConfigRow || $row === null);
+		\assert($row instanceof BulkRow || $row === null);
 		return $row;
 	}
 
 
 	/**
 	 * @param Condition|Condition[] $conditions
-	 * @return ConfigRow
+	 * @return BulkRow
 	 * @throws RowNotFound
 	 */
 	#[\Deprecated('Use getUniqueBy() instead.')]
-	public function getBy(Condition|array $conditions): ConfigRow
+	public function getBy(Condition|array $conditions): BulkRow
 	{
 		return $this->getUniqueBy($conditions);
 	}
 
 
-	public function new(Uuid $id, string $key, string $value): ConfigModifications
+	public function new(
+		Uuid $id,
+		int $value,
+		bool|DefaultOrExistingValue $flagged = \Grifart\Tables\DefaultValue,
+	): BulkModifications
 	{
-		$modifications = ConfigModifications::new();
+		$modifications = BulkModifications::new();
 		$modifications->modifyId($id);
-		$modifications->modifyKey($key);
 		$modifications->modifyValue($value);
+		if (!$flagged instanceof DefaultOrExistingValue) {
+			$modifications->modifyFlagged($flagged);
+		}
 		return $modifications;
 	}
 
 
 	public function edit(
-		ConfigRow|ConfigPrimaryKey $rowOrKey,
+		BulkRow|BulkPrimaryKey $rowOrKey,
 		Uuid|DefaultOrExistingValue $id = \Grifart\Tables\Unchanged,
-		string|DefaultOrExistingValue $key = \Grifart\Tables\Unchanged,
-		string|DefaultOrExistingValue $value = \Grifart\Tables\Unchanged,
-	): ConfigModifications
+		int|DefaultOrExistingValue $value = \Grifart\Tables\Unchanged,
+		bool|DefaultOrExistingValue $flagged = \Grifart\Tables\Unchanged,
+	): BulkModifications
 	{
-		$primaryKey = $rowOrKey instanceof ConfigPrimaryKey ? $rowOrKey : ConfigPrimaryKey::fromRow($rowOrKey);
-		$modifications = ConfigModifications::update($primaryKey);
+		$primaryKey = $rowOrKey instanceof BulkPrimaryKey ? $rowOrKey : BulkPrimaryKey::fromRow($rowOrKey);
+		$modifications = BulkModifications::update($primaryKey);
 		if (!$id instanceof DefaultOrExistingValue) {
 			$modifications->modifyId($id);
 		}
-		if (!$key instanceof DefaultOrExistingValue) {
-			$modifications->modifyKey($key);
-		}
 		if (!$value instanceof DefaultOrExistingValue) {
 			$modifications->modifyValue($value);
+		}
+		if (!$flagged instanceof DefaultOrExistingValue) {
+			$modifications->modifyFlagged($flagged);
 		}
 		return $modifications;
 	}
@@ -223,7 +229,7 @@ final class ConfigTable implements Table
 	 * @throws RowWithGivenPrimaryKeyAlreadyExists
 	 * @throws GivenSearchCriteriaHaveNotMatchedAnyRows
 	 */
-	public function save(ConfigModifications $changes): void
+	public function save(BulkModifications $changes): void
 	{
 		$this->tableManager->save($this, $changes);
 	}
@@ -232,7 +238,7 @@ final class ConfigTable implements Table
 	/**
 	 * @throws RowWithGivenPrimaryKeyAlreadyExists
 	 */
-	public function insert(ConfigModifications $changes): void
+	public function insert(BulkModifications $changes): void
 	{
 		$this->tableManager->insert($this, $changes);
 	}
@@ -241,7 +247,7 @@ final class ConfigTable implements Table
 	/**
 	 * @throws GivenSearchCriteriaHaveNotMatchedAnyRows
 	 */
-	public function update(ConfigModifications $changes): void
+	public function update(BulkModifications $changes): void
 	{
 		$this->tableManager->update($this, $changes);
 	}
@@ -250,15 +256,15 @@ final class ConfigTable implements Table
 	/**
 	 * @param Condition|Condition[] $conditions
 	 */
-	public function updateBy(Condition|array $conditions, ConfigModifications $changes): void
+	public function updateBy(Condition|array $conditions, BulkModifications $changes): void
 	{
 		$this->tableManager->updateBy($this, $conditions, $changes);
 	}
 
 
-	public function delete(ConfigRow|ConfigPrimaryKey $rowOrKey): void
+	public function delete(BulkRow|BulkPrimaryKey $rowOrKey): void
 	{
-		$primaryKey = $rowOrKey instanceof ConfigPrimaryKey ? $rowOrKey : ConfigPrimaryKey::fromRow($rowOrKey);
+		$primaryKey = $rowOrKey instanceof BulkPrimaryKey ? $rowOrKey : BulkPrimaryKey::fromRow($rowOrKey);
 		$this->tableManager->delete($this, $primaryKey);
 	}
 
@@ -278,11 +284,11 @@ final class ConfigTable implements Table
 	) {
 		/** @var Column<self, Uuid> $id */
 		$id = Column::from($this, self::getDatabaseColumns()['id'], $this->typeResolver);
-		/** @var Column<self, string> $key */
-		$key = Column::from($this, self::getDatabaseColumns()['key'], $this->typeResolver);
-		/** @var Column<self, string> $value */
+		/** @var Column<self, int> $value */
 		$value = Column::from($this, self::getDatabaseColumns()['value'], $this->typeResolver);
-		$this->columns = ['id' => $id, 'key' => $key, 'value' => $value];
+		/** @var Column<self, bool> $flagged */
+		$flagged = Column::from($this, self::getDatabaseColumns()['flagged'], $this->typeResolver);
+		$this->columns = ['id' => $id, 'value' => $value, 'flagged' => $flagged];
 	}
 
 
@@ -296,20 +302,20 @@ final class ConfigTable implements Table
 
 
 	/**
-	 * @return Column<self, string>
-	 */
-	public function key(): Column
-	{
-		return $this->columns['key'];
-	}
-
-
-	/**
-	 * @return Column<self, string>
+	 * @return Column<self, int>
 	 */
 	public function value(): Column
 	{
 		return $this->columns['value'];
+	}
+
+
+	/**
+	 * @return Column<self, bool>
+	 */
+	public function flagged(): Column
+	{
+		return $this->columns['flagged'];
 	}
 
 
