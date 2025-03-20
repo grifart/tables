@@ -99,6 +99,20 @@ interface TableManager
 	/**
 	 * @template TableType of Table
 	 * @param TableType $table
+	 * @param Modifications<TableType> $changes
+	 */
+	public function upsert(Table $table, Modifications $changes): void;
+
+	/**
+	 * @template TableType of Table
+	 * @param TableType $table
+	 * @param Modifications<TableType> $changes
+	 */
+	public function upsertAndGet(Table $table, Modifications $changes): Row;
+
+	/**
+	 * @template TableType of Table
+	 * @param TableType $table
 	 * @param PrimaryKey<TableType> $primaryKey
 	 */
 	public function delete(Table $table, PrimaryKey $primaryKey): void;

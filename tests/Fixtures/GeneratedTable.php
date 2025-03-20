@@ -268,6 +268,20 @@ final class GeneratedTable implements Table
 	}
 
 
+	public function upsert(GeneratedModifications $changes): void
+	{
+		$this->tableManager->upsert($this, $changes);
+	}
+
+
+	public function upsertAndGet(GeneratedModifications $changes): GeneratedRow
+	{
+		$row = $this->tableManager->upsertAndGet($this, $changes);
+		\assert($row instanceof GeneratedRow);
+		return $row;
+	}
+
+
 	public function delete(GeneratedRow|GeneratedPrimaryKey $rowOrKey): void
 	{
 		$primaryKey = $rowOrKey instanceof GeneratedPrimaryKey ? $rowOrKey : GeneratedPrimaryKey::fromRow($rowOrKey);

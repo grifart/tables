@@ -37,6 +37,15 @@ final class GeneratedPrimaryKey implements PrimaryKey
 	}
 
 
+	/**
+	 * @return string[]
+	 */
+	public static function getColumnNames(): array
+	{
+		return ['id'];
+	}
+
+
 	public function getCondition(Table $table): Condition
 	{
 		return Composite::and(

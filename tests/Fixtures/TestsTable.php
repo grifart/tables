@@ -284,6 +284,20 @@ final class TestsTable implements Table
 	}
 
 
+	public function upsert(TestModifications $changes): void
+	{
+		$this->tableManager->upsert($this, $changes);
+	}
+
+
+	public function upsertAndGet(TestModifications $changes): TestRow
+	{
+		$row = $this->tableManager->upsertAndGet($this, $changes);
+		\assert($row instanceof TestRow);
+		return $row;
+	}
+
+
 	public function delete(TestRow|TestPrimaryKey $rowOrKey): void
 	{
 		$primaryKey = $rowOrKey instanceof TestPrimaryKey ? $rowOrKey : TestPrimaryKey::fromRow($rowOrKey);

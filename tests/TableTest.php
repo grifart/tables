@@ -6,6 +6,7 @@ namespace Grifart\Tables\Tests;
 
 use Grifart\Tables\Expression;
 use Grifart\Tables\OrderBy\Nulls;
+use Grifart\Tables\RowWithGivenPrimaryKeyAlreadyExists;
 use Grifart\Tables\Tests\Fixtures\TestFixtures;
 use Grifart\Tables\Tests\Fixtures\TestPrimaryKey;
 use Grifart\Tables\Tests\Fixtures\TestsTable;
@@ -128,8 +129,15 @@ Assert::same('nada', $updatedZero->getDetails());
 $table->delete(TestPrimaryKey::fromRow($updatedZero));
 Assert::null($table->find(TestPrimaryKey::fromRow($updatedZero)));
 
-$newRow = $table->insertAndGet($table->new(new Uuid('7ec810dd-4d52-4bb9-ae96-6f558ee4890f'), 7));
+$newRow = $table->insertAndGet($table->new($id = new Uuid('7ec810dd-4d52-4bb9-ae96-6f558ee4890f'), 7));
 Assert::same(7, $newRow->getScore());
 
 $updatedRow = $table->updateAndGet($table->edit($newRow, score: -7));
 Assert::same(-7, $updatedRow->getScore());
+
+// upsert
+
+Assert::throws(fn() => $table->insert($table->new($id, 11)), RowWithGivenPrimaryKeyAlreadyExists::class);
+
+$upsertedRow = $table->upsertAndGet($table->new($id, 11));
+Assert::same(11, $upsertedRow->getScore());

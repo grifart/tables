@@ -37,6 +37,15 @@ final class PackagePrimaryKey implements PrimaryKey
 	}
 
 
+	/**
+	 * @return string[]
+	 */
+	public static function getColumnNames(): array
+	{
+		return ['name'];
+	}
+
+
 	public function getCondition(Table $table): Condition
 	{
 		return Composite::and(

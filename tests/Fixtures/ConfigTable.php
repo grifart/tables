@@ -278,6 +278,20 @@ final class ConfigTable implements Table
 	}
 
 
+	public function upsert(ConfigModifications $changes): void
+	{
+		$this->tableManager->upsert($this, $changes);
+	}
+
+
+	public function upsertAndGet(ConfigModifications $changes): ConfigRow
+	{
+		$row = $this->tableManager->upsertAndGet($this, $changes);
+		\assert($row instanceof ConfigRow);
+		return $row;
+	}
+
+
 	public function delete(ConfigRow|ConfigPrimaryKey $rowOrKey): void
 	{
 		$primaryKey = $rowOrKey instanceof ConfigPrimaryKey ? $rowOrKey : ConfigPrimaryKey::fromRow($rowOrKey);

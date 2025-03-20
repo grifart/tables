@@ -17,6 +17,11 @@ interface PrimaryKey
 	 */
 	public function getCondition(Table $table): Condition;
 
+	/**
+	 * @return string[]
+	 */
+	public static function getColumnNames(): array;
+
 	/** @return static */
 	//public static function fromRow($row);
 

@@ -286,6 +286,20 @@ final class PackagesTable implements Table
 	}
 
 
+	public function upsert(PackageModifications $changes): void
+	{
+		$this->tableManager->upsert($this, $changes);
+	}
+
+
+	public function upsertAndGet(PackageModifications $changes): PackageRow
+	{
+		$row = $this->tableManager->upsertAndGet($this, $changes);
+		\assert($row instanceof PackageRow);
+		return $row;
+	}
+
+
 	public function delete(PackageRow|PackagePrimaryKey $rowOrKey): void
 	{
 		$primaryKey = $rowOrKey instanceof PackagePrimaryKey ? $rowOrKey : PackagePrimaryKey::fromRow($rowOrKey);

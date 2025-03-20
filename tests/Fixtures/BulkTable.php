@@ -284,6 +284,20 @@ final class BulkTable implements Table
 	}
 
 
+	public function upsert(BulkModifications $changes): void
+	{
+		$this->tableManager->upsert($this, $changes);
+	}
+
+
+	public function upsertAndGet(BulkModifications $changes): BulkRow
+	{
+		$row = $this->tableManager->upsertAndGet($this, $changes);
+		\assert($row instanceof BulkRow);
+		return $row;
+	}
+
+
 	public function delete(BulkRow|BulkPrimaryKey $rowOrKey): void
 	{
 		$primaryKey = $rowOrKey instanceof BulkPrimaryKey ? $rowOrKey : BulkPrimaryKey::fromRow($rowOrKey);

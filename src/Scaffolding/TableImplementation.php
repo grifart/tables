@@ -361,6 +361,22 @@ final class TableImplementation implements Capability
 			->addComment('@param Condition|Condition[] $conditions')
 			->addBody('$this->tableManager->updateBy($this, $conditions, $changes);');
 
+		$classType->addMethod('upsert')
+			->setReturnType('void')
+			->setParameters([
+				(new Code\Parameter('changes'))->setType($this->modificationClass),
+			])
+			->addBody('$this->tableManager->upsert($this, $changes);');
+
+		$classType->addMethod('upsertAndGet')
+			->setReturnType($this->rowClass)
+			->setParameters([
+				(new Code\Parameter('changes'))->setType($this->modificationClass),
+			])
+			->addBody('$row = $this->tableManager->upsertAndGet($this, $changes);')
+			->addBody('\assert($row instanceof ?);', [new Code\Literal($namespace->simplifyName($this->rowClass))])
+			->addBody('return $row;');
+
 		$classType->addMethod('delete')
 			->setReturnType('void')
 			->setParameters([

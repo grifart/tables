@@ -10,6 +10,7 @@ use Grifart\Tables\Conditions\Composite;
 use Grifart\Tables\Conditions\Condition;
 use Grifart\Tables\OrderBy\OrderBy;
 use Grifart\Tables\OrderBy\OrderByDirection;
+use Grifart\Tables\Table as TableType;
 use Nette\Utils\Paginator;
 use function Phun\map;
 use function Phun\mapWithKeys;
@@ -327,6 +328,71 @@ final class SingleConnectionTableManager implements TableManager
 				static fn(string $columnName, mixed $value) => $table->getTypeOf($columnName)->toDatabase($value),
 			),
 			'WHERE %ex', (\is_array($conditions) ? Composite::and(...$conditions) : $conditions)->toSql()->getValues(),
+		);
+	}
+
+	/**
+	 * @template TableType of Table
+	 * @param TableType $table
+	 * @param Modifications<TableType> $changes
+	 */
+	public function upsert(Table $table, Modifications $changes): void
+	{
+		\assert($changes->getPrimaryKey() === null);
+
+		$values = mapWithKeys(
+			$changes->getModifications(),
+			static fn(string $columnName, mixed $value) => $table->getTypeOf($columnName)->toDatabase($value),
+		);
+
+		$primaryKey = $table::getPrimaryKeyClass();
+
+		$this->connection->query(
+			'INSERT INTO %n.%n', $table::getSchema(), $table::getTableName(),
+			$values,
+			'ON CONFLICT (%n)', $primaryKey::getColumnNames(),
+			'DO UPDATE SET %a', $values,
+		);
+
+		\assert($this->connection->getAffectedRows() === 1);
+	}
+
+	/**
+	 * @template TableType of Table
+	 * @param TableType $table
+	 * @param Modifications<TableType> $changes
+	 */
+	public function upsertAndGet(Table $table, Modifications $changes): Row
+	{
+		\assert($changes->getPrimaryKey() === null);
+
+		$values = mapWithKeys(
+			$changes->getModifications(),
+			static fn(string $columnName, mixed $value) => $table->getTypeOf($columnName)->toDatabase($value),
+		);
+
+		$primaryKey = $table::getPrimaryKeyClass();
+
+		$result = $this->connection->query(
+			'INSERT INTO %n.%n', $table::getSchema(), $table::getTableName(),
+			$values,
+			'ON CONFLICT (%n)', $primaryKey::getColumnNames(),
+			'DO UPDATE SET %a', $values,
+			'RETURNING *',
+		);
+
+		\assert($this->connection->getAffectedRows() === 1);
+
+		$dibiRow = $result->fetch();
+		\assert($dibiRow instanceof \Dibi\Row);
+
+		/** @var class-string<Row> $rowClass */
+		$rowClass = $table::getRowClass();
+		return $rowClass::reconstitute(
+			mapWithKeys(
+				$dibiRow->toArray(),
+				static fn(string $columnName, mixed $value) => $table->getTypeOf($columnName)->fromDatabase($value),
+			),
 		);
 	}
 

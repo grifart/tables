@@ -51,6 +51,12 @@ final class PrimaryKeyImplementation implements Capability
 			),
 		]);
 
+		$classType->addMethod('getColumnNames')
+			->addComment('@return string[]')
+			->setReturnType('array')
+			->setStatic()
+			->addBody('return ?;', [map($definition->getFields(), static fn(Field $field) => $field->getName())]);
+
 		$namespace->addUse(Condition::class);
 		$namespace->addUse(Composite::class);
 		$namespace->addUseFunction('Grifart\Tables\Conditions\equalTo');
