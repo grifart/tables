@@ -245,11 +245,33 @@ final class BulkTable implements Table
 
 
 	/**
+	 * @throws RowWithGivenPrimaryKeyAlreadyExists
+	 */
+	public function insertAndGet(BulkModifications $changes): BulkRow
+	{
+		$row = $this->tableManager->insertAndGet($this, $changes);
+		\assert($row instanceof BulkRow);
+		return $row;
+	}
+
+
+	/**
 	 * @throws GivenSearchCriteriaHaveNotMatchedAnyRows
 	 */
 	public function update(BulkModifications $changes): void
 	{
 		$this->tableManager->update($this, $changes);
+	}
+
+
+	/**
+	 * @throws GivenSearchCriteriaHaveNotMatchedAnyRows
+	 */
+	public function updateAndGet(BulkModifications $changes): BulkRow
+	{
+		$row = $this->tableManager->updateAndGet($this, $changes);
+		\assert($row instanceof BulkRow);
+		return $row;
 	}
 
 

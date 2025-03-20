@@ -68,9 +68,25 @@ interface TableManager
 	 * @template TableType of Table
 	 * @param TableType $table
 	 * @param Modifications<TableType> $changes
+	 * @throws RowWithGivenPrimaryKeyAlreadyExists
+	 */
+	public function insertAndGet(Table $table, Modifications $changes): Row;
+
+	/**
+	 * @template TableType of Table
+	 * @param TableType $table
+	 * @param Modifications<TableType> $changes
 	 * @throws GivenSearchCriteriaHaveNotMatchedAnyRows if no rows matches given criteria
 	 */
 	public function update(Table $table, Modifications $changes): void;
+
+	/**
+	 * @template TableType of Table
+	 * @param TableType $table
+	 * @param Modifications<TableType> $changes
+	 * @throws GivenSearchCriteriaHaveNotMatchedAnyRows if no rows matches given criteria
+	 */
+	public function updateAndGet(Table $table, Modifications $changes): Row;
 
 	/**
 	 * @template TableType of Table

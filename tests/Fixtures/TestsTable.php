@@ -245,11 +245,33 @@ final class TestsTable implements Table
 
 
 	/**
+	 * @throws RowWithGivenPrimaryKeyAlreadyExists
+	 */
+	public function insertAndGet(TestModifications $changes): TestRow
+	{
+		$row = $this->tableManager->insertAndGet($this, $changes);
+		\assert($row instanceof TestRow);
+		return $row;
+	}
+
+
+	/**
 	 * @throws GivenSearchCriteriaHaveNotMatchedAnyRows
 	 */
 	public function update(TestModifications $changes): void
 	{
 		$this->tableManager->update($this, $changes);
+	}
+
+
+	/**
+	 * @throws GivenSearchCriteriaHaveNotMatchedAnyRows
+	 */
+	public function updateAndGet(TestModifications $changes): TestRow
+	{
+		$row = $this->tableManager->updateAndGet($this, $changes);
+		\assert($row instanceof TestRow);
+		return $row;
 	}
 
 

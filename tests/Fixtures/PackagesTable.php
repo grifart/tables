@@ -247,11 +247,33 @@ final class PackagesTable implements Table
 
 
 	/**
+	 * @throws RowWithGivenPrimaryKeyAlreadyExists
+	 */
+	public function insertAndGet(PackageModifications $changes): PackageRow
+	{
+		$row = $this->tableManager->insertAndGet($this, $changes);
+		\assert($row instanceof PackageRow);
+		return $row;
+	}
+
+
+	/**
 	 * @throws GivenSearchCriteriaHaveNotMatchedAnyRows
 	 */
 	public function update(PackageModifications $changes): void
 	{
 		$this->tableManager->update($this, $changes);
+	}
+
+
+	/**
+	 * @throws GivenSearchCriteriaHaveNotMatchedAnyRows
+	 */
+	public function updateAndGet(PackageModifications $changes): PackageRow
+	{
+		$row = $this->tableManager->updateAndGet($this, $changes);
+		\assert($row instanceof PackageRow);
+		return $row;
 	}
 
 

@@ -203,6 +203,44 @@ final class SingleConnectionTableManager implements TableManager
 	 * @template TableType of Table
 	 * @param TableType $table
 	 * @param Modifications<TableType> $changes
+	 * @throws RowWithGivenPrimaryKeyAlreadyExists
+	 */
+	public function insertAndGet(Table $table, Modifications $changes): Row
+	{
+		\assert($changes->getPrimaryKey() === NULL);
+
+		try {
+			$result = $this->connection->query(
+				'INSERT INTO %n.%n', $table::getSchema(), $table::getTableName(),
+				mapWithKeys(
+					$changes->getModifications(),
+					static fn(string $columnName, mixed $value) => $table->getTypeOf($columnName)->toDatabase($value),
+				),
+				'RETURNING *',
+			);
+		} catch (UniqueConstraintViolationException $e) {
+			throw new RowWithGivenPrimaryKeyAlreadyExists(previous: $e);
+		}
+
+		\assert($this->connection->getAffectedRows() === 1);
+
+		$dibiRow = $result->fetch();
+		\assert($dibiRow instanceof \Dibi\Row);
+
+		/** @var class-string<Row> $rowClass */
+		$rowClass = $table::getRowClass();
+		return $rowClass::reconstitute(
+			mapWithKeys(
+				$dibiRow->toArray(),
+				static fn(string $columnName, mixed $value) => $table->getTypeOf($columnName)->fromDatabase($value),
+			),
+		);
+	}
+
+	/**
+	 * @template TableType of Table
+	 * @param TableType $table
+	 * @param Modifications<TableType> $changes
 	 * @throws GivenSearchCriteriaHaveNotMatchedAnyRows if no rows matches given criteria
 	 */
 	public function update(Table $table, Modifications $changes): void
@@ -226,6 +264,49 @@ final class SingleConnectionTableManager implements TableManager
 
 			throw new ProbablyBrokenPrimaryIndexImplementation($table, $affectedRows);
 		}
+	}
+
+	/**
+	 * @template TableType of Table
+	 * @param TableType $table
+	 * @param Modifications<TableType> $changes
+	 * @throws GivenSearchCriteriaHaveNotMatchedAnyRows
+	 */
+	public function updateAndGet(Table $table, Modifications $changes): Row
+	{
+		$primaryKey = $changes->getPrimaryKey();
+		\assert($primaryKey !== NULL);
+		$result = $this->connection->query(
+			'UPDATE %n.%n', $table::getSchema(), $table::getTableName(),
+			'SET %a',
+			mapWithKeys(
+				$changes->getModifications(),
+				static fn(string $columnName, mixed $value) => $table->getTypeOf($columnName)->toDatabase($value),
+			),
+			'WHERE %ex', $primaryKey->getCondition($table)->toSql()->getValues(),
+			'RETURNING *',
+		);
+
+		$affectedRows = $this->connection->getAffectedRows();
+		if ($affectedRows !== 1) {
+			if ($affectedRows === 0) {
+				throw new GivenSearchCriteriaHaveNotMatchedAnyRows();
+			}
+
+			throw new ProbablyBrokenPrimaryIndexImplementation($table, $affectedRows);
+		}
+
+		$dibiRow = $result->fetch();
+		\assert($dibiRow instanceof \Dibi\Row);
+
+		/** @var class-string<Row> $rowClass */
+		$rowClass = $table::getRowClass();
+		return $rowClass::reconstitute(
+			mapWithKeys(
+				$dibiRow->toArray(),
+				static fn(string $columnName, mixed $value) => $table->getTypeOf($columnName)->fromDatabase($value),
+			),
+		);
 	}
 
 	/**

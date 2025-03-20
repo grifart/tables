@@ -229,11 +229,33 @@ final class GeneratedTable implements Table
 
 
 	/**
+	 * @throws RowWithGivenPrimaryKeyAlreadyExists
+	 */
+	public function insertAndGet(GeneratedModifications $changes): GeneratedRow
+	{
+		$row = $this->tableManager->insertAndGet($this, $changes);
+		\assert($row instanceof GeneratedRow);
+		return $row;
+	}
+
+
+	/**
 	 * @throws GivenSearchCriteriaHaveNotMatchedAnyRows
 	 */
 	public function update(GeneratedModifications $changes): void
 	{
 		$this->tableManager->update($this, $changes);
+	}
+
+
+	/**
+	 * @throws GivenSearchCriteriaHaveNotMatchedAnyRows
+	 */
+	public function updateAndGet(GeneratedModifications $changes): GeneratedRow
+	{
+		$row = $this->tableManager->updateAndGet($this, $changes);
+		\assert($row instanceof GeneratedRow);
+		return $row;
 	}
 
 

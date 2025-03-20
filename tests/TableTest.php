@@ -127,3 +127,9 @@ Assert::same('nada', $updatedZero->getDetails());
 
 $table->delete(TestPrimaryKey::fromRow($updatedZero));
 Assert::null($table->find(TestPrimaryKey::fromRow($updatedZero)));
+
+$newRow = $table->insertAndGet($table->new(new Uuid('7ec810dd-4d52-4bb9-ae96-6f558ee4890f'), 7));
+Assert::same(7, $newRow->getScore());
+
+$updatedRow = $table->updateAndGet($table->edit($newRow, score: -7));
+Assert::same(-7, $updatedRow->getScore());

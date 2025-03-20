@@ -239,11 +239,33 @@ final class ConfigTable implements Table
 
 
 	/**
+	 * @throws RowWithGivenPrimaryKeyAlreadyExists
+	 */
+	public function insertAndGet(ConfigModifications $changes): ConfigRow
+	{
+		$row = $this->tableManager->insertAndGet($this, $changes);
+		\assert($row instanceof ConfigRow);
+		return $row;
+	}
+
+
+	/**
 	 * @throws GivenSearchCriteriaHaveNotMatchedAnyRows
 	 */
 	public function update(ConfigModifications $changes): void
 	{
 		$this->tableManager->update($this, $changes);
+	}
+
+
+	/**
+	 * @throws GivenSearchCriteriaHaveNotMatchedAnyRows
+	 */
+	public function updateAndGet(ConfigModifications $changes): ConfigRow
+	{
+		$row = $this->tableManager->updateAndGet($this, $changes);
+		\assert($row instanceof ConfigRow);
+		return $row;
 	}
 
 
