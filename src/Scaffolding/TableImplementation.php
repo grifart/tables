@@ -388,6 +388,19 @@ final class TableImplementation implements Capability
 			])
 			->addBody('$this->tableManager->delete($this, $primaryKey);');
 
+		$classType->addMethod('deleteAndGet')
+			->setReturnType($this->rowClass)
+			->setParameters([
+				(new Code\Parameter('rowOrKey'))->setType($this->rowClass . '|' . $this->primaryKeyClass)
+			])
+			->addBody('$primaryKey = $rowOrKey instanceof ? \? $rowOrKey : ?::fromRow($rowOrKey);', [
+				new Code\Literal($namespace->simplifyName($this->primaryKeyClass)),
+				new Code\Literal($namespace->simplifyName($this->primaryKeyClass)),
+			])
+			->addBody('$row = $this->tableManager->deleteAndGet($this, $primaryKey);')
+			->addBody('\assert($row instanceof ?);', [new Code\Literal($namespace->simplifyName($this->rowClass))])
+			->addBody('return $row;');
+
 		$classType->addMethod('deleteBy')
 			->setReturnType('void')
 			->setParameters([

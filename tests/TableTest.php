@@ -6,6 +6,7 @@ namespace Grifart\Tables\Tests;
 
 use Grifart\Tables\Expression;
 use Grifart\Tables\OrderBy\Nulls;
+use Grifart\Tables\RowNotFound;
 use Grifart\Tables\RowWithGivenPrimaryKeyAlreadyExists;
 use Grifart\Tables\Tests\Fixtures\TestFixtures;
 use Grifart\Tables\Tests\Fixtures\TestPrimaryKey;
@@ -141,3 +142,9 @@ Assert::throws(fn() => $table->insert($table->new($id, 11)), RowWithGivenPrimary
 
 $upsertedRow = $table->upsertAndGet($table->new($id, 11));
 Assert::same(11, $upsertedRow->getScore());
+
+// deleteAndGet
+
+$deleted = $table->deleteAndGet(TestPrimaryKey::fromRow($upsertedRow));
+Assert::same(11, $deleted->getScore());
+Assert::throws(fn() => $table->get(TestPrimaryKey::fromRow($deleted)), RowNotFound::class);

@@ -305,6 +305,15 @@ final class BulkTable implements Table
 	}
 
 
+	public function deleteAndGet(BulkRow|BulkPrimaryKey $rowOrKey): BulkRow
+	{
+		$primaryKey = $rowOrKey instanceof BulkPrimaryKey ? $rowOrKey : BulkPrimaryKey::fromRow($rowOrKey);
+		$row = $this->tableManager->deleteAndGet($this, $primaryKey);
+		\assert($row instanceof BulkRow);
+		return $row;
+	}
+
+
 	/**
 	 * @param Condition|Condition[] $conditions
 	 */

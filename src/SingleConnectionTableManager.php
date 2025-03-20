@@ -414,6 +414,35 @@ final class SingleConnectionTableManager implements TableManager
 	/**
 	 * @template TableType of Table
 	 * @param TableType $table
+	 * @param PrimaryKey<TableType> $primaryKey
+	 */
+	public function deleteAndGet(Table $table, PrimaryKey $primaryKey): Row
+	{
+		$result = $this->connection->query(
+			'DELETE',
+			'FROM %n.%n', $table::getSchema(), $table::getTableName(),
+			'WHERE %ex', $primaryKey->getCondition($table)->toSql()->getValues(),
+			'RETURNING *',
+		);
+
+		\assert($this->connection->getAffectedRows() === 1);
+
+		$dibiRow = $result->fetch();
+		\assert($dibiRow instanceof \Dibi\Row);
+
+		/** @var class-string<Row> $rowClass */
+		$rowClass = $table::getRowClass();
+		return $rowClass::reconstitute(
+			mapWithKeys(
+				$dibiRow->toArray(),
+				static fn(string $columnName, mixed $value) => $table->getTypeOf($columnName)->fromDatabase($value),
+			),
+		);
+	}
+
+	/**
+	 * @template TableType of Table
+	 * @param TableType $table
 	 * @param Condition|Condition[] $conditions
 	 */
 	public function deleteBy(Table $table, Condition|array $conditions): void

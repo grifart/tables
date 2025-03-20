@@ -289,6 +289,15 @@ final class GeneratedTable implements Table
 	}
 
 
+	public function deleteAndGet(GeneratedRow|GeneratedPrimaryKey $rowOrKey): GeneratedRow
+	{
+		$primaryKey = $rowOrKey instanceof GeneratedPrimaryKey ? $rowOrKey : GeneratedPrimaryKey::fromRow($rowOrKey);
+		$row = $this->tableManager->deleteAndGet($this, $primaryKey);
+		\assert($row instanceof GeneratedRow);
+		return $row;
+	}
+
+
 	/**
 	 * @param Condition|Condition[] $conditions
 	 */

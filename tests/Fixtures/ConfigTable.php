@@ -299,6 +299,15 @@ final class ConfigTable implements Table
 	}
 
 
+	public function deleteAndGet(ConfigRow|ConfigPrimaryKey $rowOrKey): ConfigRow
+	{
+		$primaryKey = $rowOrKey instanceof ConfigPrimaryKey ? $rowOrKey : ConfigPrimaryKey::fromRow($rowOrKey);
+		$row = $this->tableManager->deleteAndGet($this, $primaryKey);
+		\assert($row instanceof ConfigRow);
+		return $row;
+	}
+
+
 	/**
 	 * @param Condition|Condition[] $conditions
 	 */

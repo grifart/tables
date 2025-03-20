@@ -120,6 +120,13 @@ interface TableManager
 	/**
 	 * @template TableType of Table
 	 * @param TableType $table
+	 * @param PrimaryKey<TableType> $primaryKey
+	 */
+	public function deleteAndGet(Table $table, PrimaryKey $primaryKey): Row;
+
+	/**
+	 * @template TableType of Table
+	 * @param TableType $table
 	 * @param Condition|Condition[] $conditions
 	 */
 	public function deleteBy(Table $table, Condition|array $conditions): void;

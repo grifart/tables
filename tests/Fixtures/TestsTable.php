@@ -305,6 +305,15 @@ final class TestsTable implements Table
 	}
 
 
+	public function deleteAndGet(TestRow|TestPrimaryKey $rowOrKey): TestRow
+	{
+		$primaryKey = $rowOrKey instanceof TestPrimaryKey ? $rowOrKey : TestPrimaryKey::fromRow($rowOrKey);
+		$row = $this->tableManager->deleteAndGet($this, $primaryKey);
+		\assert($row instanceof TestRow);
+		return $row;
+	}
+
+
 	/**
 	 * @param Condition|Condition[] $conditions
 	 */

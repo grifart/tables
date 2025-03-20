@@ -307,6 +307,15 @@ final class PackagesTable implements Table
 	}
 
 
+	public function deleteAndGet(PackageRow|PackagePrimaryKey $rowOrKey): PackageRow
+	{
+		$primaryKey = $rowOrKey instanceof PackagePrimaryKey ? $rowOrKey : PackagePrimaryKey::fromRow($rowOrKey);
+		$row = $this->tableManager->deleteAndGet($this, $primaryKey);
+		\assert($row instanceof PackageRow);
+		return $row;
+	}
+
+
 	/**
 	 * @param Condition|Condition[] $conditions
 	 */
