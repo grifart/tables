@@ -322,6 +322,16 @@ final class TableImplementation implements Capability
 				'$this->tableManager->insert($this, $changes);',
 			);
 
+		$classType->addMethod('insertAndGet')
+			->addComment('@throws RowWithGivenPrimaryKeyAlreadyExists')
+			->setReturnType($this->rowClass)
+			->setParameters([
+				(new Code\Parameter('changes'))->setType($this->modificationClass),
+			])
+			->addBody('$row = $this->tableManager->insertAndGet($this, $changes);')
+			->addBody('\assert($row instanceof ?);', [new Code\Literal($namespace->simplifyName($this->rowClass))])
+			->addBody('return $row;');
+
 		$classType->addMethod('update')
 			->addComment('@throws GivenSearchCriteriaHaveNotMatchedAnyRows')
 			->setReturnType('void')
@@ -331,6 +341,41 @@ final class TableImplementation implements Capability
 			->setBody(
 				'$this->tableManager->update($this, $changes);',
 			);
+
+		$classType->addMethod('updateAndGet')
+			->addComment('@throws GivenSearchCriteriaHaveNotMatchedAnyRows')
+			->setReturnType($this->rowClass)
+			->setParameters([
+				(new Code\Parameter('changes'))->setType($this->modificationClass),
+			])
+			->addBody('$row = $this->tableManager->updateAndGet($this, $changes);')
+			->addBody('\assert($row instanceof ?);', [new Code\Literal($namespace->simplifyName($this->rowClass))])
+			->addBody('return $row;');
+
+		$classType->addMethod('updateBy')
+			->setReturnType('void')
+			->setParameters([
+				(new Code\Parameter('conditions'))->setType(Condition::class . '|array'),
+				(new Code\Parameter('changes'))->setType($this->modificationClass),
+			])
+			->addComment('@param Condition|Condition[] $conditions')
+			->addBody('$this->tableManager->updateBy($this, $conditions, $changes);');
+
+		$classType->addMethod('upsert')
+			->setReturnType('void')
+			->setParameters([
+				(new Code\Parameter('changes'))->setType($this->modificationClass),
+			])
+			->addBody('$this->tableManager->upsert($this, $changes);');
+
+		$classType->addMethod('upsertAndGet')
+			->setReturnType($this->rowClass)
+			->setParameters([
+				(new Code\Parameter('changes'))->setType($this->modificationClass),
+			])
+			->addBody('$row = $this->tableManager->upsertAndGet($this, $changes);')
+			->addBody('\assert($row instanceof ?);', [new Code\Literal($namespace->simplifyName($this->rowClass))])
+			->addBody('return $row;');
 
 		$classType->addMethod('delete')
 			->setReturnType('void')
@@ -342,6 +387,27 @@ final class TableImplementation implements Capability
 				new Code\Literal($namespace->simplifyName($this->primaryKeyClass)),
 			])
 			->addBody('$this->tableManager->delete($this, $primaryKey);');
+
+		$classType->addMethod('deleteAndGet')
+			->setReturnType($this->rowClass)
+			->setParameters([
+				(new Code\Parameter('rowOrKey'))->setType($this->rowClass . '|' . $this->primaryKeyClass)
+			])
+			->addBody('$primaryKey = $rowOrKey instanceof ? \? $rowOrKey : ?::fromRow($rowOrKey);', [
+				new Code\Literal($namespace->simplifyName($this->primaryKeyClass)),
+				new Code\Literal($namespace->simplifyName($this->primaryKeyClass)),
+			])
+			->addBody('$row = $this->tableManager->deleteAndGet($this, $primaryKey);')
+			->addBody('\assert($row instanceof ?);', [new Code\Literal($namespace->simplifyName($this->rowClass))])
+			->addBody('return $row;');
+
+		$classType->addMethod('deleteBy')
+			->setReturnType('void')
+			->setParameters([
+				(new Code\Parameter('conditions'))->setType(Condition::class . '|array'),
+			])
+			->addComment('@param Condition|Condition[] $conditions')
+			->addBody('$this->tableManager->deleteBy($this, $conditions);');
 
 		$namespace->addUse(TableManager::class);
 		$namespace->addUse(TypeResolver::class);

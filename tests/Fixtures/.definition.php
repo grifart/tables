@@ -48,4 +48,12 @@ return [
 		GeneratedTable::class,
 		GeneratedPrimaryKey::class,
 	),
+	...$tableDefinitions->for(
+		'public',
+		'bulk',
+		BulkRow::class,
+		BulkModifications::class,
+		BulkTable::class,
+		BulkPrimaryKey::class,
+	),
 ];

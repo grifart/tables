@@ -239,6 +239,17 @@ final class ConfigTable implements Table
 
 
 	/**
+	 * @throws RowWithGivenPrimaryKeyAlreadyExists
+	 */
+	public function insertAndGet(ConfigModifications $changes): ConfigRow
+	{
+		$row = $this->tableManager->insertAndGet($this, $changes);
+		\assert($row instanceof ConfigRow);
+		return $row;
+	}
+
+
+	/**
 	 * @throws GivenSearchCriteriaHaveNotMatchedAnyRows
 	 */
 	public function update(ConfigModifications $changes): void
@@ -247,10 +258,62 @@ final class ConfigTable implements Table
 	}
 
 
+	/**
+	 * @throws GivenSearchCriteriaHaveNotMatchedAnyRows
+	 */
+	public function updateAndGet(ConfigModifications $changes): ConfigRow
+	{
+		$row = $this->tableManager->updateAndGet($this, $changes);
+		\assert($row instanceof ConfigRow);
+		return $row;
+	}
+
+
+	/**
+	 * @param Condition|Condition[] $conditions
+	 */
+	public function updateBy(Condition|array $conditions, ConfigModifications $changes): void
+	{
+		$this->tableManager->updateBy($this, $conditions, $changes);
+	}
+
+
+	public function upsert(ConfigModifications $changes): void
+	{
+		$this->tableManager->upsert($this, $changes);
+	}
+
+
+	public function upsertAndGet(ConfigModifications $changes): ConfigRow
+	{
+		$row = $this->tableManager->upsertAndGet($this, $changes);
+		\assert($row instanceof ConfigRow);
+		return $row;
+	}
+
+
 	public function delete(ConfigRow|ConfigPrimaryKey $rowOrKey): void
 	{
 		$primaryKey = $rowOrKey instanceof ConfigPrimaryKey ? $rowOrKey : ConfigPrimaryKey::fromRow($rowOrKey);
 		$this->tableManager->delete($this, $primaryKey);
+	}
+
+
+	public function deleteAndGet(ConfigRow|ConfigPrimaryKey $rowOrKey): ConfigRow
+	{
+		$primaryKey = $rowOrKey instanceof ConfigPrimaryKey ? $rowOrKey : ConfigPrimaryKey::fromRow($rowOrKey);
+		$row = $this->tableManager->deleteAndGet($this, $primaryKey);
+		\assert($row instanceof ConfigRow);
+		return $row;
+	}
+
+
+	/**
+	 * @param Condition|Condition[] $conditions
+	 */
+	public function deleteBy(Condition|array $conditions): void
+	{
+		$this->tableManager->deleteBy($this, $conditions);
 	}
 
 

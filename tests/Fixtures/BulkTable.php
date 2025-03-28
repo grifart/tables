@@ -25,13 +25,13 @@ use Grifart\Tables\Type;
 use Grifart\Tables\TypeResolver;
 use Nette\Utils\Paginator;
 
-final class TestsTable implements Table
+final class BulkTable implements Table
 {
 	public const ID = 'id';
-	public const SCORE = 'score';
-	public const DETAILS = 'details';
+	public const VALUE = 'value';
+	public const FLAGGED = 'flagged';
 
-	/** @var array{id: Column<self, Uuid>, score: Column<self, int>, details: Column<self, string|null>} */
+	/** @var array{id: Column<self, Uuid>, value: Column<self, int>, flagged: Column<self, bool>} */
 	private array $columns;
 
 
@@ -43,25 +43,25 @@ final class TestsTable implements Table
 
 	public static function getTableName(): string
 	{
-		return 'test';
+		return 'bulk';
 	}
 
 
 	public static function getPrimaryKeyClass(): string
 	{
-		return TestPrimaryKey::class;
+		return BulkPrimaryKey::class;
 	}
 
 
 	public static function getRowClass(): string
 	{
-		return TestRow::class;
+		return BulkRow::class;
 	}
 
 
 	public static function getModificationClass(): string
 	{
-		return TestModifications::class;
+		return BulkModifications::class;
 	}
 
 
@@ -72,16 +72,16 @@ final class TestsTable implements Table
 	{
 		return [
 			'id' => new ColumnMetadata('id', 'uuid', false, false, false),
-			'score' => new ColumnMetadata('score', 'integer', false, false, false),
-			'details' => new ColumnMetadata('details', 'character varying', true, true, false)
+			'value' => new ColumnMetadata('value', 'integer', false, false, false),
+			'flagged' => new ColumnMetadata('flagged', 'boolean', false, true, false)
 		];
 	}
 
 
-	public function find(TestPrimaryKey $primaryKey): ?TestRow
+	public function find(BulkPrimaryKey $primaryKey): ?BulkRow
 	{
 		$row = $this->tableManager->find($this, $primaryKey, required: false);
-		\assert($row instanceof TestRow || $row === null);
+		\assert($row instanceof BulkRow || $row === null);
 		return $row;
 	}
 
@@ -89,21 +89,21 @@ final class TestsTable implements Table
 	/**
 	 * @throws RowNotFound
 	 */
-	public function get(TestPrimaryKey $primaryKey): TestRow
+	public function get(BulkPrimaryKey $primaryKey): BulkRow
 	{
 		$row = $this->tableManager->find($this, $primaryKey, required: true);
-		\assert($row instanceof TestRow);
+		\assert($row instanceof BulkRow);
 		return $row;
 	}
 
 
 	/**
 	 * @param OrderBy[] $orderBy
-	 * @return TestRow[]
+	 * @return BulkRow[]
 	 */
 	public function getAll(array $orderBy = [], ?Paginator $paginator = null): array
 	{
-		/** @var TestRow[] $result */
+		/** @var BulkRow[] $result */
 		$result = $this->tableManager->getAll($this, $orderBy, $paginator);
 		return $result;
 	}
@@ -112,11 +112,11 @@ final class TestsTable implements Table
 	/**
 	 * @param Condition|Condition[] $conditions
 	 * @param array<OrderBy|Expression<mixed>> $orderBy
-	 * @return TestRow[]
+	 * @return BulkRow[]
 	 */
 	public function findBy(Condition|array $conditions, array $orderBy = [], ?Paginator $paginator = null): array
 	{
-		/** @var TestRow[] $result */
+		/** @var BulkRow[] $result */
 		$result = $this->tableManager->findBy($this, $conditions, $orderBy, $paginator);
 		return $result;
 	}
@@ -124,26 +124,26 @@ final class TestsTable implements Table
 
 	/**
 	 * @param Condition|Condition[] $conditions
-	 * @return TestRow
+	 * @return BulkRow
 	 * @throws RowNotFound
 	 */
-	public function getUniqueBy(Condition|array $conditions): TestRow
+	public function getUniqueBy(Condition|array $conditions): BulkRow
 	{
 		$row = $this->tableManager->findOneBy($this, $conditions, required: true, unique: true);
-		\assert($row instanceof TestRow);
+		\assert($row instanceof BulkRow);
 		return $row;
 	}
 
 
 	/**
 	 * @param Condition|Condition[] $conditions
-	 * @return TestRow|null
+	 * @return BulkRow|null
 	 * @throws RowNotFound
 	 */
-	public function findUniqueBy(Condition|array $conditions): ?TestRow
+	public function findUniqueBy(Condition|array $conditions): ?BulkRow
 	{
 		$row = $this->tableManager->findOneBy($this, $conditions, required: false, unique: true);
-		\assert($row instanceof TestRow || $row === null);
+		\assert($row instanceof BulkRow || $row === null);
 		return $row;
 	}
 
@@ -151,13 +151,13 @@ final class TestsTable implements Table
 	/**
 	 * @param Condition|Condition[] $conditions
 	 * @param array<OrderBy|Expression<mixed>> $orderBy
-	 * @return TestRow
+	 * @return BulkRow
 	 * @throws RowNotFound
 	 */
-	public function getFirstBy(Condition|array $conditions, array $orderBy = []): TestRow
+	public function getFirstBy(Condition|array $conditions, array $orderBy = []): BulkRow
 	{
 		$row = $this->tableManager->findOneBy($this, $conditions, $orderBy, required: true, unique: false);
-		\assert($row instanceof TestRow);
+		\assert($row instanceof BulkRow);
 		return $row;
 	}
 
@@ -165,23 +165,23 @@ final class TestsTable implements Table
 	/**
 	 * @param Condition|Condition[] $conditions
 	 * @param array<OrderBy|Expression<mixed>> $orderBy
-	 * @return TestRow|null
+	 * @return BulkRow|null
 	 */
-	public function findFirstBy(Condition|array $conditions, array $orderBy = []): ?TestRow
+	public function findFirstBy(Condition|array $conditions, array $orderBy = []): ?BulkRow
 	{
 		$row = $this->tableManager->findOneBy($this, $conditions, $orderBy, required: false, unique: false);
-		\assert($row instanceof TestRow || $row === null);
+		\assert($row instanceof BulkRow || $row === null);
 		return $row;
 	}
 
 
 	/**
 	 * @param Condition|Condition[] $conditions
-	 * @return TestRow
+	 * @return BulkRow
 	 * @throws RowNotFound
 	 */
 	#[\Deprecated('Use getUniqueBy() instead.')]
-	public function getBy(Condition|array $conditions): TestRow
+	public function getBy(Condition|array $conditions): BulkRow
 	{
 		return $this->getUniqueBy($conditions);
 	}
@@ -189,37 +189,37 @@ final class TestsTable implements Table
 
 	public function new(
 		Uuid $id,
-		int $score,
-		string|DefaultOrExistingValue|null $details = \Grifart\Tables\DefaultValue,
-	): TestModifications
+		int $value,
+		bool|DefaultOrExistingValue $flagged = \Grifart\Tables\DefaultValue,
+	): BulkModifications
 	{
-		$modifications = TestModifications::new();
+		$modifications = BulkModifications::new();
 		$modifications->modifyId($id);
-		$modifications->modifyScore($score);
-		if (!$details instanceof DefaultOrExistingValue) {
-			$modifications->modifyDetails($details);
+		$modifications->modifyValue($value);
+		if (!$flagged instanceof DefaultOrExistingValue) {
+			$modifications->modifyFlagged($flagged);
 		}
 		return $modifications;
 	}
 
 
 	public function edit(
-		TestRow|TestPrimaryKey $rowOrKey,
+		BulkRow|BulkPrimaryKey $rowOrKey,
 		Uuid|DefaultOrExistingValue $id = \Grifart\Tables\Unchanged,
-		int|DefaultOrExistingValue $score = \Grifart\Tables\Unchanged,
-		string|DefaultOrExistingValue|null $details = \Grifart\Tables\Unchanged,
-	): TestModifications
+		int|DefaultOrExistingValue $value = \Grifart\Tables\Unchanged,
+		bool|DefaultOrExistingValue $flagged = \Grifart\Tables\Unchanged,
+	): BulkModifications
 	{
-		$primaryKey = $rowOrKey instanceof TestPrimaryKey ? $rowOrKey : TestPrimaryKey::fromRow($rowOrKey);
-		$modifications = TestModifications::update($primaryKey);
+		$primaryKey = $rowOrKey instanceof BulkPrimaryKey ? $rowOrKey : BulkPrimaryKey::fromRow($rowOrKey);
+		$modifications = BulkModifications::update($primaryKey);
 		if (!$id instanceof DefaultOrExistingValue) {
 			$modifications->modifyId($id);
 		}
-		if (!$score instanceof DefaultOrExistingValue) {
-			$modifications->modifyScore($score);
+		if (!$value instanceof DefaultOrExistingValue) {
+			$modifications->modifyValue($value);
 		}
-		if (!$details instanceof DefaultOrExistingValue) {
-			$modifications->modifyDetails($details);
+		if (!$flagged instanceof DefaultOrExistingValue) {
+			$modifications->modifyFlagged($flagged);
 		}
 		return $modifications;
 	}
@@ -229,7 +229,7 @@ final class TestsTable implements Table
 	 * @throws RowWithGivenPrimaryKeyAlreadyExists
 	 * @throws GivenSearchCriteriaHaveNotMatchedAnyRows
 	 */
-	public function save(TestModifications $changes): void
+	public function save(BulkModifications $changes): void
 	{
 		$this->tableManager->save($this, $changes);
 	}
@@ -238,7 +238,7 @@ final class TestsTable implements Table
 	/**
 	 * @throws RowWithGivenPrimaryKeyAlreadyExists
 	 */
-	public function insert(TestModifications $changes): void
+	public function insert(BulkModifications $changes): void
 	{
 		$this->tableManager->insert($this, $changes);
 	}
@@ -247,10 +247,10 @@ final class TestsTable implements Table
 	/**
 	 * @throws RowWithGivenPrimaryKeyAlreadyExists
 	 */
-	public function insertAndGet(TestModifications $changes): TestRow
+	public function insertAndGet(BulkModifications $changes): BulkRow
 	{
 		$row = $this->tableManager->insertAndGet($this, $changes);
-		\assert($row instanceof TestRow);
+		\assert($row instanceof BulkRow);
 		return $row;
 	}
 
@@ -258,7 +258,7 @@ final class TestsTable implements Table
 	/**
 	 * @throws GivenSearchCriteriaHaveNotMatchedAnyRows
 	 */
-	public function update(TestModifications $changes): void
+	public function update(BulkModifications $changes): void
 	{
 		$this->tableManager->update($this, $changes);
 	}
@@ -267,10 +267,10 @@ final class TestsTable implements Table
 	/**
 	 * @throws GivenSearchCriteriaHaveNotMatchedAnyRows
 	 */
-	public function updateAndGet(TestModifications $changes): TestRow
+	public function updateAndGet(BulkModifications $changes): BulkRow
 	{
 		$row = $this->tableManager->updateAndGet($this, $changes);
-		\assert($row instanceof TestRow);
+		\assert($row instanceof BulkRow);
 		return $row;
 	}
 
@@ -278,38 +278,38 @@ final class TestsTable implements Table
 	/**
 	 * @param Condition|Condition[] $conditions
 	 */
-	public function updateBy(Condition|array $conditions, TestModifications $changes): void
+	public function updateBy(Condition|array $conditions, BulkModifications $changes): void
 	{
 		$this->tableManager->updateBy($this, $conditions, $changes);
 	}
 
 
-	public function upsert(TestModifications $changes): void
+	public function upsert(BulkModifications $changes): void
 	{
 		$this->tableManager->upsert($this, $changes);
 	}
 
 
-	public function upsertAndGet(TestModifications $changes): TestRow
+	public function upsertAndGet(BulkModifications $changes): BulkRow
 	{
 		$row = $this->tableManager->upsertAndGet($this, $changes);
-		\assert($row instanceof TestRow);
+		\assert($row instanceof BulkRow);
 		return $row;
 	}
 
 
-	public function delete(TestRow|TestPrimaryKey $rowOrKey): void
+	public function delete(BulkRow|BulkPrimaryKey $rowOrKey): void
 	{
-		$primaryKey = $rowOrKey instanceof TestPrimaryKey ? $rowOrKey : TestPrimaryKey::fromRow($rowOrKey);
+		$primaryKey = $rowOrKey instanceof BulkPrimaryKey ? $rowOrKey : BulkPrimaryKey::fromRow($rowOrKey);
 		$this->tableManager->delete($this, $primaryKey);
 	}
 
 
-	public function deleteAndGet(TestRow|TestPrimaryKey $rowOrKey): TestRow
+	public function deleteAndGet(BulkRow|BulkPrimaryKey $rowOrKey): BulkRow
 	{
-		$primaryKey = $rowOrKey instanceof TestPrimaryKey ? $rowOrKey : TestPrimaryKey::fromRow($rowOrKey);
+		$primaryKey = $rowOrKey instanceof BulkPrimaryKey ? $rowOrKey : BulkPrimaryKey::fromRow($rowOrKey);
 		$row = $this->tableManager->deleteAndGet($this, $primaryKey);
-		\assert($row instanceof TestRow);
+		\assert($row instanceof BulkRow);
 		return $row;
 	}
 
@@ -329,11 +329,11 @@ final class TestsTable implements Table
 	) {
 		/** @var Column<self, Uuid> $id */
 		$id = Column::from($this, self::getDatabaseColumns()['id'], $this->typeResolver);
-		/** @var Column<self, int> $score */
-		$score = Column::from($this, self::getDatabaseColumns()['score'], $this->typeResolver);
-		/** @var Column<self, string|null> $details */
-		$details = Column::from($this, self::getDatabaseColumns()['details'], $this->typeResolver);
-		$this->columns = ['id' => $id, 'score' => $score, 'details' => $details];
+		/** @var Column<self, int> $value */
+		$value = Column::from($this, self::getDatabaseColumns()['value'], $this->typeResolver);
+		/** @var Column<self, bool> $flagged */
+		$flagged = Column::from($this, self::getDatabaseColumns()['flagged'], $this->typeResolver);
+		$this->columns = ['id' => $id, 'value' => $value, 'flagged' => $flagged];
 	}
 
 
@@ -349,18 +349,18 @@ final class TestsTable implements Table
 	/**
 	 * @return Column<self, int>
 	 */
-	public function score(): Column
+	public function value(): Column
 	{
-		return $this->columns['score'];
+		return $this->columns['value'];
 	}
 
 
 	/**
-	 * @return Column<self, string|null>
+	 * @return Column<self, bool>
 	 */
-	public function details(): Column
+	public function flagged(): Column
 	{
-		return $this->columns['details'];
+		return $this->columns['flagged'];
 	}
 
 

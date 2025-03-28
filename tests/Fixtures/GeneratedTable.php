@@ -229,6 +229,17 @@ final class GeneratedTable implements Table
 
 
 	/**
+	 * @throws RowWithGivenPrimaryKeyAlreadyExists
+	 */
+	public function insertAndGet(GeneratedModifications $changes): GeneratedRow
+	{
+		$row = $this->tableManager->insertAndGet($this, $changes);
+		\assert($row instanceof GeneratedRow);
+		return $row;
+	}
+
+
+	/**
 	 * @throws GivenSearchCriteriaHaveNotMatchedAnyRows
 	 */
 	public function update(GeneratedModifications $changes): void
@@ -237,10 +248,62 @@ final class GeneratedTable implements Table
 	}
 
 
+	/**
+	 * @throws GivenSearchCriteriaHaveNotMatchedAnyRows
+	 */
+	public function updateAndGet(GeneratedModifications $changes): GeneratedRow
+	{
+		$row = $this->tableManager->updateAndGet($this, $changes);
+		\assert($row instanceof GeneratedRow);
+		return $row;
+	}
+
+
+	/**
+	 * @param Condition|Condition[] $conditions
+	 */
+	public function updateBy(Condition|array $conditions, GeneratedModifications $changes): void
+	{
+		$this->tableManager->updateBy($this, $conditions, $changes);
+	}
+
+
+	public function upsert(GeneratedModifications $changes): void
+	{
+		$this->tableManager->upsert($this, $changes);
+	}
+
+
+	public function upsertAndGet(GeneratedModifications $changes): GeneratedRow
+	{
+		$row = $this->tableManager->upsertAndGet($this, $changes);
+		\assert($row instanceof GeneratedRow);
+		return $row;
+	}
+
+
 	public function delete(GeneratedRow|GeneratedPrimaryKey $rowOrKey): void
 	{
 		$primaryKey = $rowOrKey instanceof GeneratedPrimaryKey ? $rowOrKey : GeneratedPrimaryKey::fromRow($rowOrKey);
 		$this->tableManager->delete($this, $primaryKey);
+	}
+
+
+	public function deleteAndGet(GeneratedRow|GeneratedPrimaryKey $rowOrKey): GeneratedRow
+	{
+		$primaryKey = $rowOrKey instanceof GeneratedPrimaryKey ? $rowOrKey : GeneratedPrimaryKey::fromRow($rowOrKey);
+		$row = $this->tableManager->deleteAndGet($this, $primaryKey);
+		\assert($row instanceof GeneratedRow);
+		return $row;
+	}
+
+
+	/**
+	 * @param Condition|Condition[] $conditions
+	 */
+	public function deleteBy(Condition|array $conditions): void
+	{
+		$this->tableManager->deleteBy($this, $conditions);
 	}
 
 

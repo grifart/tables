@@ -247,6 +247,17 @@ final class PackagesTable implements Table
 
 
 	/**
+	 * @throws RowWithGivenPrimaryKeyAlreadyExists
+	 */
+	public function insertAndGet(PackageModifications $changes): PackageRow
+	{
+		$row = $this->tableManager->insertAndGet($this, $changes);
+		\assert($row instanceof PackageRow);
+		return $row;
+	}
+
+
+	/**
 	 * @throws GivenSearchCriteriaHaveNotMatchedAnyRows
 	 */
 	public function update(PackageModifications $changes): void
@@ -255,10 +266,62 @@ final class PackagesTable implements Table
 	}
 
 
+	/**
+	 * @throws GivenSearchCriteriaHaveNotMatchedAnyRows
+	 */
+	public function updateAndGet(PackageModifications $changes): PackageRow
+	{
+		$row = $this->tableManager->updateAndGet($this, $changes);
+		\assert($row instanceof PackageRow);
+		return $row;
+	}
+
+
+	/**
+	 * @param Condition|Condition[] $conditions
+	 */
+	public function updateBy(Condition|array $conditions, PackageModifications $changes): void
+	{
+		$this->tableManager->updateBy($this, $conditions, $changes);
+	}
+
+
+	public function upsert(PackageModifications $changes): void
+	{
+		$this->tableManager->upsert($this, $changes);
+	}
+
+
+	public function upsertAndGet(PackageModifications $changes): PackageRow
+	{
+		$row = $this->tableManager->upsertAndGet($this, $changes);
+		\assert($row instanceof PackageRow);
+		return $row;
+	}
+
+
 	public function delete(PackageRow|PackagePrimaryKey $rowOrKey): void
 	{
 		$primaryKey = $rowOrKey instanceof PackagePrimaryKey ? $rowOrKey : PackagePrimaryKey::fromRow($rowOrKey);
 		$this->tableManager->delete($this, $primaryKey);
+	}
+
+
+	public function deleteAndGet(PackageRow|PackagePrimaryKey $rowOrKey): PackageRow
+	{
+		$primaryKey = $rowOrKey instanceof PackagePrimaryKey ? $rowOrKey : PackagePrimaryKey::fromRow($rowOrKey);
+		$row = $this->tableManager->deleteAndGet($this, $primaryKey);
+		\assert($row instanceof PackageRow);
+		return $row;
+	}
+
+
+	/**
+	 * @param Condition|Condition[] $conditions
+	 */
+	public function deleteBy(Condition|array $conditions): void
+	{
+		$this->tableManager->deleteBy($this, $conditions);
 	}
 
 
