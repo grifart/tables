@@ -140,6 +140,9 @@ Assert::same(-7, $updatedRow->getScore());
 
 Assert::throws(fn() => $table->insert($table->new($id, 11)), RowWithGivenPrimaryKeyAlreadyExists::class);
 
+$table->upsert($table->new($id, 17));
+Assert::same(17, $table->get(TestPrimaryKey::from($id))->getScore());
+
 $upsertedRow = $table->upsertAndGet($table->new($id, 11));
 Assert::same(11, $upsertedRow->getScore());
 
