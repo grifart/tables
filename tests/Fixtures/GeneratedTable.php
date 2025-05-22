@@ -187,6 +187,16 @@ final class GeneratedTable implements Table
 	}
 
 
+	/**
+	 * @throws RowWithGivenPrimaryKeyAlreadyExists
+	 * @throws GivenSearchCriteriaHaveNotMatchedAnyRows
+	 */
+	public function save(GeneratedModifications $changes): void
+	{
+		$this->tableManager->save($this, $changes);
+	}
+
+
 	public function new(int $direct): GeneratedModifications
 	{
 		$modifications = GeneratedModifications::new();
@@ -211,29 +221,23 @@ final class GeneratedTable implements Table
 
 	/**
 	 * @throws RowWithGivenPrimaryKeyAlreadyExists
-	 * @throws GivenSearchCriteriaHaveNotMatchedAnyRows
 	 */
-	public function save(GeneratedModifications $changes): void
+	public function insert(int $direct): void
 	{
-		$this->tableManager->save($this, $changes);
+		$modifications = GeneratedModifications::new();
+		$modifications->modifyDirect($direct);
+		$this->tableManager->insert($this, $modifications);
 	}
 
 
 	/**
 	 * @throws RowWithGivenPrimaryKeyAlreadyExists
 	 */
-	public function insert(GeneratedModifications $changes): void
+	public function insertAndGet(int $direct): GeneratedRow
 	{
-		$this->tableManager->insert($this, $changes);
-	}
-
-
-	/**
-	 * @throws RowWithGivenPrimaryKeyAlreadyExists
-	 */
-	public function insertAndGet(GeneratedModifications $changes): GeneratedRow
-	{
-		$row = $this->tableManager->insertAndGet($this, $changes);
+		$modifications = GeneratedModifications::new();
+		$modifications->modifyDirect($direct);
+		$row = $this->tableManager->insertAndGet($this, $modifications);
 		\assert($row instanceof GeneratedRow);
 		return $row;
 	}
@@ -242,18 +246,34 @@ final class GeneratedTable implements Table
 	/**
 	 * @throws GivenSearchCriteriaHaveNotMatchedAnyRows
 	 */
-	public function update(GeneratedModifications $changes): void
+	public function update(
+		GeneratedRow|GeneratedPrimaryKey $rowOrKey,
+		int|DefaultOrExistingValue $direct = \Grifart\Tables\Unchanged,
+	): void
 	{
-		$this->tableManager->update($this, $changes);
+		$primaryKey = $rowOrKey instanceof GeneratedPrimaryKey ? $rowOrKey : GeneratedPrimaryKey::fromRow($rowOrKey);
+		$modifications = GeneratedModifications::update($primaryKey);
+		if (!$direct instanceof DefaultOrExistingValue) {
+			$modifications->modifyDirect($direct);
+		}
+		$this->tableManager->update($this, $modifications);
 	}
 
 
 	/**
 	 * @throws GivenSearchCriteriaHaveNotMatchedAnyRows
 	 */
-	public function updateAndGet(GeneratedModifications $changes): GeneratedRow
+	public function updateAndGet(
+		GeneratedRow|GeneratedPrimaryKey $rowOrKey,
+		int|DefaultOrExistingValue $direct = \Grifart\Tables\Unchanged,
+	): GeneratedRow
 	{
-		$row = $this->tableManager->updateAndGet($this, $changes);
+		$primaryKey = $rowOrKey instanceof GeneratedPrimaryKey ? $rowOrKey : GeneratedPrimaryKey::fromRow($rowOrKey);
+		$modifications = GeneratedModifications::update($primaryKey);
+		if (!$direct instanceof DefaultOrExistingValue) {
+			$modifications->modifyDirect($direct);
+		}
+		$row = $this->tableManager->updateAndGet($this, $modifications);
 		\assert($row instanceof GeneratedRow);
 		return $row;
 	}
@@ -262,21 +282,32 @@ final class GeneratedTable implements Table
 	/**
 	 * @param Condition|Condition[] $conditions
 	 */
-	public function updateBy(Condition|array $conditions, GeneratedModifications $changes): void
+	public function updateBy(
+		Condition|array $conditions,
+		int|DefaultOrExistingValue $direct = \Grifart\Tables\Unchanged,
+	): void
 	{
-		$this->tableManager->updateBy($this, $conditions, $changes);
+		$modifications = GeneratedModifications::new();
+		if (!$direct instanceof DefaultOrExistingValue) {
+			$modifications->modifyDirect($direct);
+		}
+		$this->tableManager->updateBy($this, $conditions, $modifications);
 	}
 
 
-	public function upsert(GeneratedModifications $changes): void
+	public function upsert(int $direct): void
 	{
-		$this->tableManager->upsert($this, $changes);
+		$modifications = GeneratedModifications::new();
+		$modifications->modifyDirect($direct);
+		$this->tableManager->upsert($this, $modifications);
 	}
 
 
-	public function upsertAndGet(GeneratedModifications $changes): GeneratedRow
+	public function upsertAndGet(int $direct): GeneratedRow
 	{
-		$row = $this->tableManager->upsertAndGet($this, $changes);
+		$modifications = GeneratedModifications::new();
+		$modifications->modifyDirect($direct);
+		$row = $this->tableManager->upsertAndGet($this, $modifications);
 		\assert($row instanceof GeneratedRow);
 		return $row;
 	}
