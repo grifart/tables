@@ -287,7 +287,104 @@ $rows = $table->getAll($orderBy, $paginator);
 
 ### Insert
 
-To insert a new record into the database table, use the `$table->new()` method. You have to provide all required values (for columns without a default value) to the method:
+To insert a new record into the database table, use the `$table->insert()` method. You have to provide all required values (for columns without a default value) to the method:
+
+```php
+$table->insert(
+    id: \Ramsey\Uuid\Uuid::uuid4(),
+    title: 'Title of the post',
+    text: 'Postt text',
+    createdAt: \Brick\DateTime\Instant::now(),
+    published: true,
+);
+```
+
+There is also an `$table->insertAndGet()` variant of the method which returns the inserted row:
+
+```php
+$article = $table->insertAndGet(/* ... */);
+```
+
+### Update
+
+To update a record in the table, use the `$table->update()` method and provide an instance of the table's row or its primary key. You can then use named parameters to specify the values to update:
+
+```php
+$table->update(
+    ArticlePrimaryKey::from($articleId), // or $articleRow
+    deletedAt: \Brick\DateTime\Instant::now(),
+);
+```
+
+There is also an `$table->updateAndGet()` variant of the method which returns the updated row:
+
+```php
+$updatedArticle = $table->updateAndGet($articleRow, /* ... */);
+```
+
+#### Bulk update
+
+For convenience, there's also the `$table->updateBy()` method which allows you to perform bulk updates. It requires a set of conditions (like the querying methods), and the values to update:
+
+```php
+$table->updateBy(
+    [
+        $table->published()->is(true),
+        $table->createdAt()->is(greaterThan(Instant::now())),
+    ]
+    published: false,
+);
+```
+
+### Upsert
+
+To upsert (i.e. insert, or update if it already exists) a new record into the database table, use the `$table->upsert()` method. You have to provide all required values (for columns without a default value) to the method:
+
+```php
+$table->upsert(
+    id: \Ramsey\Uuid\Uuid::uuid4(),
+    title: 'Title of the post',
+    text: 'Postt text',
+    createdAt: \Brick\DateTime\Instant::now(),
+    published: true,
+);
+```
+
+There is also an `$table->upsertAndGet()` variant of the method which returns the affected row:
+
+```php
+$article = $table->upsertAndGet(/* ... */);
+```
+
+### Delete
+
+To delete a record, you use the `$table->delete()` method. need its primary key or row:
+
+```php
+$table->delete(
+    ArticlePrimaryKey::from($articleId), // or $articleRow
+);
+```
+
+There is also an `deleteAndGet()` variant of the method which returns the deleted row:
+
+```php
+$deletedArticle = $table->deleteAndGet(ArticlePrimaryKey::from($articleId));
+```
+
+#### Bulk delete
+
+For convenience, there's also the `$table->deleteBy()` method which allows you to perform bulk deletes. It requires a set of conditions (like the querying methods):
+
+```php
+$table->deleteBy(
+    $table->published()->is(false),
+);
+```
+
+### Low-level changes
+
+The table also exposes a set of lower-level methods, `new()` and `edit()`. These produce a change set:
 
 ```php
 $changeSet = $table->new(
@@ -299,47 +396,20 @@ $changeSet = $table->new(
 );
 ```
 
-The method returns a change set which you can further modify, and eventually insert:
-
-```php
-$changeSet->modifyText('Post text');
-$table->insert($changeSet);
-```
-
-### Update
-
-To update a record in the table, you need to get an instance of change set for the specific record. You can get one for any given primary key or row:
-
-```php
-$changeSet = $table->edit(ArticlePrimaryKey::from($articleId));
-// or
-$changeSet = $table->edit($articleRow);
-```
-
-You can use named parameters to provide the values to update right within the method call:
+or
 
 ```php
 $changeSet = $table->edit(
-    $articleRow,
-    deletedAt: \Brick\DateTime\Instant::now(),
-);
+    ArticlePrimaryKey::from($articleId), // or $articleRow
+    text: 'Post text',
+)
 ```
 
-As before, you can also add modifications to the change set afterward, and finally save it:
+The change set can further be updated by calling its `modify*()` methods, and eventually saved using the `$table->save()` method:
 
 ```php
-$changeSet->modifyDeletedAt(\Brick\DateTime\Instant::now());
-$table->update($changeSet);
-```
-
-### Delete
-
-To delete a record, you simply need its primary key or row:
-
-```php
-$table->delete(ArticlePrimaryKey::from($articleId));
-// or
-$table->delete($articleRow);
+$changeSet->modifyPublished(false);
+$table->save($changeSet);
 ```
 
 
