@@ -29,12 +29,9 @@ Assert::same(-5, $a->getValue());
 Assert::same(0, $b->getValue());
 Assert::same(42, $c->getValue());
 
-$changes = BulkModifications::new();
-$changes->modifyFlagged(true);
-
 $table->updateBy(
 	$table->value()->is(lesserThan(0)),
-	$changes,
+	flagged: true,
 );
 
 [$a, $b, $c] = $table->getAll([$table->value()->ascending()]);

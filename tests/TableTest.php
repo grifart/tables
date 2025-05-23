@@ -40,7 +40,9 @@ $all2 = $table->findBy([]);
 Assert::equal($all, $all2);
 
 $table->insert(
-	$table->new(new Uuid('9493decd-4b9c-45d6-9960-0c94dc9be353'), -5, details: '👎')
+	new Uuid('9493decd-4b9c-45d6-9960-0c94dc9be353'),
+	-5,
+	details: '👎',
 );
 
 $all = $table->getAll();
@@ -117,10 +119,10 @@ Assert::same(0, $nullDetails[0]->getScore());
 $unique = $table->getUniqueBy($table->score()->is(42));
 Assert::same(42, $unique->getScore());
 
-$table->update($table->edit(
+$table->update(
 	TestPrimaryKey::from(new Uuid('2bec3f23-a210-455c-b907-bb69a99d07b2')),
 	details: 'nada',
-));
+);
 
 $updatedZero = $table->get(TestPrimaryKey::from(new Uuid('2bec3f23-a210-455c-b907-bb69a99d07b2')));
 
@@ -130,20 +132,20 @@ Assert::same('nada', $updatedZero->getDetails());
 $table->delete(TestPrimaryKey::fromRow($updatedZero));
 Assert::null($table->find(TestPrimaryKey::fromRow($updatedZero)));
 
-$newRow = $table->insertAndGet($table->new($id = new Uuid('7ec810dd-4d52-4bb9-ae96-6f558ee4890f'), 7));
+$newRow = $table->insertAndGet($id = new Uuid('7ec810dd-4d52-4bb9-ae96-6f558ee4890f'), 7);
 Assert::same(7, $newRow->getScore());
 
-$updatedRow = $table->updateAndGet($table->edit($newRow, score: -7));
+$updatedRow = $table->updateAndGet($newRow, score: -7);
 Assert::same(-7, $updatedRow->getScore());
 
 // upsert
 
-Assert::throws(fn() => $table->insert($table->new($id, 11)), RowWithGivenPrimaryKeyAlreadyExists::class);
+Assert::throws(fn() => $table->insert($id, 11), RowWithGivenPrimaryKeyAlreadyExists::class);
 
-$table->upsert($table->new($id, 17));
+$table->upsert($id, 17);
 Assert::same(17, $table->get(TestPrimaryKey::from($id))->getScore());
 
-$upsertedRow = $table->upsertAndGet($table->new($id, 11));
+$upsertedRow = $table->upsertAndGet($id, 11);
 Assert::same(11, $upsertedRow->getScore());
 
 // deleteAndGet
@@ -151,3 +153,19 @@ Assert::same(11, $upsertedRow->getScore());
 $deleted = $table->deleteAndGet(TestPrimaryKey::fromRow($upsertedRow));
 Assert::same(11, $deleted->getScore());
 Assert::throws(fn() => $table->get(TestPrimaryKey::fromRow($deleted)), RowNotFound::class);
+
+// save
+
+$new = $table->new($newId = new Uuid('003a486e-6111-4f92-bfee-047e798896a1'), 999_999);
+$table->save($new);
+
+$row = $table->get(TestPrimaryKey::from($newId));
+Assert::same(999_999, $row->getScore());
+Assert::null($row->getDetails());
+
+$edit = $table->edit($row, score: -999_999, details: 'test');
+$table->save($edit);
+
+$row = $table->get(TestPrimaryKey::from($newId));
+Assert::same(-999_999, $row->getScore());
+Assert::same('test', $row->getDetails());

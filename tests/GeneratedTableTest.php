@@ -19,8 +19,7 @@ $table = new GeneratedTable(
 	TestFixtures::createTypeResolver($connection),
 );
 
-$changeSet = $table->new(42);
-$table->insert($changeSet);
+$table->insert(42);
 
 $all = $table->getAll();
 Assert::count(1, $all);

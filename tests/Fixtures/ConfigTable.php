@@ -187,6 +187,16 @@ final class ConfigTable implements Table
 	}
 
 
+	/**
+	 * @throws RowWithGivenPrimaryKeyAlreadyExists
+	 * @throws GivenSearchCriteriaHaveNotMatchedAnyRows
+	 */
+	public function save(ConfigModifications $changes): void
+	{
+		$this->tableManager->save($this, $changes);
+	}
+
+
 	public function new(Uuid $id, string $key, string $value): ConfigModifications
 	{
 		$modifications = ConfigModifications::new();
@@ -221,29 +231,27 @@ final class ConfigTable implements Table
 
 	/**
 	 * @throws RowWithGivenPrimaryKeyAlreadyExists
-	 * @throws GivenSearchCriteriaHaveNotMatchedAnyRows
 	 */
-	public function save(ConfigModifications $changes): void
+	public function insert(Uuid $id, string $key, string $value): void
 	{
-		$this->tableManager->save($this, $changes);
+		$modifications = ConfigModifications::new();
+		$modifications->modifyId($id);
+		$modifications->modifyKey($key);
+		$modifications->modifyValue($value);
+		$this->tableManager->insert($this, $modifications);
 	}
 
 
 	/**
 	 * @throws RowWithGivenPrimaryKeyAlreadyExists
 	 */
-	public function insert(ConfigModifications $changes): void
+	public function insertAndGet(Uuid $id, string $key, string $value): ConfigRow
 	{
-		$this->tableManager->insert($this, $changes);
-	}
-
-
-	/**
-	 * @throws RowWithGivenPrimaryKeyAlreadyExists
-	 */
-	public function insertAndGet(ConfigModifications $changes): ConfigRow
-	{
-		$row = $this->tableManager->insertAndGet($this, $changes);
+		$modifications = ConfigModifications::new();
+		$modifications->modifyId($id);
+		$modifications->modifyKey($key);
+		$modifications->modifyValue($value);
+		$row = $this->tableManager->insertAndGet($this, $modifications);
 		\assert($row instanceof ConfigRow);
 		return $row;
 	}
@@ -252,18 +260,50 @@ final class ConfigTable implements Table
 	/**
 	 * @throws GivenSearchCriteriaHaveNotMatchedAnyRows
 	 */
-	public function update(ConfigModifications $changes): void
+	public function update(
+		ConfigRow|ConfigPrimaryKey $rowOrKey,
+		Uuid|DefaultOrExistingValue $id = \Grifart\Tables\Unchanged,
+		string|DefaultOrExistingValue $key = \Grifart\Tables\Unchanged,
+		string|DefaultOrExistingValue $value = \Grifart\Tables\Unchanged,
+	): void
 	{
-		$this->tableManager->update($this, $changes);
+		$primaryKey = $rowOrKey instanceof ConfigPrimaryKey ? $rowOrKey : ConfigPrimaryKey::fromRow($rowOrKey);
+		$modifications = ConfigModifications::update($primaryKey);
+		if (!$id instanceof DefaultOrExistingValue) {
+			$modifications->modifyId($id);
+		}
+		if (!$key instanceof DefaultOrExistingValue) {
+			$modifications->modifyKey($key);
+		}
+		if (!$value instanceof DefaultOrExistingValue) {
+			$modifications->modifyValue($value);
+		}
+		$this->tableManager->update($this, $modifications);
 	}
 
 
 	/**
 	 * @throws GivenSearchCriteriaHaveNotMatchedAnyRows
 	 */
-	public function updateAndGet(ConfigModifications $changes): ConfigRow
+	public function updateAndGet(
+		ConfigRow|ConfigPrimaryKey $rowOrKey,
+		Uuid|DefaultOrExistingValue $id = \Grifart\Tables\Unchanged,
+		string|DefaultOrExistingValue $key = \Grifart\Tables\Unchanged,
+		string|DefaultOrExistingValue $value = \Grifart\Tables\Unchanged,
+	): ConfigRow
 	{
-		$row = $this->tableManager->updateAndGet($this, $changes);
+		$primaryKey = $rowOrKey instanceof ConfigPrimaryKey ? $rowOrKey : ConfigPrimaryKey::fromRow($rowOrKey);
+		$modifications = ConfigModifications::update($primaryKey);
+		if (!$id instanceof DefaultOrExistingValue) {
+			$modifications->modifyId($id);
+		}
+		if (!$key instanceof DefaultOrExistingValue) {
+			$modifications->modifyKey($key);
+		}
+		if (!$value instanceof DefaultOrExistingValue) {
+			$modifications->modifyValue($value);
+		}
+		$row = $this->tableManager->updateAndGet($this, $modifications);
 		\assert($row instanceof ConfigRow);
 		return $row;
 	}
@@ -272,21 +312,44 @@ final class ConfigTable implements Table
 	/**
 	 * @param Condition|Condition[] $conditions
 	 */
-	public function updateBy(Condition|array $conditions, ConfigModifications $changes): void
+	public function updateBy(
+		Condition|array $conditions,
+		Uuid|DefaultOrExistingValue $id = \Grifart\Tables\Unchanged,
+		string|DefaultOrExistingValue $key = \Grifart\Tables\Unchanged,
+		string|DefaultOrExistingValue $value = \Grifart\Tables\Unchanged,
+	): void
 	{
-		$this->tableManager->updateBy($this, $conditions, $changes);
+		$modifications = ConfigModifications::new();
+		if (!$id instanceof DefaultOrExistingValue) {
+			$modifications->modifyId($id);
+		}
+		if (!$key instanceof DefaultOrExistingValue) {
+			$modifications->modifyKey($key);
+		}
+		if (!$value instanceof DefaultOrExistingValue) {
+			$modifications->modifyValue($value);
+		}
+		$this->tableManager->updateBy($this, $conditions, $modifications);
 	}
 
 
-	public function upsert(ConfigModifications $changes): void
+	public function upsert(Uuid $id, string $key, string $value): void
 	{
-		$this->tableManager->upsert($this, $changes);
+		$modifications = ConfigModifications::new();
+		$modifications->modifyId($id);
+		$modifications->modifyKey($key);
+		$modifications->modifyValue($value);
+		$this->tableManager->upsert($this, $modifications);
 	}
 
 
-	public function upsertAndGet(ConfigModifications $changes): ConfigRow
+	public function upsertAndGet(Uuid $id, string $key, string $value): ConfigRow
 	{
-		$row = $this->tableManager->upsertAndGet($this, $changes);
+		$modifications = ConfigModifications::new();
+		$modifications->modifyId($id);
+		$modifications->modifyKey($key);
+		$modifications->modifyValue($value);
+		$row = $this->tableManager->upsertAndGet($this, $modifications);
 		\assert($row instanceof ConfigRow);
 		return $row;
 	}

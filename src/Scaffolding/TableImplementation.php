@@ -28,6 +28,7 @@ use Grifart\Tables\TypeResolver;
 use Nette\PhpGenerator as Code;
 use Nette\Utils\Paginator;
 use function Grifart\ClassScaffolder\Definition\Types\resolve;
+use function in_array;
 use function usort;
 
 final class TableImplementation implements Capability
@@ -214,12 +215,23 @@ final class TableImplementation implements Capability
 			->addBody('return $this->getUniqueBy($conditions);');
 
 
+		$namespace->addUse(RowWithGivenPrimaryKeyAlreadyExists::class);
+		$namespace->addUse(GivenSearchCriteriaHaveNotMatchedAnyRows::class);
+
+		$classType->addMethod('save')
+			->addComment('@throws RowWithGivenPrimaryKeyAlreadyExists')
+			->addComment('@throws GivenSearchCriteriaHaveNotMatchedAnyRows')
+			->setReturnType('void')
+			->setParameters([
+				(new Code\Parameter('changes'))->setType($this->modificationClass)
+			])
+			->setBody(
+				'$this->tableManager->save($this, $changes);'
+			);
+
 		$newMethod = $classType->addMethod('new')
 			->setReturnType($this->modificationClass)
-			->addBody(
-				'$modifications = ?::new();',
-				[new Code\Literal($namespace->simplifyName($this->modificationClass))],
-			);
+			->addBody('$modifications = ?::new();', [new Code\Literal($namespace->simplifyName($this->modificationClass))]);
 
 		$editMethod = $classType->addMethod('edit')
 			->setReturnType($this->modificationClass)
@@ -232,12 +244,95 @@ final class TableImplementation implements Capability
 			])
 			->addBody('$modifications = ?::update($primaryKey);', [new Code\Literal($namespace->simplifyName($this->modificationClass))]);
 
+		$insertMethod = $classType->addMethod('insert')
+			->addComment('@throws RowWithGivenPrimaryKeyAlreadyExists')
+			->setReturnType('void')
+			->addBody('$modifications = ?::new();', [new Code\Literal($namespace->simplifyName($this->modificationClass))]);
+
+		$insertAndGetMethod = $classType->addMethod('insertAndGet')
+			->addComment('@throws RowWithGivenPrimaryKeyAlreadyExists')
+			->setReturnType($this->rowClass)
+			->addBody('$modifications = ?::new();', [new Code\Literal($namespace->simplifyName($this->modificationClass))]);
+
+		$updateMethod = $classType->addMethod('update')
+			->addComment('@throws GivenSearchCriteriaHaveNotMatchedAnyRows')
+			->setReturnType('void')
+			->setParameters([
+				(new Code\Parameter('rowOrKey'))->setType($this->rowClass . '|' . $this->primaryKeyClass),
+			])
+			->addBody('$primaryKey = $rowOrKey instanceof ? \? $rowOrKey : ?::fromRow($rowOrKey);', [
+				new Code\Literal($namespace->simplifyName($this->primaryKeyClass)),
+				new Code\Literal($namespace->simplifyName($this->primaryKeyClass)),
+			])
+			->addBody('$modifications = ?::update($primaryKey);', [new Code\Literal($namespace->simplifyName($this->modificationClass))]);
+
+		$updateAndGetMethod = $classType->addMethod('updateAndGet')
+			->addComment('@throws GivenSearchCriteriaHaveNotMatchedAnyRows')
+			->setReturnType($this->rowClass)
+			->setParameters([
+				(new Code\Parameter('rowOrKey'))->setType($this->rowClass . '|' . $this->primaryKeyClass),
+			])
+			->addBody('$primaryKey = $rowOrKey instanceof ? \? $rowOrKey : ?::fromRow($rowOrKey);', [
+				new Code\Literal($namespace->simplifyName($this->primaryKeyClass)),
+				new Code\Literal($namespace->simplifyName($this->primaryKeyClass)),
+			])
+			->addBody('$modifications = ?::update($primaryKey);', [new Code\Literal($namespace->simplifyName($this->modificationClass))]);
+
+		$updateByMethod = $classType->addMethod('updateBy')
+			->setReturnType('void')
+			->setParameters([
+				(new Code\Parameter('conditions'))->setType(Condition::class . '|array'),
+			])
+			->addComment('@param Condition|Condition[] $conditions')
+			->addBody('$modifications = ?::new();', [new Code\Literal($namespace->simplifyName($this->modificationClass))]);
+
+		$upsertMethod = $classType->addMethod('upsert')
+			->setReturnType('void')
+			->addBody('$modifications = ?::new();', [new Code\Literal($namespace->simplifyName($this->modificationClass))]);
+
+		$upsertAndGetMethod = $classType->addMethod('upsertAndGet')
+			->setReturnType($this->rowClass)
+			->addBody('$modifications = ?::new();', [new Code\Literal($namespace->simplifyName($this->modificationClass))]);
+
+		$classType->addMethod('delete')
+			->setReturnType('void')
+			->setParameters([
+				(new Code\Parameter('rowOrKey'))->setType($this->rowClass . '|' . $this->primaryKeyClass)
+			])
+			->addBody('$primaryKey = $rowOrKey instanceof ? \? $rowOrKey : ?::fromRow($rowOrKey);', [
+				new Code\Literal($namespace->simplifyName($this->primaryKeyClass)),
+				new Code\Literal($namespace->simplifyName($this->primaryKeyClass)),
+			])
+			->addBody('$this->tableManager->delete($this, $primaryKey);');
+
+		$classType->addMethod('deleteAndGet')
+			->setReturnType($this->rowClass)
+			->setParameters([
+				(new Code\Parameter('rowOrKey'))->setType($this->rowClass . '|' . $this->primaryKeyClass)
+			])
+			->addBody('$primaryKey = $rowOrKey instanceof ? \? $rowOrKey : ?::fromRow($rowOrKey);', [
+				new Code\Literal($namespace->simplifyName($this->primaryKeyClass)),
+				new Code\Literal($namespace->simplifyName($this->primaryKeyClass)),
+			])
+			->addBody('$row = $this->tableManager->deleteAndGet($this, $primaryKey);')
+			->addBody('\assert($row instanceof ?);', [new Code\Literal($namespace->simplifyName($this->rowClass))])
+			->addBody('return $row;');
+
+		$classType->addMethod('deleteBy')
+			->setReturnType('void')
+			->setParameters([
+				(new Code\Parameter('conditions'))->setType(Condition::class . '|array'),
+			])
+			->addComment('@param Condition|Condition[] $conditions')
+			->addBody('$this->tableManager->deleteBy($this, $conditions);');
+
 		$columns = $this->columnMetadata;
 		usort($columns, fn (ColumnMetadata $a, ColumnMetadata $b) => $a->hasDefaultValue() <=> $b->hasDefaultValue());
 
-		foreach ([$newMethod, $editMethod] as $method) {
+		$methods = [$insertMethod, $insertAndGetMethod, $updateMethod, $updateAndGetMethod, $updateByMethod, $upsertMethod, $upsertAndGetMethod, $newMethod, $editMethod];
+		foreach ($methods as $method) {
 			foreach ($columns as $columnMetadata) {
-				$isEditMethod = $method === $editMethod;
+				$isEditMethod = in_array($method, [$updateMethod, $updateAndGetMethod, $updateByMethod, $editMethod], true);
 				$hasDefaultValue = $columnMetadata->hasDefaultValue() || $isEditMethod;
 
 				$isGenerated = $columnMetadata->isGenerated();
@@ -294,120 +389,37 @@ final class TableImplementation implements Capability
 					$method->addBody('}');
 				}
 			}
-
-			$method->addBody('return $modifications;');
 		}
 
-		$namespace->addUse(RowWithGivenPrimaryKeyAlreadyExists::class);
-		$namespace->addUse(GivenSearchCriteriaHaveNotMatchedAnyRows::class);
+		$newMethod->addBody('return $modifications;');
+		$editMethod->addBody('return $modifications;');
 
-		$classType->addMethod('save')
-			->addComment('@throws RowWithGivenPrimaryKeyAlreadyExists')
-			->addComment('@throws GivenSearchCriteriaHaveNotMatchedAnyRows')
-			->setReturnType('void')
-			->setParameters([
-				(new Code\Parameter('changes'))->setType($this->modificationClass)
-			])
-			->setBody(
-				'$this->tableManager->save($this, $changes);'
-			);
+		$insertMethod
+			->addBody('$this->tableManager->insert($this, $modifications);');
 
-		$classType->addMethod('insert')
-			->addComment('@throws RowWithGivenPrimaryKeyAlreadyExists')
-			->setReturnType('void')
-			->setParameters([
-				(new Code\Parameter('changes'))->setType($this->modificationClass),
-			])
-			->setBody(
-				'$this->tableManager->insert($this, $changes);',
-			);
-
-		$classType->addMethod('insertAndGet')
-			->addComment('@throws RowWithGivenPrimaryKeyAlreadyExists')
-			->setReturnType($this->rowClass)
-			->setParameters([
-				(new Code\Parameter('changes'))->setType($this->modificationClass),
-			])
-			->addBody('$row = $this->tableManager->insertAndGet($this, $changes);')
+		$insertAndGetMethod
+			->addBody('$row = $this->tableManager->insertAndGet($this, $modifications);')
 			->addBody('\assert($row instanceof ?);', [new Code\Literal($namespace->simplifyName($this->rowClass))])
 			->addBody('return $row;');
 
-		$classType->addMethod('update')
-			->addComment('@throws GivenSearchCriteriaHaveNotMatchedAnyRows')
-			->setReturnType('void')
-			->setParameters([
-				(new Code\Parameter('changes'))->setType($this->modificationClass),
-			])
-			->setBody(
-				'$this->tableManager->update($this, $changes);',
-			);
+		$updateMethod
+			->addBody('$this->tableManager->update($this, $modifications);');
 
-		$classType->addMethod('updateAndGet')
-			->addComment('@throws GivenSearchCriteriaHaveNotMatchedAnyRows')
-			->setReturnType($this->rowClass)
-			->setParameters([
-				(new Code\Parameter('changes'))->setType($this->modificationClass),
-			])
-			->addBody('$row = $this->tableManager->updateAndGet($this, $changes);')
+		$updateAndGetMethod
+			->addBody('$row = $this->tableManager->updateAndGet($this, $modifications);')
 			->addBody('\assert($row instanceof ?);', [new Code\Literal($namespace->simplifyName($this->rowClass))])
 			->addBody('return $row;');
 
-		$classType->addMethod('updateBy')
-			->setReturnType('void')
-			->setParameters([
-				(new Code\Parameter('conditions'))->setType(Condition::class . '|array'),
-				(new Code\Parameter('changes'))->setType($this->modificationClass),
-			])
-			->addComment('@param Condition|Condition[] $conditions')
-			->addBody('$this->tableManager->updateBy($this, $conditions, $changes);');
+		$updateByMethod
+			->addBody('$this->tableManager->updateBy($this, $conditions, $modifications);');
 
-		$classType->addMethod('upsert')
-			->setReturnType('void')
-			->setParameters([
-				(new Code\Parameter('changes'))->setType($this->modificationClass),
-			])
-			->addBody('$this->tableManager->upsert($this, $changes);');
+		$upsertMethod
+			->addBody('$this->tableManager->upsert($this, $modifications);');
 
-		$classType->addMethod('upsertAndGet')
-			->setReturnType($this->rowClass)
-			->setParameters([
-				(new Code\Parameter('changes'))->setType($this->modificationClass),
-			])
-			->addBody('$row = $this->tableManager->upsertAndGet($this, $changes);')
+		$upsertAndGetMethod
+			->addBody('$row = $this->tableManager->upsertAndGet($this, $modifications);')
 			->addBody('\assert($row instanceof ?);', [new Code\Literal($namespace->simplifyName($this->rowClass))])
 			->addBody('return $row;');
-
-		$classType->addMethod('delete')
-			->setReturnType('void')
-			->setParameters([
-				(new Code\Parameter('rowOrKey'))->setType($this->rowClass . '|' . $this->primaryKeyClass)
-			])
-			->addBody('$primaryKey = $rowOrKey instanceof ? \? $rowOrKey : ?::fromRow($rowOrKey);', [
-				new Code\Literal($namespace->simplifyName($this->primaryKeyClass)),
-				new Code\Literal($namespace->simplifyName($this->primaryKeyClass)),
-			])
-			->addBody('$this->tableManager->delete($this, $primaryKey);');
-
-		$classType->addMethod('deleteAndGet')
-			->setReturnType($this->rowClass)
-			->setParameters([
-				(new Code\Parameter('rowOrKey'))->setType($this->rowClass . '|' . $this->primaryKeyClass)
-			])
-			->addBody('$primaryKey = $rowOrKey instanceof ? \? $rowOrKey : ?::fromRow($rowOrKey);', [
-				new Code\Literal($namespace->simplifyName($this->primaryKeyClass)),
-				new Code\Literal($namespace->simplifyName($this->primaryKeyClass)),
-			])
-			->addBody('$row = $this->tableManager->deleteAndGet($this, $primaryKey);')
-			->addBody('\assert($row instanceof ?);', [new Code\Literal($namespace->simplifyName($this->rowClass))])
-			->addBody('return $row;');
-
-		$classType->addMethod('deleteBy')
-			->setReturnType('void')
-			->setParameters([
-				(new Code\Parameter('conditions'))->setType(Condition::class . '|array'),
-			])
-			->addComment('@param Condition|Condition[] $conditions')
-			->addBody('$this->tableManager->deleteBy($this, $conditions);');
 
 		$namespace->addUse(TableManager::class);
 		$namespace->addUse(TypeResolver::class);

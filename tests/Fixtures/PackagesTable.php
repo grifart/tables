@@ -188,6 +188,16 @@ final class PackagesTable implements Table
 
 
 	/**
+	 * @throws RowWithGivenPrimaryKeyAlreadyExists
+	 * @throws GivenSearchCriteriaHaveNotMatchedAnyRows
+	 */
+	public function save(PackageModifications $changes): void
+	{
+		$this->tableManager->save($this, $changes);
+	}
+
+
+	/**
 	 * @param array{int, int, int} $version
 	 * @param Version[] $previousVersions
 	 */
@@ -229,29 +239,31 @@ final class PackagesTable implements Table
 
 	/**
 	 * @throws RowWithGivenPrimaryKeyAlreadyExists
-	 * @throws GivenSearchCriteriaHaveNotMatchedAnyRows
+	 * @param array{int, int, int} $version
+	 * @param Version[] $previousVersions
 	 */
-	public function save(PackageModifications $changes): void
+	public function insert(string $name, array $version, array $previousVersions): void
 	{
-		$this->tableManager->save($this, $changes);
+		$modifications = PackageModifications::new();
+		$modifications->modifyName($name);
+		$modifications->modifyVersion($version);
+		$modifications->modifyPreviousVersions($previousVersions);
+		$this->tableManager->insert($this, $modifications);
 	}
 
 
 	/**
 	 * @throws RowWithGivenPrimaryKeyAlreadyExists
+	 * @param array{int, int, int} $version
+	 * @param Version[] $previousVersions
 	 */
-	public function insert(PackageModifications $changes): void
+	public function insertAndGet(string $name, array $version, array $previousVersions): PackageRow
 	{
-		$this->tableManager->insert($this, $changes);
-	}
-
-
-	/**
-	 * @throws RowWithGivenPrimaryKeyAlreadyExists
-	 */
-	public function insertAndGet(PackageModifications $changes): PackageRow
-	{
-		$row = $this->tableManager->insertAndGet($this, $changes);
+		$modifications = PackageModifications::new();
+		$modifications->modifyName($name);
+		$modifications->modifyVersion($version);
+		$modifications->modifyPreviousVersions($previousVersions);
+		$row = $this->tableManager->insertAndGet($this, $modifications);
 		\assert($row instanceof PackageRow);
 		return $row;
 	}
@@ -259,19 +271,55 @@ final class PackagesTable implements Table
 
 	/**
 	 * @throws GivenSearchCriteriaHaveNotMatchedAnyRows
+	 * @param array{int, int, int}|DefaultOrExistingValue $version
+	 * @param Version[]|DefaultOrExistingValue $previousVersions
 	 */
-	public function update(PackageModifications $changes): void
+	public function update(
+		PackageRow|PackagePrimaryKey $rowOrKey,
+		string|DefaultOrExistingValue $name = \Grifart\Tables\Unchanged,
+		array|DefaultOrExistingValue $version = \Grifart\Tables\Unchanged,
+		array|DefaultOrExistingValue $previousVersions = \Grifart\Tables\Unchanged,
+	): void
 	{
-		$this->tableManager->update($this, $changes);
+		$primaryKey = $rowOrKey instanceof PackagePrimaryKey ? $rowOrKey : PackagePrimaryKey::fromRow($rowOrKey);
+		$modifications = PackageModifications::update($primaryKey);
+		if (!$name instanceof DefaultOrExistingValue) {
+			$modifications->modifyName($name);
+		}
+		if (!$version instanceof DefaultOrExistingValue) {
+			$modifications->modifyVersion($version);
+		}
+		if (!$previousVersions instanceof DefaultOrExistingValue) {
+			$modifications->modifyPreviousVersions($previousVersions);
+		}
+		$this->tableManager->update($this, $modifications);
 	}
 
 
 	/**
 	 * @throws GivenSearchCriteriaHaveNotMatchedAnyRows
+	 * @param array{int, int, int}|DefaultOrExistingValue $version
+	 * @param Version[]|DefaultOrExistingValue $previousVersions
 	 */
-	public function updateAndGet(PackageModifications $changes): PackageRow
+	public function updateAndGet(
+		PackageRow|PackagePrimaryKey $rowOrKey,
+		string|DefaultOrExistingValue $name = \Grifart\Tables\Unchanged,
+		array|DefaultOrExistingValue $version = \Grifart\Tables\Unchanged,
+		array|DefaultOrExistingValue $previousVersions = \Grifart\Tables\Unchanged,
+	): PackageRow
 	{
-		$row = $this->tableManager->updateAndGet($this, $changes);
+		$primaryKey = $rowOrKey instanceof PackagePrimaryKey ? $rowOrKey : PackagePrimaryKey::fromRow($rowOrKey);
+		$modifications = PackageModifications::update($primaryKey);
+		if (!$name instanceof DefaultOrExistingValue) {
+			$modifications->modifyName($name);
+		}
+		if (!$version instanceof DefaultOrExistingValue) {
+			$modifications->modifyVersion($version);
+		}
+		if (!$previousVersions instanceof DefaultOrExistingValue) {
+			$modifications->modifyPreviousVersions($previousVersions);
+		}
+		$row = $this->tableManager->updateAndGet($this, $modifications);
 		\assert($row instanceof PackageRow);
 		return $row;
 	}
@@ -279,22 +327,55 @@ final class PackagesTable implements Table
 
 	/**
 	 * @param Condition|Condition[] $conditions
+	 * @param array{int, int, int}|DefaultOrExistingValue $version
+	 * @param Version[]|DefaultOrExistingValue $previousVersions
 	 */
-	public function updateBy(Condition|array $conditions, PackageModifications $changes): void
+	public function updateBy(
+		Condition|array $conditions,
+		string|DefaultOrExistingValue $name = \Grifart\Tables\Unchanged,
+		array|DefaultOrExistingValue $version = \Grifart\Tables\Unchanged,
+		array|DefaultOrExistingValue $previousVersions = \Grifart\Tables\Unchanged,
+	): void
 	{
-		$this->tableManager->updateBy($this, $conditions, $changes);
+		$modifications = PackageModifications::new();
+		if (!$name instanceof DefaultOrExistingValue) {
+			$modifications->modifyName($name);
+		}
+		if (!$version instanceof DefaultOrExistingValue) {
+			$modifications->modifyVersion($version);
+		}
+		if (!$previousVersions instanceof DefaultOrExistingValue) {
+			$modifications->modifyPreviousVersions($previousVersions);
+		}
+		$this->tableManager->updateBy($this, $conditions, $modifications);
 	}
 
 
-	public function upsert(PackageModifications $changes): void
+	/**
+	 * @param array{int, int, int} $version
+	 * @param Version[] $previousVersions
+	 */
+	public function upsert(string $name, array $version, array $previousVersions): void
 	{
-		$this->tableManager->upsert($this, $changes);
+		$modifications = PackageModifications::new();
+		$modifications->modifyName($name);
+		$modifications->modifyVersion($version);
+		$modifications->modifyPreviousVersions($previousVersions);
+		$this->tableManager->upsert($this, $modifications);
 	}
 
 
-	public function upsertAndGet(PackageModifications $changes): PackageRow
+	/**
+	 * @param array{int, int, int} $version
+	 * @param Version[] $previousVersions
+	 */
+	public function upsertAndGet(string $name, array $version, array $previousVersions): PackageRow
 	{
-		$row = $this->tableManager->upsertAndGet($this, $changes);
+		$modifications = PackageModifications::new();
+		$modifications->modifyName($name);
+		$modifications->modifyVersion($version);
+		$modifications->modifyPreviousVersions($previousVersions);
+		$row = $this->tableManager->upsertAndGet($this, $modifications);
 		\assert($row instanceof PackageRow);
 		return $row;
 	}

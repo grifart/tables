@@ -187,6 +187,16 @@ final class TestsTable implements Table
 	}
 
 
+	/**
+	 * @throws RowWithGivenPrimaryKeyAlreadyExists
+	 * @throws GivenSearchCriteriaHaveNotMatchedAnyRows
+	 */
+	public function save(TestModifications $changes): void
+	{
+		$this->tableManager->save($this, $changes);
+	}
+
+
 	public function new(
 		Uuid $id,
 		int $score,
@@ -227,29 +237,39 @@ final class TestsTable implements Table
 
 	/**
 	 * @throws RowWithGivenPrimaryKeyAlreadyExists
-	 * @throws GivenSearchCriteriaHaveNotMatchedAnyRows
 	 */
-	public function save(TestModifications $changes): void
+	public function insert(
+		Uuid $id,
+		int $score,
+		string|DefaultOrExistingValue|null $details = \Grifart\Tables\DefaultValue,
+	): void
 	{
-		$this->tableManager->save($this, $changes);
+		$modifications = TestModifications::new();
+		$modifications->modifyId($id);
+		$modifications->modifyScore($score);
+		if (!$details instanceof DefaultOrExistingValue) {
+			$modifications->modifyDetails($details);
+		}
+		$this->tableManager->insert($this, $modifications);
 	}
 
 
 	/**
 	 * @throws RowWithGivenPrimaryKeyAlreadyExists
 	 */
-	public function insert(TestModifications $changes): void
+	public function insertAndGet(
+		Uuid $id,
+		int $score,
+		string|DefaultOrExistingValue|null $details = \Grifart\Tables\DefaultValue,
+	): TestRow
 	{
-		$this->tableManager->insert($this, $changes);
-	}
-
-
-	/**
-	 * @throws RowWithGivenPrimaryKeyAlreadyExists
-	 */
-	public function insertAndGet(TestModifications $changes): TestRow
-	{
-		$row = $this->tableManager->insertAndGet($this, $changes);
+		$modifications = TestModifications::new();
+		$modifications->modifyId($id);
+		$modifications->modifyScore($score);
+		if (!$details instanceof DefaultOrExistingValue) {
+			$modifications->modifyDetails($details);
+		}
+		$row = $this->tableManager->insertAndGet($this, $modifications);
 		\assert($row instanceof TestRow);
 		return $row;
 	}
@@ -258,18 +278,50 @@ final class TestsTable implements Table
 	/**
 	 * @throws GivenSearchCriteriaHaveNotMatchedAnyRows
 	 */
-	public function update(TestModifications $changes): void
+	public function update(
+		TestRow|TestPrimaryKey $rowOrKey,
+		Uuid|DefaultOrExistingValue $id = \Grifart\Tables\Unchanged,
+		int|DefaultOrExistingValue $score = \Grifart\Tables\Unchanged,
+		string|DefaultOrExistingValue|null $details = \Grifart\Tables\Unchanged,
+	): void
 	{
-		$this->tableManager->update($this, $changes);
+		$primaryKey = $rowOrKey instanceof TestPrimaryKey ? $rowOrKey : TestPrimaryKey::fromRow($rowOrKey);
+		$modifications = TestModifications::update($primaryKey);
+		if (!$id instanceof DefaultOrExistingValue) {
+			$modifications->modifyId($id);
+		}
+		if (!$score instanceof DefaultOrExistingValue) {
+			$modifications->modifyScore($score);
+		}
+		if (!$details instanceof DefaultOrExistingValue) {
+			$modifications->modifyDetails($details);
+		}
+		$this->tableManager->update($this, $modifications);
 	}
 
 
 	/**
 	 * @throws GivenSearchCriteriaHaveNotMatchedAnyRows
 	 */
-	public function updateAndGet(TestModifications $changes): TestRow
+	public function updateAndGet(
+		TestRow|TestPrimaryKey $rowOrKey,
+		Uuid|DefaultOrExistingValue $id = \Grifart\Tables\Unchanged,
+		int|DefaultOrExistingValue $score = \Grifart\Tables\Unchanged,
+		string|DefaultOrExistingValue|null $details = \Grifart\Tables\Unchanged,
+	): TestRow
 	{
-		$row = $this->tableManager->updateAndGet($this, $changes);
+		$primaryKey = $rowOrKey instanceof TestPrimaryKey ? $rowOrKey : TestPrimaryKey::fromRow($rowOrKey);
+		$modifications = TestModifications::update($primaryKey);
+		if (!$id instanceof DefaultOrExistingValue) {
+			$modifications->modifyId($id);
+		}
+		if (!$score instanceof DefaultOrExistingValue) {
+			$modifications->modifyScore($score);
+		}
+		if (!$details instanceof DefaultOrExistingValue) {
+			$modifications->modifyDetails($details);
+		}
+		$row = $this->tableManager->updateAndGet($this, $modifications);
 		\assert($row instanceof TestRow);
 		return $row;
 	}
@@ -278,21 +330,56 @@ final class TestsTable implements Table
 	/**
 	 * @param Condition|Condition[] $conditions
 	 */
-	public function updateBy(Condition|array $conditions, TestModifications $changes): void
+	public function updateBy(
+		Condition|array $conditions,
+		Uuid|DefaultOrExistingValue $id = \Grifart\Tables\Unchanged,
+		int|DefaultOrExistingValue $score = \Grifart\Tables\Unchanged,
+		string|DefaultOrExistingValue|null $details = \Grifart\Tables\Unchanged,
+	): void
 	{
-		$this->tableManager->updateBy($this, $conditions, $changes);
+		$modifications = TestModifications::new();
+		if (!$id instanceof DefaultOrExistingValue) {
+			$modifications->modifyId($id);
+		}
+		if (!$score instanceof DefaultOrExistingValue) {
+			$modifications->modifyScore($score);
+		}
+		if (!$details instanceof DefaultOrExistingValue) {
+			$modifications->modifyDetails($details);
+		}
+		$this->tableManager->updateBy($this, $conditions, $modifications);
 	}
 
 
-	public function upsert(TestModifications $changes): void
+	public function upsert(
+		Uuid $id,
+		int $score,
+		string|DefaultOrExistingValue|null $details = \Grifart\Tables\DefaultValue,
+	): void
 	{
-		$this->tableManager->upsert($this, $changes);
+		$modifications = TestModifications::new();
+		$modifications->modifyId($id);
+		$modifications->modifyScore($score);
+		if (!$details instanceof DefaultOrExistingValue) {
+			$modifications->modifyDetails($details);
+		}
+		$this->tableManager->upsert($this, $modifications);
 	}
 
 
-	public function upsertAndGet(TestModifications $changes): TestRow
+	public function upsertAndGet(
+		Uuid $id,
+		int $score,
+		string|DefaultOrExistingValue|null $details = \Grifart\Tables\DefaultValue,
+	): TestRow
 	{
-		$row = $this->tableManager->upsertAndGet($this, $changes);
+		$modifications = TestModifications::new();
+		$modifications->modifyId($id);
+		$modifications->modifyScore($score);
+		if (!$details instanceof DefaultOrExistingValue) {
+			$modifications->modifyDetails($details);
+		}
+		$row = $this->tableManager->upsertAndGet($this, $modifications);
 		\assert($row instanceof TestRow);
 		return $row;
 	}
