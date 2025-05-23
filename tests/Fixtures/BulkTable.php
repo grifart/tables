@@ -176,18 +176,6 @@ final class BulkTable implements Table
 
 
 	/**
-	 * @param Condition|Condition[] $conditions
-	 * @return BulkRow
-	 * @throws RowNotFound
-	 */
-	#[\Deprecated('Use getUniqueBy() instead.')]
-	public function getBy(Condition|array $conditions): BulkRow
-	{
-		return $this->getUniqueBy($conditions);
-	}
-
-
-	/**
 	 * @throws RowWithGivenPrimaryKeyAlreadyExists
 	 * @throws GivenSearchCriteriaHaveNotMatchedAnyRows
 	 */

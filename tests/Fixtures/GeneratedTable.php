@@ -176,18 +176,6 @@ final class GeneratedTable implements Table
 
 
 	/**
-	 * @param Condition|Condition[] $conditions
-	 * @return GeneratedRow
-	 * @throws RowNotFound
-	 */
-	#[\Deprecated('Use getUniqueBy() instead.')]
-	public function getBy(Condition|array $conditions): GeneratedRow
-	{
-		return $this->getUniqueBy($conditions);
-	}
-
-
-	/**
 	 * @throws RowWithGivenPrimaryKeyAlreadyExists
 	 * @throws GivenSearchCriteriaHaveNotMatchedAnyRows
 	 */

@@ -203,18 +203,6 @@ final class TableImplementation implements Capability
 			->addBody('return $row;');
 
 
-		$classType->addMethod('getBy')
-			->setParameters([
-				(new Code\Parameter('conditions'))->setType(Condition::class . '|array'),
-			])
-			->addComment('@param Condition|Condition[] $conditions')
-			->addComment('@return ' . $namespace->simplifyName($this->rowClass))
-			->addComment('@throws RowNotFound')
-			->addAttribute(\Deprecated::class, ['Use getUniqueBy() instead.'])
-			->setReturnType($this->rowClass)
-			->addBody('return $this->getUniqueBy($conditions);');
-
-
 		$namespace->addUse(RowWithGivenPrimaryKeyAlreadyExists::class);
 		$namespace->addUse(GivenSearchCriteriaHaveNotMatchedAnyRows::class);
 

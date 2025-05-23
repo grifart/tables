@@ -176,18 +176,6 @@ final class PackagesTable implements Table
 
 
 	/**
-	 * @param Condition|Condition[] $conditions
-	 * @return PackageRow
-	 * @throws RowNotFound
-	 */
-	#[\Deprecated('Use getUniqueBy() instead.')]
-	public function getBy(Condition|array $conditions): PackageRow
-	{
-		return $this->getUniqueBy($conditions);
-	}
-
-
-	/**
 	 * @throws RowWithGivenPrimaryKeyAlreadyExists
 	 * @throws GivenSearchCriteriaHaveNotMatchedAnyRows
 	 */

@@ -176,18 +176,6 @@ final class TestsTable implements Table
 
 
 	/**
-	 * @param Condition|Condition[] $conditions
-	 * @return TestRow
-	 * @throws RowNotFound
-	 */
-	#[\Deprecated('Use getUniqueBy() instead.')]
-	public function getBy(Condition|array $conditions): TestRow
-	{
-		return $this->getUniqueBy($conditions);
-	}
-
-
-	/**
 	 * @throws RowWithGivenPrimaryKeyAlreadyExists
 	 * @throws GivenSearchCriteriaHaveNotMatchedAnyRows
 	 */

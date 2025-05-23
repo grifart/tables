@@ -176,18 +176,6 @@ final class ConfigTable implements Table
 
 
 	/**
-	 * @param Condition|Condition[] $conditions
-	 * @return ConfigRow
-	 * @throws RowNotFound
-	 */
-	#[\Deprecated('Use getUniqueBy() instead.')]
-	public function getBy(Condition|array $conditions): ConfigRow
-	{
-		return $this->getUniqueBy($conditions);
-	}
-
-
-	/**
 	 * @throws RowWithGivenPrimaryKeyAlreadyExists
 	 * @throws GivenSearchCriteriaHaveNotMatchedAnyRows
 	 */
