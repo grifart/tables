@@ -225,6 +225,10 @@ final class SingleConnectionTableManager implements TableManager
 
 		\assert($this->connection->getAffectedRows() === 1);
 
+		foreach ($table::getDatabaseColumns() as $column) {
+			$result->setType($column->getName(), NULL);
+		}
+
 		$dibiRow = $result->fetch();
 		\assert($dibiRow instanceof \Dibi\Row);
 
@@ -295,6 +299,10 @@ final class SingleConnectionTableManager implements TableManager
 			}
 
 			throw new ProbablyBrokenPrimaryIndexImplementation($table, $affectedRows);
+		}
+
+		foreach ($table::getDatabaseColumns() as $column) {
+			$result->setType($column->getName(), NULL);
 		}
 
 		$dibiRow = $result->fetch();
@@ -383,6 +391,10 @@ final class SingleConnectionTableManager implements TableManager
 
 		\assert($this->connection->getAffectedRows() === 1);
 
+		foreach ($table::getDatabaseColumns() as $column) {
+			$result->setType($column->getName(), NULL);
+		}
+
 		$dibiRow = $result->fetch();
 		\assert($dibiRow instanceof \Dibi\Row);
 
@@ -426,6 +438,10 @@ final class SingleConnectionTableManager implements TableManager
 		);
 
 		\assert($this->connection->getAffectedRows() === 1);
+
+		foreach ($table::getDatabaseColumns() as $column) {
+			$result->setType($column->getName(), NULL);
+		}
 
 		$dibiRow = $result->fetch();
 		\assert($dibiRow instanceof \Dibi\Row);
