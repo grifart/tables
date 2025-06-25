@@ -27,12 +27,27 @@ use Nette\Utils\Paginator;
 
 final class BulkTable implements Table
 {
-	public const ID = 'id';
-	public const VALUE = 'value';
-	public const FLAGGED = 'flagged';
+	public const string ID = 'id';
+	public const string VALUE = 'value';
+	public const string FLAGGED = 'flagged';
 
 	/** @var array{id: Column<self, Uuid>, value: Column<self, int>, flagged: Column<self, bool>} */
 	private array $columns;
+
+	/** @var Column<self, Uuid> */
+	public Column $id {
+		get => $this->columns['id'];
+	}
+
+	/** @var Column<self, int> */
+	public Column $value {
+		get => $this->columns['value'];
+	}
+
+	/** @var Column<self, bool> */
+	public Column $flagged {
+		get => $this->columns['flagged'];
+	}
 
 
 	public static function getSchema(): string
@@ -415,6 +430,7 @@ final class BulkTable implements Table
 	/**
 	 * @return Column<self, Uuid>
 	 */
+	#[\Deprecated('Use $id property instead')]
 	public function id(): Column
 	{
 		return $this->columns['id'];
@@ -424,6 +440,7 @@ final class BulkTable implements Table
 	/**
 	 * @return Column<self, int>
 	 */
+	#[\Deprecated('Use $value property instead')]
 	public function value(): Column
 	{
 		return $this->columns['value'];
@@ -433,6 +450,7 @@ final class BulkTable implements Table
 	/**
 	 * @return Column<self, bool>
 	 */
+	#[\Deprecated('Use $flagged property instead')]
 	public function flagged(): Column
 	{
 		return $this->columns['flagged'];

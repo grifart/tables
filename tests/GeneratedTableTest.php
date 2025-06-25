@@ -25,6 +25,6 @@ $all = $table->getAll();
 Assert::count(1, $all);
 
 [$row] = $all;
-Assert::type('int', $row->getId());
-Assert::same($row->getId() * 2, $row->getDouble());
-Assert::same(42, $row->getDirect());
+Assert::type('int', $row->id);
+Assert::same($row->id * 2, $row->double);
+Assert::same(42, $row->direct);

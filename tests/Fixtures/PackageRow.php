@@ -10,20 +10,21 @@ namespace Grifart\Tables\Tests\Fixtures;
 
 use Grifart\Tables\Row;
 
-final class PackageRow implements Row
+final readonly class PackageRow implements Row
 {
 	/**
 	 * @param array{int, int, int} $version
 	 * @param Version[] $previousVersions
 	 */
 	private function __construct(
-		private string $name,
-		private array $version,
-		private array $previousVersions,
+		public string $name,
+		public array $version,
+		public array $previousVersions,
 	) {
 	}
 
 
+	#[\Deprecated('Use $name property instead.')]
 	public function getName(): string
 	{
 		return $this->name;
@@ -33,6 +34,7 @@ final class PackageRow implements Row
 	/**
 	 * @return array{int, int, int}
 	 */
+	#[\Deprecated('Use $version property instead.')]
 	public function getVersion(): array
 	{
 		return $this->version;
@@ -42,6 +44,7 @@ final class PackageRow implements Row
 	/**
 	 * @return Version[]
 	 */
+	#[\Deprecated('Use $previousVersions property instead.')]
 	public function getPreviousVersions(): array
 	{
 		return $this->previousVersions;

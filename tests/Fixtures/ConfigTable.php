@@ -27,12 +27,27 @@ use Nette\Utils\Paginator;
 
 final class ConfigTable implements Table
 {
-	public const ID = 'id';
-	public const KEY = 'key';
-	public const VALUE = 'value';
+	public const string ID = 'id';
+	public const string KEY = 'key';
+	public const string VALUE = 'value';
 
 	/** @var array{id: Column<self, Uuid>, key: Column<self, string>, value: Column<self, string>} */
 	private array $columns;
+
+	/** @var Column<self, Uuid> */
+	public Column $id {
+		get => $this->columns['id'];
+	}
+
+	/** @var Column<self, string> */
+	public Column $key {
+		get => $this->columns['key'];
+	}
+
+	/** @var Column<self, string> */
+	public Column $value {
+		get => $this->columns['value'];
+	}
 
 
 	public static function getSchema(): string
@@ -385,6 +400,7 @@ final class ConfigTable implements Table
 	/**
 	 * @return Column<self, Uuid>
 	 */
+	#[\Deprecated('Use $id property instead')]
 	public function id(): Column
 	{
 		return $this->columns['id'];
@@ -394,6 +410,7 @@ final class ConfigTable implements Table
 	/**
 	 * @return Column<self, string>
 	 */
+	#[\Deprecated('Use $key property instead')]
 	public function key(): Column
 	{
 		return $this->columns['key'];
@@ -403,6 +420,7 @@ final class ConfigTable implements Table
 	/**
 	 * @return Column<self, string>
 	 */
+	#[\Deprecated('Use $value property instead')]
 	public function value(): Column
 	{
 		return $this->columns['value'];

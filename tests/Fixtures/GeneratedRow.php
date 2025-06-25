@@ -10,28 +10,31 @@ namespace Grifart\Tables\Tests\Fixtures;
 
 use Grifart\Tables\Row;
 
-final class GeneratedRow implements Row
+final readonly class GeneratedRow implements Row
 {
 	private function __construct(
-		private int $id,
-		private int $double,
-		private int $direct,
+		public int $id,
+		public int $double,
+		public int $direct,
 	) {
 	}
 
 
+	#[\Deprecated('Use $id property instead.')]
 	public function getId(): int
 	{
 		return $this->id;
 	}
 
 
+	#[\Deprecated('Use $double property instead.')]
 	public function getDouble(): int
 	{
 		return $this->double;
 	}
 
 
+	#[\Deprecated('Use $direct property instead.')]
 	public function getDirect(): int
 	{
 		return $this->direct;

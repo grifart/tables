@@ -22,36 +22,36 @@ $table = new ConfigTable(
 	TestFixtures::createTypeResolver($connection),
 );
 
-$row = $table->getUniqueBy($table->key()->is('key1'));
-Assert::same('same value', $row->getValue());
+$row = $table->getUniqueBy($table->key->is('key1'));
+Assert::same('same value', $row->value);
 
-Assert::throws(fn() => $table->getUniqueBy($table->key()->is('key4')), RowNotFound::class);
-Assert::throws(fn() => $table->getUniqueBy($table->value()->is('same value')), TooManyRowsFound::class);
+Assert::throws(fn() => $table->getUniqueBy($table->key->is('key4')), RowNotFound::class);
+Assert::throws(fn() => $table->getUniqueBy($table->value->is('same value')), TooManyRowsFound::class);
 
-$row = $table->findUniqueBy($table->key()->is('key1'));
-Assert::same('same value', $row->getValue());
+$row = $table->findUniqueBy($table->key->is('key1'));
+Assert::same('same value', $row->value);
 
-Assert::null($table->findUniqueBy($table->key()->is('key4')));
-Assert::throws(fn() => $table->findUniqueBy($table->value()->is('same value')), TooManyRowsFound::class);
+Assert::null($table->findUniqueBy($table->key->is('key4')));
+Assert::throws(fn() => $table->findUniqueBy($table->value->is('same value')), TooManyRowsFound::class);
 
-$row = $table->getFirstBy($table->key()->is('key1'));
-Assert::same('same value', $row->getValue());
+$row = $table->getFirstBy($table->key->is('key1'));
+Assert::same('same value', $row->value);
 
-Assert::throws(fn() => $table->getFirstBy($table->key()->is('key4')), RowNotFound::class);
+Assert::throws(fn() => $table->getFirstBy($table->key->is('key4')), RowNotFound::class);
 
-$row = $table->getFirstBy($table->value()->is('same value'), [$table->key()->ascending()]);
-Assert::same('key1', $row->getKey());
+$row = $table->getFirstBy($table->value->is('same value'), [$table->key->ascending()]);
+Assert::same('key1', $row->key);
 
-$row = $table->getFirstBy($table->value()->is('same value'), [$table->key()->descending()]);
-Assert::same('key2', $row->getKey());
+$row = $table->getFirstBy($table->value->is('same value'), [$table->key->descending()]);
+Assert::same('key2', $row->key);
 
-$row = $table->findFirstBy($table->key()->is('key1'));
-Assert::same('same value', $row->getValue());
+$row = $table->findFirstBy($table->key->is('key1'));
+Assert::same('same value', $row->value);
 
-Assert::null($table->findFirstBy($table->key()->is('key4')));
+Assert::null($table->findFirstBy($table->key->is('key4')));
 
-$row = $table->findFirstBy($table->value()->is('same value'), [$table->key()->ascending()]);
-Assert::same('key1', $row->getKey());
+$row = $table->findFirstBy($table->value->is('same value'), [$table->key->ascending()]);
+Assert::same('key1', $row->key);
 
-$row = $table->findFirstBy($table->value()->is('same value'), [$table->key()->descending()]);
-Assert::same('key2', $row->getKey());
+$row = $table->findFirstBy($table->value->is('same value'), [$table->key->descending()]);
+Assert::same('key2', $row->key);

@@ -33,7 +33,7 @@ final class TestPrimaryKey implements PrimaryKey
 
 	public static function fromRow(TestRow $row): self
 	{
-		return self::from($row->getId());
+		return self::from($row->id);
 	}
 
 
@@ -49,7 +49,7 @@ final class TestPrimaryKey implements PrimaryKey
 	public function getCondition(Table $table): Condition
 	{
 		return Composite::and(
-			$table->id()->is(equalTo($this->id)),
+			$table->id->is(equalTo($this->id)),
 		);
 	}
 

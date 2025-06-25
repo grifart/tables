@@ -16,6 +16,7 @@ use function Grifart\ClassScaffolder\Capabilities\getters;
 use function Grifart\ClassScaffolder\Capabilities\implementedInterface;
 use function Grifart\ClassScaffolder\Capabilities\namedConstructor;
 use function Grifart\ClassScaffolder\Capabilities\privatizedConstructor;
+use function Grifart\ClassScaffolder\Capabilities\readonlyClass;
 use function Grifart\ClassScaffolder\Definition\Types\nullable;
 use function Phun\mapWithKeys;
 
@@ -68,7 +69,9 @@ final class TablesDefinitions
 				implementedInterface(Row::class),
 				constructorWithPromotedProperties(),
 				privatizedConstructor(),
+				readonlyClass(),
 				getters(),
+				new DeprecatedGetters(),
 				new ReconstituteConstructor(),
 			);
 

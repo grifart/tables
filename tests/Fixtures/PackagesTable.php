@@ -27,12 +27,27 @@ use Nette\Utils\Paginator;
 
 final class PackagesTable implements Table
 {
-	public const NAME = 'name';
-	public const VERSION = 'version';
-	public const PREVIOUS_VERSIONS = 'previousVersions';
+	public const string NAME = 'name';
+	public const string VERSION = 'version';
+	public const string PREVIOUS_VERSIONS = 'previousVersions';
 
 	/** @var array{name: Column<self, string>, version: Column<self, array{int, int, int}>, previousVersions: Column<self, Version[]>} */
 	private array $columns;
+
+	/** @var Column<self, string> */
+	public Column $name {
+		get => $this->columns['name'];
+	}
+
+	/** @var Column<self, array{int, int, int}> */
+	public Column $version {
+		get => $this->columns['version'];
+	}
+
+	/** @var Column<self, Version[]> */
+	public Column $previousVersions {
+		get => $this->columns['previousVersions'];
+	}
 
 
 	public static function getSchema(): string
@@ -411,6 +426,7 @@ final class PackagesTable implements Table
 	/**
 	 * @return Column<self, string>
 	 */
+	#[\Deprecated('Use $name property instead')]
 	public function name(): Column
 	{
 		return $this->columns['name'];
@@ -420,6 +436,7 @@ final class PackagesTable implements Table
 	/**
 	 * @return Column<self, array{int, int, int}>
 	 */
+	#[\Deprecated('Use $version property instead')]
 	public function version(): Column
 	{
 		return $this->columns['version'];
@@ -429,6 +446,7 @@ final class PackagesTable implements Table
 	/**
 	 * @return Column<self, Version[]>
 	 */
+	#[\Deprecated('Use $previousVersions property instead')]
 	public function previousVersions(): Column
 	{
 		return $this->columns['previousVersions'];

@@ -10,28 +10,31 @@ namespace Grifart\Tables\Tests\Fixtures;
 
 use Grifart\Tables\Row;
 
-final class ConfigRow implements Row
+final readonly class ConfigRow implements Row
 {
 	private function __construct(
-		private Uuid $id,
-		private string $key,
-		private string $value,
+		public Uuid $id,
+		public string $key,
+		public string $value,
 	) {
 	}
 
 
+	#[\Deprecated('Use $id property instead.')]
 	public function getId(): Uuid
 	{
 		return $this->id;
 	}
 
 
+	#[\Deprecated('Use $key property instead.')]
 	public function getKey(): string
 	{
 		return $this->key;
 	}
 
 
+	#[\Deprecated('Use $value property instead.')]
 	public function getValue(): string
 	{
 		return $this->value;

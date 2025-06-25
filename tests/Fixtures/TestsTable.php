@@ -27,12 +27,27 @@ use Nette\Utils\Paginator;
 
 final class TestsTable implements Table
 {
-	public const ID = 'id';
-	public const SCORE = 'score';
-	public const DETAILS = 'details';
+	public const string ID = 'id';
+	public const string SCORE = 'score';
+	public const string DETAILS = 'details';
 
 	/** @var array{id: Column<self, Uuid>, score: Column<self, int>, details: Column<self, string|null>} */
 	private array $columns;
+
+	/** @var Column<self, Uuid> */
+	public Column $id {
+		get => $this->columns['id'];
+	}
+
+	/** @var Column<self, int> */
+	public Column $score {
+		get => $this->columns['score'];
+	}
+
+	/** @var Column<self, string|null> */
+	public Column $details {
+		get => $this->columns['details'];
+	}
 
 
 	public static function getSchema(): string
@@ -415,6 +430,7 @@ final class TestsTable implements Table
 	/**
 	 * @return Column<self, Uuid>
 	 */
+	#[\Deprecated('Use $id property instead')]
 	public function id(): Column
 	{
 		return $this->columns['id'];
@@ -424,6 +440,7 @@ final class TestsTable implements Table
 	/**
 	 * @return Column<self, int>
 	 */
+	#[\Deprecated('Use $score property instead')]
 	public function score(): Column
 	{
 		return $this->columns['score'];
@@ -433,6 +450,7 @@ final class TestsTable implements Table
 	/**
 	 * @return Column<self, string|null>
 	 */
+	#[\Deprecated('Use $details property instead')]
 	public function details(): Column
 	{
 		return $this->columns['details'];

@@ -434,12 +434,21 @@ final class TableImplementation implements Capability
 			$columnName = $columnInfo->getName();
 			$docCommentType = $this->columnPhpTypes[$columnName]->getDocCommentType($namespace);
 
-			$classType->addConstant(CaseConversion::toUnderscores($columnName), $columnName)->setPublic();
+			$classType->addConstant(CaseConversion::toUnderscores($columnName), $columnName)
+				->setType('string')
+				->setPublic();
 
 			$classType->addMethod($columnName)
 				->setReturnType(Column::class)
 				->addComment(\sprintf('@return Column<self, %s>', $docCommentType))
-				->addBody('return $this->columns[?];', [$columnName]);
+				->addBody('return $this->columns[?];', [$columnName])
+				->addAttribute(\Deprecated::class, [\sprintf('Use $%s property instead', $columnName)]);
+
+			$classType->addProperty($columnName)
+				->setType(Column::class)
+				->addComment(\sprintf('@var Column<self, %s>', $docCommentType))
+				->addHook(Code\PropertyHookType::Get)
+				->setBody('$this->columns[?]', [$columnName], short: true);
 
 			$columnsShape[] = \sprintf('%s: Column<self, %s>', $columnName, $docCommentType);
 

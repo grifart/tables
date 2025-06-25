@@ -33,7 +33,7 @@ final class PackagePrimaryKey implements PrimaryKey
 
 	public static function fromRow(PackageRow $row): self
 	{
-		return self::from($row->getName());
+		return self::from($row->name);
 	}
 
 
@@ -49,7 +49,7 @@ final class PackagePrimaryKey implements PrimaryKey
 	public function getCondition(Table $table): Condition
 	{
 		return Composite::and(
-			$table->name()->is(equalTo($this->name)),
+			$table->name->is(equalTo($this->name)),
 		);
 	}
 

@@ -10,28 +10,31 @@ namespace Grifart\Tables\Tests\Fixtures;
 
 use Grifart\Tables\Row;
 
-final class BulkRow implements Row
+final readonly class BulkRow implements Row
 {
 	private function __construct(
-		private Uuid $id,
-		private int $value,
-		private bool $flagged,
+		public Uuid $id,
+		public int $value,
+		public bool $flagged,
 	) {
 	}
 
 
+	#[\Deprecated('Use $id property instead.')]
 	public function getId(): Uuid
 	{
 		return $this->id;
 	}
 
 
+	#[\Deprecated('Use $value property instead.')]
 	public function getValue(): int
 	{
 		return $this->value;
 	}
 
 
+	#[\Deprecated('Use $flagged property instead.')]
 	public function getFlagged(): bool
 	{
 		return $this->flagged;
