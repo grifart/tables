@@ -22,7 +22,7 @@
 		"test": "tester -C tests"
 	},
 	"require": {
-		"php": "^8.2",
+		"php": "^8.4",
 		"dibi/dibi": "^4.0.2||^5.0",
 		"grifart/scaffolder": "^0.6.3",
 		"jiripudil/phun": "^0.1.0",

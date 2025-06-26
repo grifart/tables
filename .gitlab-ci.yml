@@ -2,8 +2,9 @@ stages:
   - install
   - test
 
-.install:
+install:
   stage: install
+  image: grifart/php8.4-with-all-modules-and-various-tools
   interruptible: true
   script:
     - composer install
@@ -12,21 +13,12 @@ stages:
       - vendor/
     expire_in: 1 day
 
-install.php82:
-  extends: .install
-  image: grifart/php8.2-with-all-modules-and-various-tools
-
-install.php83:
-  extends: .install
-  image: grifart/php8.3-with-all-modules-and-various-tools
-
-install.php84:
-  extends: .install
-  image: grifart/php8.4-with-all-modules-and-various-tools
-
-.tests:
+tests:
   stage: test
+  image: grifart/php8.4-with-all-modules-and-various-tools
   interruptible: true
+  dependencies:
+    - install
   services:
     - postgres:16-alpine
   variables:
@@ -39,29 +31,11 @@ install.php84:
   script:
     - composer run test
 
-tests.php82:
-  extends: .tests
-  image: grifart/php8.2-with-all-modules-and-various-tools
-  dependencies:
-    - install.php82
-
-tests.php83:
-  extends: .tests
-  image: grifart/php8.3-with-all-modules-and-various-tools
-  dependencies:
-    - install.php83
-
-tests.php84:
-  extends: .tests
-  image: grifart/php8.4-with-all-modules-and-various-tools
-  dependencies:
-    - install.php84
-
 phpstan:
   stage: test
   image: grifart/php8.4-with-all-modules-and-various-tools
   interruptible: true
   dependencies:
-    - install.php84
+    - install
   script:
     - composer run phpstan
