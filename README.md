@@ -116,8 +116,8 @@ When it comes to search criteria, the table expects a `Condition` (or a list the
 ```php
 $rows = $table->findBy(
     Composite::and(
-        $table->published()->is(equalTo(true)),
-        $table->createdAt()->is(lesserThanOrEqualTo(Instant::now())),
+        $table->published->is(equalTo(true)),
+        $table->createdAt->is(lesserThanOrEqualTo(Instant::now())),
     ),
 );
 ```
@@ -126,8 +126,8 @@ The code above could be simplified to a list of conditions – if a list is pass
 
 ```php
 $rows = $table->findBy([
-    $table->published()->is(equalTo(true)),
-    $table->createdAt()->is(lesserThanOrEqualTo(Instant::now())),
+    $table->published->is(equalTo(true)),
+    $table->createdAt->is(lesserThanOrEqualTo(Instant::now())),
 ]);
 ```
 
@@ -135,8 +135,8 @@ Also, the `is()` method defaults to equality check, so you can omit the `equalTo
 
 ```php
 $rows = $table->findBy([
-    $table->published()->is(true),
-    $table->createdAt()->is(lesserThanOrEqualTo(Instant::now())),
+    $table->published->is(true),
+    $table->createdAt->is(lesserThanOrEqualTo(Instant::now())),
 ]);
 ```
 
@@ -175,7 +175,7 @@ You can then use the condition like this:
 
 ```php
 $rows = $table->findBy([
-    new IsLike($table->title(), 'Top 10%'),
+    new IsLike($table->title, 'Top 10%'),
 ]);
 ```
 
@@ -191,7 +191,7 @@ And then use it like this:
 
 ```php
 $rows = $table->findBy([
-    $table->title()->is(like('Top 10%')),
+    $table->title->is(like('Top 10%')),
 ]);
 ```
 
@@ -249,7 +249,7 @@ That way, the convenient `is()` shorthand will be available on the expression in
 
 ```php
 $rows = $table->findBy(
-    (new Year($table->createdAt()))->is(equalTo(2021)),
+    (new Year($table->createdAt))->is(equalTo(2021)),
 );
 ```
 
@@ -258,7 +258,7 @@ You can also use the `expr()` function to create such expression:
 ```php
 $year = fn(Expression $expr) => expr(IntType::integer(), "EXTRACT ('year' FROM ?)", $expr->toSql());
 $rows = $table->findBy(
-    $year($table->createdAt())->is(equalTo(2021)),
+    $year($table->createdAt)->is(equalTo(2021)),
 );
 ```
 
@@ -268,8 +268,8 @@ To specify the desired order of records, you can provide a list of sorting crite
 
 ```php
 $rows = $table->getAll(orderBy: [
-    $table->createdAt()->descending(),
-    $table->title(), // ->ascending() is the default
+    $table->createdAt->descending(),
+    $table->title, // ->ascending() is the default
 ]);
 ```
 
@@ -329,8 +329,8 @@ For convenience, there's also the `$table->updateBy()` method which allows you t
 ```php
 $table->updateBy(
     [
-        $table->published()->is(true),
-        $table->createdAt()->is(greaterThan(Instant::now())),
+        $table->published->is(true),
+        $table->createdAt->is(greaterThan(Instant::now())),
     ]
     published: false,
 );
@@ -378,7 +378,7 @@ For convenience, there's also the `$table->deleteBy()` method which allows you t
 
 ```php
 $table->deleteBy(
-    $table->published()->is(false),
+    $table->published->is(false),
 );
 ```
 
