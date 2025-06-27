@@ -48,7 +48,7 @@ $table->insert(
 $all = $table->getAll();
 Assert::count(3, $all);
 
-$count = $table->countAll();
+$count = $table->count();
 Assert::same(3, $count);
 
 $byId = $table->get(TestPrimaryKey::from(new Uuid('9493decd-4b9c-45d6-9960-0c94dc9be353')));
@@ -71,7 +71,7 @@ Assert::count(2, $nonNegativeReversed);
 Assert::same(42, $nonNegativeReversed[0]->score);
 Assert::same(0, $nonNegativeReversed[1]->score);
 
-$countBy = $table->countBy($table->score->is(greaterThanOrEqualTo(0)));
+$countBy = $table->count($table->score->is(greaterThanOrEqualTo(0)));
 Assert::same(2, $countBy);
 
 $orderByNullsFirst = $table->findBy([], orderBy: [$table->details->ascending(Nulls::First)]);

@@ -124,12 +124,6 @@ final class TestsTable implements Table
 	}
 
 
-	public function countAll(): int
-	{
-		return $this->tableManager->countAll($this);
-	}
-
-
 	/**
 	 * @param Condition|Condition[] $conditions
 	 * @param array<OrderBy|Expression<mixed>> $orderBy
@@ -146,9 +140,9 @@ final class TestsTable implements Table
 	/**
 	 * @param Condition|Condition[] $conditions
 	 */
-	public function countBy(Condition|array $conditions): int
+	public function count(Condition|array $conditions = []): int
 	{
-		return $this->tableManager->countBy($this, $conditions);
+		return $this->tableManager->count($this, $conditions);
 	}
 
 

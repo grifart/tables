@@ -109,11 +109,11 @@ $row = $table->getFirstBy($conditions, $orderBy);
 $rowOrNull = $table->findFirstBy($conditions, $orderBy);
 ```
 
-If you need to only get a count of records without having to hydrate them to objects, you can use the `count()` and `countBy()` methods:
+If you need to only get a count of records without having to fetch them from the database, you can use the `count()` method which optionally accepts a set of conditions:
 
 ```php
-$count = $table->countAll();
-$countBy = $table->countBy($conditions);
+$totalCount = $table->count();
+$matchingCount = $table->count($conditions);
 ```
 
 #### Conditions

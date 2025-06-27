@@ -51,10 +51,17 @@ final class SingleConnectionTableManager implements TableManager
 	/**
 	 * @template TableType of Table
 	 * @param TableType $table
+	 * @param Condition|Condition[] $conditions
 	 */
-	public function countAll(Table $table): int
+	public function count(Table $table, Condition|array $conditions): int
 	{
-		return $this->countBy($table, []);
+		$result = $this->connection->query(
+			'SELECT COUNT(*)',
+			'FROM %n.%n', $table::getSchema(), $table::getTableName(),
+			'WHERE %ex', (\is_array($conditions) ? Composite::and(...$conditions) : $conditions)->toSql()->getValues(),
+		);
+
+		return $result->fetchSingle();
 	}
 
 	/**
@@ -114,22 +121,6 @@ final class SingleConnectionTableManager implements TableManager
 		}
 
 		return $modelRows;
-	}
-
-	/**
-	 * @template TableType of Table
-	 * @param TableType $table
-	 * @param Condition|Condition[] $conditions
-	 */
-	public function countBy(Table $table, Condition|array $conditions): int
-	{
-		$result = $this->connection->query(
-			'SELECT COUNT(*)',
-			'FROM %n.%n', $table::getSchema(), $table::getTableName(),
-			'WHERE %ex', (\is_array($conditions) ? Composite::and(...$conditions) : $conditions)->toSql()->getValues(),
-		);
-
-		return $result->fetchSingle();
 	}
 
 	/**
