@@ -31,11 +31,24 @@ interface TableManager
 	/**
 	 * @template TableType of Table
 	 * @param TableType $table
+	 */
+	public function countAll(Table $table): int;
+
+	/**
+	 * @template TableType of Table
+	 * @param TableType $table
 	 * @param Condition|Condition[] $conditions
 	 * @param array<OrderBy|Expression<mixed>> $orderBy
 	 * @return Row[] (subclass of row)
 	 */
 	public function findBy(Table $table, Condition|array $conditions, array $orderBy = [], ?Paginator $paginator = null): array;
+
+	/**
+	 * @template TableType of Table
+	 * @param TableType $table
+	 * @param Condition|Condition[] $conditions
+	 */
+	public function countBy(Table $table, Condition|array $conditions): int;
 
 	/**
 	 * @template TableType of Table

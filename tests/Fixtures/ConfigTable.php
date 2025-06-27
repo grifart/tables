@@ -124,6 +124,12 @@ final class ConfigTable implements Table
 	}
 
 
+	public function countAll(): int
+	{
+		return $this->tableManager->countAll($this);
+	}
+
+
 	/**
 	 * @param Condition|Condition[] $conditions
 	 * @param array<OrderBy|Expression<mixed>> $orderBy
@@ -134,6 +140,15 @@ final class ConfigTable implements Table
 		/** @var ConfigRow[] $result */
 		$result = $this->tableManager->findBy($this, $conditions, $orderBy, $paginator);
 		return $result;
+	}
+
+
+	/**
+	 * @param Condition|Condition[] $conditions
+	 */
+	public function countBy(Condition|array $conditions): int
+	{
+		return $this->tableManager->countBy($this, $conditions);
 	}
 
 

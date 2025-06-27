@@ -130,6 +130,10 @@ final class TableImplementation implements Capability
 				[new Code\Literal($namespace->simplifyName($this->rowClass))],
 			);
 
+		$classType->addMethod('countAll')
+			->setReturnType('int')
+			->setBody('return $this->tableManager->countAll($this);');
+
 		$namespace->addUse(Condition::class);
 		$namespace->addUse(Expression::class);
 
@@ -147,6 +151,13 @@ final class TableImplementation implements Capability
 			->addBody('$result = $this->tableManager->findBy($this, $conditions, $orderBy, $paginator);')
 			->addBody('return $result;');
 
+		$classType->addMethod('countBy')
+			->setParameters([
+				(new Code\Parameter('conditions'))->setType(Condition::class . '|array'),
+			])
+			->addComment('@param Condition|Condition[] $conditions')
+			->setReturnType('int')
+			->setBody('return $this->tableManager->countBy($this, $conditions);');
 
 		$namespace->addUse(TooManyRowsFound::class);
 		$classType->addMethod('getUniqueBy')
