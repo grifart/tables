@@ -27,12 +27,27 @@ use Nette\Utils\Paginator;
 
 final class GeneratedTable implements Table
 {
-	public const ID = 'id';
-	public const DOUBLE = 'double';
-	public const DIRECT = 'direct';
+	public const string ID = 'id';
+	public const string DOUBLE = 'double';
+	public const string DIRECT = 'direct';
 
 	/** @var array{id: Column<self, int>, double: Column<self, int>, direct: Column<self, int>} */
 	private array $columns;
+
+	/** @var Column<self, int> */
+	public Column $id {
+		get => $this->columns['id'];
+	}
+
+	/** @var Column<self, int> */
+	public Column $double {
+		get => $this->columns['double'];
+	}
+
+	/** @var Column<self, int> */
+	public Column $direct {
+		get => $this->columns['direct'];
+	}
 
 
 	public static function getSchema(): string
@@ -343,6 +358,7 @@ final class GeneratedTable implements Table
 	/**
 	 * @return Column<self, int>
 	 */
+	#[\Deprecated('Use $id property instead')]
 	public function id(): Column
 	{
 		return $this->columns['id'];
@@ -352,6 +368,7 @@ final class GeneratedTable implements Table
 	/**
 	 * @return Column<self, int>
 	 */
+	#[\Deprecated('Use $double property instead')]
 	public function double(): Column
 	{
 		return $this->columns['double'];
@@ -361,6 +378,7 @@ final class GeneratedTable implements Table
 	/**
 	 * @return Column<self, int>
 	 */
+	#[\Deprecated('Use $direct property instead')]
 	public function direct(): Column
 	{
 		return $this->columns['direct'];

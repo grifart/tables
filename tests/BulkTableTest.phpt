@@ -24,26 +24,26 @@ $table = new BulkTable(
 	TestFixtures::createTypeResolver($connection),
 );
 
-[$a, $b, $c] = $table->getAll([$table->value()->ascending()]);
-Assert::same(-5, $a->getValue());
-Assert::same(0, $b->getValue());
-Assert::same(42, $c->getValue());
+[$a, $b, $c] = $table->getAll([$table->value->ascending()]);
+Assert::same(-5, $a->value);
+Assert::same(0, $b->value);
+Assert::same(42, $c->value);
 
 $table->updateBy(
-	$table->value()->is(lesserThan(0)),
+	$table->value->is(lesserThan(0)),
 	flagged: true,
 );
 
-[$a, $b, $c] = $table->getAll([$table->value()->ascending()]);
-Assert::true($a->getFlagged());
-Assert::false($b->getFlagged());
-Assert::false($c->getFlagged());
+[$a, $b, $c] = $table->getAll([$table->value->ascending()]);
+Assert::true($a->flagged);
+Assert::false($b->flagged);
+Assert::false($c->flagged);
 
 $table->deleteBy(
-	$table->flagged()->is(true),
+	$table->flagged->is(true),
 );
 
-$all = $table->getAll([$table->value()->ascending()]);
+$all = $table->getAll([$table->value->ascending()]);
 Assert::count(2, $all);
-Assert::same(0, $all[0]->getValue());
-Assert::same(42, $all[1]->getValue());
+Assert::same(0, $all[0]->value);
+Assert::same(42, $all[1]->value);

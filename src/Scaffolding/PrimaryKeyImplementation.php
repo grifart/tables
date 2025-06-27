@@ -47,7 +47,7 @@ final class PrimaryKeyImplementation implements Capability
 		$fromRow->addBody('return self::from(...?);', [
 			map(
 				$definition->getFields(),
-				static fn(Field $field) => new Literal(\sprintf('$row->get%s()', \ucfirst($field->getName()))),
+				static fn(Field $field) => new Literal(\sprintf('$row->%s', $field->getName())),
 			),
 		]);
 
@@ -67,7 +67,7 @@ final class PrimaryKeyImplementation implements Capability
 
 		$getCondition->addBody('return Composite::and(');
 		foreach ($definition->getFields() as $field) {
-			$getCondition->addBody("\t\$table->?()->is(equalTo(\$this->?)),", [
+			$getCondition->addBody("\t\$table->?->is(equalTo(\$this->?)),", [
 				$field->getName(),
 				$field->getName(),
 			]);
