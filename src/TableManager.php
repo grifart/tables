@@ -32,6 +32,13 @@ interface TableManager
 	 * @template TableType of Table
 	 * @param TableType $table
 	 * @param Condition|Condition[] $conditions
+	 */
+	public function count(Table $table, Condition|array $conditions): int;
+
+	/**
+	 * @template TableType of Table
+	 * @param TableType $table
+	 * @param Condition|Condition[] $conditions
 	 * @param array<OrderBy|Expression<mixed>> $orderBy
 	 * @return Row[] (subclass of row)
 	 */

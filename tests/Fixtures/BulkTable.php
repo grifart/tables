@@ -139,6 +139,15 @@ final class BulkTable implements Table
 
 	/**
 	 * @param Condition|Condition[] $conditions
+	 */
+	public function count(Condition|array $conditions = []): int
+	{
+		return $this->tableManager->count($this, $conditions);
+	}
+
+
+	/**
+	 * @param Condition|Condition[] $conditions
 	 * @return BulkRow
 	 * @throws RowNotFound
 	 */

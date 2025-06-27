@@ -52,6 +52,22 @@ final class SingleConnectionTableManager implements TableManager
 	 * @template TableType of Table
 	 * @param TableType $table
 	 * @param Condition|Condition[] $conditions
+	 */
+	public function count(Table $table, Condition|array $conditions): int
+	{
+		$result = $this->connection->query(
+			'SELECT COUNT(*)',
+			'FROM %n.%n', $table::getSchema(), $table::getTableName(),
+			'WHERE %ex', (\is_array($conditions) ? Composite::and(...$conditions) : $conditions)->toSql()->getValues(),
+		);
+
+		return $result->fetchSingle();
+	}
+
+	/**
+	 * @template TableType of Table
+	 * @param TableType $table
+	 * @param Condition|Condition[] $conditions
 	 * @param array<OrderBy|Expression<mixed>> $orderBy
 	 * @return Row[] (subclass of row)
 	 */

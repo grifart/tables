@@ -109,6 +109,13 @@ $row = $table->getFirstBy($conditions, $orderBy);
 $rowOrNull = $table->findFirstBy($conditions, $orderBy);
 ```
 
+If you need to only get a count of records without having to fetch them from the database, you can use the `count()` method which optionally accepts a set of conditions:
+
+```php
+$totalCount = $table->count();
+$matchingCount = $table->count($conditions);
+```
+
 #### Conditions
 
 When it comes to search criteria, the table expects a `Condition` (or a list thereof). This is how a simple search for published articles might look like:
