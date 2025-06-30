@@ -17,10 +17,10 @@ use function Grifart\Tables\Conditions\equalTo;
 /**
  * @implements PrimaryKey<BulkTable>
  */
-final class BulkPrimaryKey implements PrimaryKey
+final readonly class BulkPrimaryKey implements PrimaryKey
 {
 	private function __construct(
-		private Uuid $id,
+		public Uuid $id,
 	) {
 	}
 
@@ -54,6 +54,7 @@ final class BulkPrimaryKey implements PrimaryKey
 	}
 
 
+	#[\Deprecated('Use $id property instead.')]
 	public function getId(): Uuid
 	{
 		return $this->id;

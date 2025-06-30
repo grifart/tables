@@ -17,10 +17,10 @@ use function Grifart\Tables\Conditions\equalTo;
 /**
  * @implements PrimaryKey<PackagesTable>
  */
-final class PackagePrimaryKey implements PrimaryKey
+final readonly class PackagePrimaryKey implements PrimaryKey
 {
 	private function __construct(
-		private string $name,
+		public string $name,
 	) {
 	}
 
@@ -54,6 +54,7 @@ final class PackagePrimaryKey implements PrimaryKey
 	}
 
 
+	#[\Deprecated('Use $name property instead.')]
 	public function getName(): string
 	{
 		return $this->name;

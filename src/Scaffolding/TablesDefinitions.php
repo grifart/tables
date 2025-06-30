@@ -86,9 +86,11 @@ final class TablesDefinitions
 			->with(
 				constructorWithPromotedProperties(),
 				privatizedConstructor(),
+				readonlyClass(),
 				namedConstructor('from'),
 				new PrimaryKeyImplementation($tableClassName, $rowClassName),
 				getters(),
+				new DeprecatedGetters(),
 			);
 
 		// table class
