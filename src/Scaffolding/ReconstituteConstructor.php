@@ -35,5 +35,6 @@ final class ReconstituteConstructor implements Capability
 
 		$reconstitute->addBody(\sprintf('/** @var array{%s} $values */', \implode(', ', $shapeFields)));
 		$reconstitute->addBody("return new static(...?);", [$literals]);
+		$reconstitute->addAttribute(\Override::class);
 	}
 }

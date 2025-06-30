@@ -55,6 +55,7 @@ final class ConfigModifications implements Modifications
 	}
 
 
+	#[\Override]
 	public static function forTable(): string
 	{
 		return ConfigTable::class;

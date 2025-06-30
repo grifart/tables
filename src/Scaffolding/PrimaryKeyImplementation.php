@@ -55,7 +55,8 @@ final class PrimaryKeyImplementation implements Capability
 			->addComment('@return string[]')
 			->setReturnType('array')
 			->setStatic()
-			->addBody('return ?;', [map($definition->getFields(), static fn(Field $field) => $field->getName())]);
+			->addBody('return ?;', [map($definition->getFields(), static fn(Field $field) => $field->getName())])
+			->addAttribute(\Override::class);
 
 		$namespace->addUse(Condition::class);
 		$namespace->addUse(Composite::class);
@@ -63,6 +64,7 @@ final class PrimaryKeyImplementation implements Capability
 
 		$getCondition = $classType->addMethod('getCondition')->setReturnType(Condition::class);
 		$getCondition->addParameter('table')->setType(Table::class);
+		$getCondition->addAttribute(\Override::class);
 		$namespace->addUse(Table::class);
 
 		$getCondition->addBody('return Composite::and(');

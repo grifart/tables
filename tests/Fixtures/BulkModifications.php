@@ -55,6 +55,7 @@ final class BulkModifications implements Modifications
 	}
 
 
+	#[\Override]
 	public static function forTable(): string
 	{
 		return BulkTable::class;

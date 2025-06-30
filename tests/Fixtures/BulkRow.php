@@ -41,6 +41,7 @@ final readonly class BulkRow implements Row
 	}
 
 
+	#[\Override]
 	public static function reconstitute(array $values): static
 	{
 		/** @var array{id: Uuid, value: int, flagged: bool} $values */

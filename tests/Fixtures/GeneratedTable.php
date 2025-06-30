@@ -50,30 +50,35 @@ final class GeneratedTable implements Table
 	}
 
 
+	#[\Override]
 	public static function getSchema(): string
 	{
 		return 'public';
 	}
 
 
+	#[\Override]
 	public static function getTableName(): string
 	{
 		return 'generated';
 	}
 
 
+	#[\Override]
 	public static function getPrimaryKeyClass(): string
 	{
 		return GeneratedPrimaryKey::class;
 	}
 
 
+	#[\Override]
 	public static function getRowClass(): string
 	{
 		return GeneratedRow::class;
 	}
 
 
+	#[\Override]
 	public static function getModificationClass(): string
 	{
 		return GeneratedModifications::class;
@@ -83,6 +88,7 @@ final class GeneratedTable implements Table
 	/**
 	 * @return ColumnMetadata[]
 	 */
+	#[\Override]
 	public static function getDatabaseColumns(): array
 	{
 		return [
@@ -398,6 +404,7 @@ final class GeneratedTable implements Table
 	 * @internal
 	 * @return Type<mixed>
 	 */
+	#[\Override]
 	public function getTypeOf(string $columnName): Type
 	{
 		$column = $this->columns[$columnName] ?? throw ColumnNotFound::of($columnName, \get_class($this));

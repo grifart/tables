@@ -43,6 +43,7 @@ final class GeneratedModifications implements Modifications
 	}
 
 
+	#[\Override]
 	public static function forTable(): string
 	{
 		return GeneratedTable::class;

@@ -50,30 +50,35 @@ final class TestsTable implements Table
 	}
 
 
+	#[\Override]
 	public static function getSchema(): string
 	{
 		return 'public';
 	}
 
 
+	#[\Override]
 	public static function getTableName(): string
 	{
 		return 'test';
 	}
 
 
+	#[\Override]
 	public static function getPrimaryKeyClass(): string
 	{
 		return TestPrimaryKey::class;
 	}
 
 
+	#[\Override]
 	public static function getRowClass(): string
 	{
 		return TestRow::class;
 	}
 
 
+	#[\Override]
 	public static function getModificationClass(): string
 	{
 		return TestModifications::class;
@@ -83,6 +88,7 @@ final class TestsTable implements Table
 	/**
 	 * @return ColumnMetadata[]
 	 */
+	#[\Override]
 	public static function getDatabaseColumns(): array
 	{
 		return [
@@ -470,6 +476,7 @@ final class TestsTable implements Table
 	 * @internal
 	 * @return Type<mixed>
 	 */
+	#[\Override]
 	public function getTypeOf(string $columnName): Type
 	{
 		$column = $this->columns[$columnName] ?? throw ColumnNotFound::of($columnName, \get_class($this));

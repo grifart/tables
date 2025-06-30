@@ -50,30 +50,35 @@ final class PackagesTable implements Table
 	}
 
 
+	#[\Override]
 	public static function getSchema(): string
 	{
 		return 'public';
 	}
 
 
+	#[\Override]
 	public static function getTableName(): string
 	{
 		return 'package';
 	}
 
 
+	#[\Override]
 	public static function getPrimaryKeyClass(): string
 	{
 		return PackagePrimaryKey::class;
 	}
 
 
+	#[\Override]
 	public static function getRowClass(): string
 	{
 		return PackageRow::class;
 	}
 
 
+	#[\Override]
 	public static function getModificationClass(): string
 	{
 		return PackageModifications::class;
@@ -83,6 +88,7 @@ final class PackagesTable implements Table
 	/**
 	 * @return ColumnMetadata[]
 	 */
+	#[\Override]
 	public static function getDatabaseColumns(): array
 	{
 		return [
@@ -466,6 +472,7 @@ final class PackagesTable implements Table
 	 * @internal
 	 * @return Type<mixed>
 	 */
+	#[\Override]
 	public function getTypeOf(string $columnName): Type
 	{
 		$column = $this->columns[$columnName] ?? throw ColumnNotFound::of($columnName, \get_class($this));

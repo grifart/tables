@@ -57,6 +57,7 @@ final class PackageModifications implements Modifications
 	}
 
 
+	#[\Override]
 	public static function forTable(): string
 	{
 		return PackagesTable::class;

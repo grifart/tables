@@ -53,13 +53,15 @@ final readonly class TableFactoryImplementation implements Capability
 		$classType->addMethod('create')
 			->setPublic()
 			->setReturnType($this->tableClass)
-			->setBody('return new ?($this->tableManager, $this->typeResolver);', [new Literal($namespace->simplifyName($this->tableClass))]);
+			->setBody('return new ?($this->tableManager, $this->typeResolver);', [new Literal($namespace->simplifyName($this->tableClass))])
+			->addAttribute(\Override::class);
 
 		$classType->addMethod('withTableManager')
 			->setPublic()
 			->setReturnType($this->tableClass)
 			->setParameters([(new Parameter('tableManager'))->setType(TableManager::class)])
-			->setBody('return new ?($tableManager, $this->typeResolver);', [new Literal($namespace->simplifyName($this->tableClass))]);
+			->setBody('return new ?($tableManager, $this->typeResolver);', [new Literal($namespace->simplifyName($this->tableClass))])
+			->addAttribute(\Override::class);
 
 		$namespace->addUse(IConnection::class);
 		$namespace->addUse(SingleConnectionTableManager::class);
@@ -68,6 +70,7 @@ final readonly class TableFactoryImplementation implements Capability
 			->setReturnType($this->tableClass)
 			->setParameters([(new Parameter('connection'))->setType(IConnection::class)])
 			->addBody('$tableManager = new ?($connection);', [new Literal($namespace->simplifyName(SingleConnectionTableManager::class))])
-			->addBody('return new ?($tableManager, $this->typeResolver);', [new Literal($namespace->simplifyName($this->tableClass))]);
+			->addBody('return new ?($tableManager, $this->typeResolver);', [new Literal($namespace->simplifyName($this->tableClass))])
+			->addAttribute(\Override::class);
 	}
 }

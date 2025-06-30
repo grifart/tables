@@ -50,30 +50,35 @@ final class ConfigTable implements Table
 	}
 
 
+	#[\Override]
 	public static function getSchema(): string
 	{
 		return 'public';
 	}
 
 
+	#[\Override]
 	public static function getTableName(): string
 	{
 		return 'config';
 	}
 
 
+	#[\Override]
 	public static function getPrimaryKeyClass(): string
 	{
 		return ConfigPrimaryKey::class;
 	}
 
 
+	#[\Override]
 	public static function getRowClass(): string
 	{
 		return ConfigRow::class;
 	}
 
 
+	#[\Override]
 	public static function getModificationClass(): string
 	{
 		return ConfigModifications::class;
@@ -83,6 +88,7 @@ final class ConfigTable implements Table
 	/**
 	 * @return ColumnMetadata[]
 	 */
+	#[\Override]
 	public static function getDatabaseColumns(): array
 	{
 		return [
@@ -440,6 +446,7 @@ final class ConfigTable implements Table
 	 * @internal
 	 * @return Type<mixed>
 	 */
+	#[\Override]
 	public function getTypeOf(string $columnName): Type
 	{
 		$column = $this->columns[$columnName] ?? throw ColumnNotFound::of($columnName, \get_class($this));

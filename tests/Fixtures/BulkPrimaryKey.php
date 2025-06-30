@@ -40,12 +40,14 @@ final readonly class BulkPrimaryKey implements PrimaryKey
 	/**
 	 * @return string[]
 	 */
+	#[\Override]
 	public static function getColumnNames(): array
 	{
 		return ['id'];
 	}
 
 
+	#[\Override]
 	public function getCondition(Table $table): Condition
 	{
 		return Composite::and(

@@ -41,6 +41,7 @@ final readonly class ConfigRow implements Row
 	}
 
 
+	#[\Override]
 	public static function reconstitute(array $values): static
 	{
 		/** @var array{id: Uuid, key: string, value: string} $values */

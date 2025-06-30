@@ -40,12 +40,14 @@ final readonly class PackagePrimaryKey implements PrimaryKey
 	/**
 	 * @return string[]
 	 */
+	#[\Override]
 	public static function getColumnNames(): array
 	{
 		return ['name'];
 	}
 
 
+	#[\Override]
 	public function getCondition(Table $table): Condition
 	{
 		return Composite::and(

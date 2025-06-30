@@ -86,7 +86,8 @@ final class ModificationsImplementation implements Capability
 			->setReturnType('string')
 			->setBody('return ?::class;', [
 				new Literal($namespace->simplifyName($this->relatedTableClass))
-			]);
+			])
+			->addAttribute(\Override::class);
 
 		// modify*() methods
 		foreach ($definition->getFields() as $field) {

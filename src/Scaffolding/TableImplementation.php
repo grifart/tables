@@ -87,7 +87,8 @@ final class TableImplementation implements Capability
 			->setReturnType('array')
 			->addComment("@return ColumnMetadata[]")
 			->setStatic()
-			->setBody("return [\n".$columnsArrayTemplate."\n];", $columnsDefinitions);
+			->setBody("return [\n".$columnsArrayTemplate."\n];", $columnsDefinitions)
+			->addAttribute(\Override::class);
 
 
 		$classType->addMethod('find')
@@ -473,7 +474,8 @@ final class TableImplementation implements Capability
 		$namespace->addUse(ColumnNotFound::class);
 		$getTypeOf = $classType->addMethod('getTypeOf')
 			->setPublic()
-			->setReturnType(Type::class);
+			->setReturnType(Type::class)
+			->addAttribute(\Override::class);
 
 		$getTypeOf->addParameter('columnName')->setType('string');
 		$getTypeOf->addBody('$column = $this->columns[$columnName] ?? throw ColumnNotFound::of($columnName, \get_class($this));');
@@ -497,6 +499,7 @@ final class TableImplementation implements Capability
 			->setReturnType('string')
 			->setBody('return ?;', [
 				$value
-			]);
+			])
+			->addAttribute(\Override::class);
 	}
 }

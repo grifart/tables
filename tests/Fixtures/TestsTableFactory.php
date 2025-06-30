@@ -22,18 +22,21 @@ final readonly class TestsTableFactory implements \Grifart\Tables\TableFactory
 	}
 
 
+	#[\Override]
 	public function create(): TestsTable
 	{
 		return new TestsTable($this->tableManager, $this->typeResolver);
 	}
 
 
+	#[\Override]
 	public function withTableManager(TableManager $tableManager): TestsTable
 	{
 		return new TestsTable($tableManager, $this->typeResolver);
 	}
 
 
+	#[\Override]
 	public function withConnection(IConnection $connection): TestsTable
 	{
 		$tableManager = new SingleConnectionTableManager($connection);

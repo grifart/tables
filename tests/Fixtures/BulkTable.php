@@ -50,30 +50,35 @@ final class BulkTable implements Table
 	}
 
 
+	#[\Override]
 	public static function getSchema(): string
 	{
 		return 'public';
 	}
 
 
+	#[\Override]
 	public static function getTableName(): string
 	{
 		return 'bulk';
 	}
 
 
+	#[\Override]
 	public static function getPrimaryKeyClass(): string
 	{
 		return BulkPrimaryKey::class;
 	}
 
 
+	#[\Override]
 	public static function getRowClass(): string
 	{
 		return BulkRow::class;
 	}
 
 
+	#[\Override]
 	public static function getModificationClass(): string
 	{
 		return BulkModifications::class;
@@ -83,6 +88,7 @@ final class BulkTable implements Table
 	/**
 	 * @return ColumnMetadata[]
 	 */
+	#[\Override]
 	public static function getDatabaseColumns(): array
 	{
 		return [
@@ -470,6 +476,7 @@ final class BulkTable implements Table
 	 * @internal
 	 * @return Type<mixed>
 	 */
+	#[\Override]
 	public function getTypeOf(string $columnName): Type
 	{
 		$column = $this->columns[$columnName] ?? throw ColumnNotFound::of($columnName, \get_class($this));
