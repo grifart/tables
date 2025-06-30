@@ -41,6 +41,7 @@ final readonly class GeneratedRow implements Row
 	}
 
 
+	#[\Override]
 	public static function reconstitute(array $values): static
 	{
 		/** @var array{id: int, double: int, direct: int} $values */

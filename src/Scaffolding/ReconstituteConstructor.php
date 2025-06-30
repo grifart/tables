@@ -5,7 +5,7 @@ namespace Grifart\Tables\Scaffolding;
 use Grifart\ClassScaffolder\Capabilities\Capability;
 use Grifart\ClassScaffolder\ClassInNamespace;
 use Grifart\ClassScaffolder\Definition\ClassDefinition;
-use Nette\PhpGenerator\PhpLiteral;
+use Nette\PhpGenerator\Literal;
 
 final class ReconstituteConstructor implements Capability
 {
@@ -30,10 +30,11 @@ final class ReconstituteConstructor implements Capability
 			$type = $field->getType();
 
 			$shapeFields[] = \sprintf('%s: %s', $name, $type->getDocCommentType($draft->getNamespace()));
-			$literals[] = new PhpLiteral("\$values['" . $name . "']");
+			$literals[] = new Literal("\$values['" . $name . "']");
 		}
 
 		$reconstitute->addBody(\sprintf('/** @var array{%s} $values */', \implode(', ', $shapeFields)));
 		$reconstitute->addBody("return new static(...?);", [$literals]);
+		$reconstitute->addAttribute(\Override::class);
 	}
 }

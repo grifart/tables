@@ -50,30 +50,35 @@ final class PackagesTable implements Table
 	}
 
 
+	#[\Override]
 	public static function getSchema(): string
 	{
 		return 'public';
 	}
 
 
+	#[\Override]
 	public static function getTableName(): string
 	{
 		return 'package';
 	}
 
 
+	#[\Override]
 	public static function getPrimaryKeyClass(): string
 	{
 		return PackagePrimaryKey::class;
 	}
 
 
+	#[\Override]
 	public static function getRowClass(): string
 	{
 		return PackageRow::class;
 	}
 
 
+	#[\Override]
 	public static function getModificationClass(): string
 	{
 		return PackageModifications::class;
@@ -83,6 +88,7 @@ final class PackagesTable implements Table
 	/**
 	 * @return ColumnMetadata[]
 	 */
+	#[\Override]
 	public static function getDatabaseColumns(): array
 	{
 		return [
@@ -216,9 +222,9 @@ final class PackagesTable implements Table
 	public function new(string $name, array $version, array $previousVersions): PackageModifications
 	{
 		$modifications = PackageModifications::new();
-		$modifications->modifyName($name);
-		$modifications->modifyVersion($version);
-		$modifications->modifyPreviousVersions($previousVersions);
+		$modifications->name = $name;
+		$modifications->version = $version;
+		$modifications->previousVersions = $previousVersions;
 		return $modifications;
 	}
 
@@ -237,13 +243,13 @@ final class PackagesTable implements Table
 		$primaryKey = $rowOrKey instanceof PackagePrimaryKey ? $rowOrKey : PackagePrimaryKey::fromRow($rowOrKey);
 		$modifications = PackageModifications::update($primaryKey);
 		if (!$name instanceof DefaultOrExistingValue) {
-			$modifications->modifyName($name);
+			$modifications->name = $name;
 		}
 		if (!$version instanceof DefaultOrExistingValue) {
-			$modifications->modifyVersion($version);
+			$modifications->version = $version;
 		}
 		if (!$previousVersions instanceof DefaultOrExistingValue) {
-			$modifications->modifyPreviousVersions($previousVersions);
+			$modifications->previousVersions = $previousVersions;
 		}
 		return $modifications;
 	}
@@ -257,9 +263,9 @@ final class PackagesTable implements Table
 	public function insert(string $name, array $version, array $previousVersions): void
 	{
 		$modifications = PackageModifications::new();
-		$modifications->modifyName($name);
-		$modifications->modifyVersion($version);
-		$modifications->modifyPreviousVersions($previousVersions);
+		$modifications->name = $name;
+		$modifications->version = $version;
+		$modifications->previousVersions = $previousVersions;
 		$this->tableManager->insert($this, $modifications);
 	}
 
@@ -272,9 +278,9 @@ final class PackagesTable implements Table
 	public function insertAndGet(string $name, array $version, array $previousVersions): PackageRow
 	{
 		$modifications = PackageModifications::new();
-		$modifications->modifyName($name);
-		$modifications->modifyVersion($version);
-		$modifications->modifyPreviousVersions($previousVersions);
+		$modifications->name = $name;
+		$modifications->version = $version;
+		$modifications->previousVersions = $previousVersions;
 		$row = $this->tableManager->insertAndGet($this, $modifications);
 		\assert($row instanceof PackageRow);
 		return $row;
@@ -296,13 +302,13 @@ final class PackagesTable implements Table
 		$primaryKey = $rowOrKey instanceof PackagePrimaryKey ? $rowOrKey : PackagePrimaryKey::fromRow($rowOrKey);
 		$modifications = PackageModifications::update($primaryKey);
 		if (!$name instanceof DefaultOrExistingValue) {
-			$modifications->modifyName($name);
+			$modifications->name = $name;
 		}
 		if (!$version instanceof DefaultOrExistingValue) {
-			$modifications->modifyVersion($version);
+			$modifications->version = $version;
 		}
 		if (!$previousVersions instanceof DefaultOrExistingValue) {
-			$modifications->modifyPreviousVersions($previousVersions);
+			$modifications->previousVersions = $previousVersions;
 		}
 		$this->tableManager->update($this, $modifications);
 	}
@@ -323,13 +329,13 @@ final class PackagesTable implements Table
 		$primaryKey = $rowOrKey instanceof PackagePrimaryKey ? $rowOrKey : PackagePrimaryKey::fromRow($rowOrKey);
 		$modifications = PackageModifications::update($primaryKey);
 		if (!$name instanceof DefaultOrExistingValue) {
-			$modifications->modifyName($name);
+			$modifications->name = $name;
 		}
 		if (!$version instanceof DefaultOrExistingValue) {
-			$modifications->modifyVersion($version);
+			$modifications->version = $version;
 		}
 		if (!$previousVersions instanceof DefaultOrExistingValue) {
-			$modifications->modifyPreviousVersions($previousVersions);
+			$modifications->previousVersions = $previousVersions;
 		}
 		$row = $this->tableManager->updateAndGet($this, $modifications);
 		\assert($row instanceof PackageRow);
@@ -351,13 +357,13 @@ final class PackagesTable implements Table
 	{
 		$modifications = PackageModifications::new();
 		if (!$name instanceof DefaultOrExistingValue) {
-			$modifications->modifyName($name);
+			$modifications->name = $name;
 		}
 		if (!$version instanceof DefaultOrExistingValue) {
-			$modifications->modifyVersion($version);
+			$modifications->version = $version;
 		}
 		if (!$previousVersions instanceof DefaultOrExistingValue) {
-			$modifications->modifyPreviousVersions($previousVersions);
+			$modifications->previousVersions = $previousVersions;
 		}
 		$this->tableManager->updateBy($this, $conditions, $modifications);
 	}
@@ -370,9 +376,9 @@ final class PackagesTable implements Table
 	public function upsert(string $name, array $version, array $previousVersions): void
 	{
 		$modifications = PackageModifications::new();
-		$modifications->modifyName($name);
-		$modifications->modifyVersion($version);
-		$modifications->modifyPreviousVersions($previousVersions);
+		$modifications->name = $name;
+		$modifications->version = $version;
+		$modifications->previousVersions = $previousVersions;
 		$this->tableManager->upsert($this, $modifications);
 	}
 
@@ -384,9 +390,9 @@ final class PackagesTable implements Table
 	public function upsertAndGet(string $name, array $version, array $previousVersions): PackageRow
 	{
 		$modifications = PackageModifications::new();
-		$modifications->modifyName($name);
-		$modifications->modifyVersion($version);
-		$modifications->modifyPreviousVersions($previousVersions);
+		$modifications->name = $name;
+		$modifications->version = $version;
+		$modifications->previousVersions = $previousVersions;
 		$row = $this->tableManager->upsertAndGet($this, $modifications);
 		\assert($row instanceof PackageRow);
 		return $row;
@@ -466,6 +472,7 @@ final class PackagesTable implements Table
 	 * @internal
 	 * @return Type<mixed>
 	 */
+	#[\Override]
 	public function getTypeOf(string $columnName): Type
 	{
 		$column = $this->columns[$columnName] ?? throw ColumnNotFound::of($columnName, \get_class($this));

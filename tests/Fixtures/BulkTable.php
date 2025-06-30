@@ -50,30 +50,35 @@ final class BulkTable implements Table
 	}
 
 
+	#[\Override]
 	public static function getSchema(): string
 	{
 		return 'public';
 	}
 
 
+	#[\Override]
 	public static function getTableName(): string
 	{
 		return 'bulk';
 	}
 
 
+	#[\Override]
 	public static function getPrimaryKeyClass(): string
 	{
 		return BulkPrimaryKey::class;
 	}
 
 
+	#[\Override]
 	public static function getRowClass(): string
 	{
 		return BulkRow::class;
 	}
 
 
+	#[\Override]
 	public static function getModificationClass(): string
 	{
 		return BulkModifications::class;
@@ -83,6 +88,7 @@ final class BulkTable implements Table
 	/**
 	 * @return ColumnMetadata[]
 	 */
+	#[\Override]
 	public static function getDatabaseColumns(): array
 	{
 		return [
@@ -216,10 +222,10 @@ final class BulkTable implements Table
 	): BulkModifications
 	{
 		$modifications = BulkModifications::new();
-		$modifications->modifyId($id);
-		$modifications->modifyValue($value);
+		$modifications->id = $id;
+		$modifications->value = $value;
 		if (!$flagged instanceof DefaultOrExistingValue) {
-			$modifications->modifyFlagged($flagged);
+			$modifications->flagged = $flagged;
 		}
 		return $modifications;
 	}
@@ -235,13 +241,13 @@ final class BulkTable implements Table
 		$primaryKey = $rowOrKey instanceof BulkPrimaryKey ? $rowOrKey : BulkPrimaryKey::fromRow($rowOrKey);
 		$modifications = BulkModifications::update($primaryKey);
 		if (!$id instanceof DefaultOrExistingValue) {
-			$modifications->modifyId($id);
+			$modifications->id = $id;
 		}
 		if (!$value instanceof DefaultOrExistingValue) {
-			$modifications->modifyValue($value);
+			$modifications->value = $value;
 		}
 		if (!$flagged instanceof DefaultOrExistingValue) {
-			$modifications->modifyFlagged($flagged);
+			$modifications->flagged = $flagged;
 		}
 		return $modifications;
 	}
@@ -257,10 +263,10 @@ final class BulkTable implements Table
 	): void
 	{
 		$modifications = BulkModifications::new();
-		$modifications->modifyId($id);
-		$modifications->modifyValue($value);
+		$modifications->id = $id;
+		$modifications->value = $value;
 		if (!$flagged instanceof DefaultOrExistingValue) {
-			$modifications->modifyFlagged($flagged);
+			$modifications->flagged = $flagged;
 		}
 		$this->tableManager->insert($this, $modifications);
 	}
@@ -276,10 +282,10 @@ final class BulkTable implements Table
 	): BulkRow
 	{
 		$modifications = BulkModifications::new();
-		$modifications->modifyId($id);
-		$modifications->modifyValue($value);
+		$modifications->id = $id;
+		$modifications->value = $value;
 		if (!$flagged instanceof DefaultOrExistingValue) {
-			$modifications->modifyFlagged($flagged);
+			$modifications->flagged = $flagged;
 		}
 		$row = $this->tableManager->insertAndGet($this, $modifications);
 		\assert($row instanceof BulkRow);
@@ -300,13 +306,13 @@ final class BulkTable implements Table
 		$primaryKey = $rowOrKey instanceof BulkPrimaryKey ? $rowOrKey : BulkPrimaryKey::fromRow($rowOrKey);
 		$modifications = BulkModifications::update($primaryKey);
 		if (!$id instanceof DefaultOrExistingValue) {
-			$modifications->modifyId($id);
+			$modifications->id = $id;
 		}
 		if (!$value instanceof DefaultOrExistingValue) {
-			$modifications->modifyValue($value);
+			$modifications->value = $value;
 		}
 		if (!$flagged instanceof DefaultOrExistingValue) {
-			$modifications->modifyFlagged($flagged);
+			$modifications->flagged = $flagged;
 		}
 		$this->tableManager->update($this, $modifications);
 	}
@@ -325,13 +331,13 @@ final class BulkTable implements Table
 		$primaryKey = $rowOrKey instanceof BulkPrimaryKey ? $rowOrKey : BulkPrimaryKey::fromRow($rowOrKey);
 		$modifications = BulkModifications::update($primaryKey);
 		if (!$id instanceof DefaultOrExistingValue) {
-			$modifications->modifyId($id);
+			$modifications->id = $id;
 		}
 		if (!$value instanceof DefaultOrExistingValue) {
-			$modifications->modifyValue($value);
+			$modifications->value = $value;
 		}
 		if (!$flagged instanceof DefaultOrExistingValue) {
-			$modifications->modifyFlagged($flagged);
+			$modifications->flagged = $flagged;
 		}
 		$row = $this->tableManager->updateAndGet($this, $modifications);
 		\assert($row instanceof BulkRow);
@@ -351,13 +357,13 @@ final class BulkTable implements Table
 	{
 		$modifications = BulkModifications::new();
 		if (!$id instanceof DefaultOrExistingValue) {
-			$modifications->modifyId($id);
+			$modifications->id = $id;
 		}
 		if (!$value instanceof DefaultOrExistingValue) {
-			$modifications->modifyValue($value);
+			$modifications->value = $value;
 		}
 		if (!$flagged instanceof DefaultOrExistingValue) {
-			$modifications->modifyFlagged($flagged);
+			$modifications->flagged = $flagged;
 		}
 		$this->tableManager->updateBy($this, $conditions, $modifications);
 	}
@@ -370,10 +376,10 @@ final class BulkTable implements Table
 	): void
 	{
 		$modifications = BulkModifications::new();
-		$modifications->modifyId($id);
-		$modifications->modifyValue($value);
+		$modifications->id = $id;
+		$modifications->value = $value;
 		if (!$flagged instanceof DefaultOrExistingValue) {
-			$modifications->modifyFlagged($flagged);
+			$modifications->flagged = $flagged;
 		}
 		$this->tableManager->upsert($this, $modifications);
 	}
@@ -386,10 +392,10 @@ final class BulkTable implements Table
 	): BulkRow
 	{
 		$modifications = BulkModifications::new();
-		$modifications->modifyId($id);
-		$modifications->modifyValue($value);
+		$modifications->id = $id;
+		$modifications->value = $value;
 		if (!$flagged instanceof DefaultOrExistingValue) {
-			$modifications->modifyFlagged($flagged);
+			$modifications->flagged = $flagged;
 		}
 		$row = $this->tableManager->upsertAndGet($this, $modifications);
 		\assert($row instanceof BulkRow);
@@ -470,6 +476,7 @@ final class BulkTable implements Table
 	 * @internal
 	 * @return Type<mixed>
 	 */
+	#[\Override]
 	public function getTypeOf(string $columnName): Type
 	{
 		$column = $this->columns[$columnName] ?? throw ColumnNotFound::of($columnName, \get_class($this));

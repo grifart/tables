@@ -9,17 +9,19 @@ namespace Grifart\Tables;
 interface Modifications
 {
 
+	/**
+	 * @internal
+	 * @var array<string, mixed>
+	 */
+	public array $modifications { get; }
 
 	/**
-	 * @internal used by {@see AccountsTable}
-	 * @return mixed[]
+	 * null means that row is new (do INSERT)
+	 *
+	 * @internal
+	 * @var PrimaryKey<TableType>|null
 	 */
-	public function getModifications(): array;
-
-	/**
-	 * @return null|PrimaryKey<TableType> if null it means, that row is new (do INSERT)
-	 */
-	public function getPrimaryKey(): ?PrimaryKey;
+	public ?PrimaryKey $primaryKey { get; }
 
 	/**
 	 * With which table is this row associated

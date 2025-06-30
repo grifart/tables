@@ -180,7 +180,7 @@ final class SingleConnectionTableManager implements TableManager
 	 * @throws GivenSearchCriteriaHaveNotMatchedAnyRows
 	 */
 	public function save(Table $table, Modifications $changes): void {
-		if ($changes->getPrimaryKey() === NULL) {
+		if ($changes->primaryKey === NULL) {
 			// INSERT
 			$this->insert($table, $changes);
 			return;
@@ -198,14 +198,14 @@ final class SingleConnectionTableManager implements TableManager
 	 */
 	public function insert(Table $table, Modifications $changes): void
 	{
-		\assert($changes->getPrimaryKey() === NULL);
+		\assert($changes->primaryKey === NULL);
 
 		try {
 			$this->connection->query(
 				'INSERT',
 				'INTO %n.%n', $table::getSchema(), $table::getTableName(),
 				mapWithKeys(
-					$changes->getModifications(),
+					$changes->modifications,
 					static fn(string $columnName, mixed $value) => $table->getTypeOf($columnName)->toDatabase($value),
 				),
 			);
@@ -224,13 +224,13 @@ final class SingleConnectionTableManager implements TableManager
 	 */
 	public function insertAndGet(Table $table, Modifications $changes): Row
 	{
-		\assert($changes->getPrimaryKey() === NULL);
+		\assert($changes->primaryKey === NULL);
 
 		try {
 			$result = $this->connection->query(
 				'INSERT INTO %n.%n', $table::getSchema(), $table::getTableName(),
 				mapWithKeys(
-					$changes->getModifications(),
+					$changes->modifications,
 					static fn(string $columnName, mixed $value) => $table->getTypeOf($columnName)->toDatabase($value),
 				),
 				'RETURNING *',
@@ -266,13 +266,13 @@ final class SingleConnectionTableManager implements TableManager
 	 */
 	public function update(Table $table, Modifications $changes): void
 	{
-		$primaryKey = $changes->getPrimaryKey();
+		$primaryKey = $changes->primaryKey;
 		\assert($primaryKey !== NULL);
 		$this->connection->query(
 			'UPDATE %n.%n', $table::getSchema(), $table::getTableName(),
 			'SET %a',
 			mapWithKeys(
-				$changes->getModifications(),
+				$changes->modifications,
 				static fn(string $columnName, mixed $value) => $table->getTypeOf($columnName)->toDatabase($value),
 			),
 			'WHERE %ex', $primaryKey->getCondition($table)->toSql()->getValues(),
@@ -295,13 +295,13 @@ final class SingleConnectionTableManager implements TableManager
 	 */
 	public function updateAndGet(Table $table, Modifications $changes): Row
 	{
-		$primaryKey = $changes->getPrimaryKey();
+		$primaryKey = $changes->primaryKey;
 		\assert($primaryKey !== NULL);
 		$result = $this->connection->query(
 			'UPDATE %n.%n', $table::getSchema(), $table::getTableName(),
 			'SET %a',
 			mapWithKeys(
-				$changes->getModifications(),
+				$changes->modifications,
 				static fn(string $columnName, mixed $value) => $table->getTypeOf($columnName)->toDatabase($value),
 			),
 			'WHERE %ex', $primaryKey->getCondition($table)->toSql()->getValues(),
@@ -342,13 +342,13 @@ final class SingleConnectionTableManager implements TableManager
 	 */
 	public function updateBy(Table $table, Condition|array $conditions, Modifications $changes): void
 	{
-		\assert($changes->getPrimaryKey() === null);
+		\assert($changes->primaryKey === null);
 
 		$this->connection->query(
 			'UPDATE %n.%n', $table::getSchema(), $table::getTableName(),
 			'SET %a',
 			mapWithKeys(
-				$changes->getModifications(),
+				$changes->modifications,
 				static fn(string $columnName, mixed $value) => $table->getTypeOf($columnName)->toDatabase($value),
 			),
 			'WHERE %ex', (\is_array($conditions) ? Composite::and(...$conditions) : $conditions)->toSql()->getValues(),
@@ -362,10 +362,10 @@ final class SingleConnectionTableManager implements TableManager
 	 */
 	public function upsert(Table $table, Modifications $changes): void
 	{
-		\assert($changes->getPrimaryKey() === null);
+		\assert($changes->primaryKey === null);
 
 		$values = mapWithKeys(
-			$changes->getModifications(),
+			$changes->modifications,
 			static fn(string $columnName, mixed $value) => $table->getTypeOf($columnName)->toDatabase($value),
 		);
 
@@ -388,10 +388,10 @@ final class SingleConnectionTableManager implements TableManager
 	 */
 	public function upsertAndGet(Table $table, Modifications $changes): Row
 	{
-		\assert($changes->getPrimaryKey() === null);
+		\assert($changes->primaryKey === null);
 
 		$values = mapWithKeys(
-			$changes->getModifications(),
+			$changes->modifications,
 			static fn(string $columnName, mixed $value) => $table->getTypeOf($columnName)->toDatabase($value),
 		);
 

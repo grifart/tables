@@ -51,6 +51,7 @@ final readonly class PackageRow implements Row
 	}
 
 
+	#[\Override]
 	public static function reconstitute(array $values): static
 	{
 		/** @var array{name: string, version: array{int, int, int}, previousVersions: Version[]} $values */

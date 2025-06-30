@@ -50,30 +50,35 @@ final class GeneratedTable implements Table
 	}
 
 
+	#[\Override]
 	public static function getSchema(): string
 	{
 		return 'public';
 	}
 
 
+	#[\Override]
 	public static function getTableName(): string
 	{
 		return 'generated';
 	}
 
 
+	#[\Override]
 	public static function getPrimaryKeyClass(): string
 	{
 		return GeneratedPrimaryKey::class;
 	}
 
 
+	#[\Override]
 	public static function getRowClass(): string
 	{
 		return GeneratedRow::class;
 	}
 
 
+	#[\Override]
 	public static function getModificationClass(): string
 	{
 		return GeneratedModifications::class;
@@ -83,6 +88,7 @@ final class GeneratedTable implements Table
 	/**
 	 * @return ColumnMetadata[]
 	 */
+	#[\Override]
 	public static function getDatabaseColumns(): array
 	{
 		return [
@@ -212,7 +218,7 @@ final class GeneratedTable implements Table
 	public function new(int $direct): GeneratedModifications
 	{
 		$modifications = GeneratedModifications::new();
-		$modifications->modifyDirect($direct);
+		$modifications->direct = $direct;
 		return $modifications;
 	}
 
@@ -225,7 +231,7 @@ final class GeneratedTable implements Table
 		$primaryKey = $rowOrKey instanceof GeneratedPrimaryKey ? $rowOrKey : GeneratedPrimaryKey::fromRow($rowOrKey);
 		$modifications = GeneratedModifications::update($primaryKey);
 		if (!$direct instanceof DefaultOrExistingValue) {
-			$modifications->modifyDirect($direct);
+			$modifications->direct = $direct;
 		}
 		return $modifications;
 	}
@@ -237,7 +243,7 @@ final class GeneratedTable implements Table
 	public function insert(int $direct): void
 	{
 		$modifications = GeneratedModifications::new();
-		$modifications->modifyDirect($direct);
+		$modifications->direct = $direct;
 		$this->tableManager->insert($this, $modifications);
 	}
 
@@ -248,7 +254,7 @@ final class GeneratedTable implements Table
 	public function insertAndGet(int $direct): GeneratedRow
 	{
 		$modifications = GeneratedModifications::new();
-		$modifications->modifyDirect($direct);
+		$modifications->direct = $direct;
 		$row = $this->tableManager->insertAndGet($this, $modifications);
 		\assert($row instanceof GeneratedRow);
 		return $row;
@@ -266,7 +272,7 @@ final class GeneratedTable implements Table
 		$primaryKey = $rowOrKey instanceof GeneratedPrimaryKey ? $rowOrKey : GeneratedPrimaryKey::fromRow($rowOrKey);
 		$modifications = GeneratedModifications::update($primaryKey);
 		if (!$direct instanceof DefaultOrExistingValue) {
-			$modifications->modifyDirect($direct);
+			$modifications->direct = $direct;
 		}
 		$this->tableManager->update($this, $modifications);
 	}
@@ -283,7 +289,7 @@ final class GeneratedTable implements Table
 		$primaryKey = $rowOrKey instanceof GeneratedPrimaryKey ? $rowOrKey : GeneratedPrimaryKey::fromRow($rowOrKey);
 		$modifications = GeneratedModifications::update($primaryKey);
 		if (!$direct instanceof DefaultOrExistingValue) {
-			$modifications->modifyDirect($direct);
+			$modifications->direct = $direct;
 		}
 		$row = $this->tableManager->updateAndGet($this, $modifications);
 		\assert($row instanceof GeneratedRow);
@@ -301,7 +307,7 @@ final class GeneratedTable implements Table
 	{
 		$modifications = GeneratedModifications::new();
 		if (!$direct instanceof DefaultOrExistingValue) {
-			$modifications->modifyDirect($direct);
+			$modifications->direct = $direct;
 		}
 		$this->tableManager->updateBy($this, $conditions, $modifications);
 	}
@@ -310,7 +316,7 @@ final class GeneratedTable implements Table
 	public function upsert(int $direct): void
 	{
 		$modifications = GeneratedModifications::new();
-		$modifications->modifyDirect($direct);
+		$modifications->direct = $direct;
 		$this->tableManager->upsert($this, $modifications);
 	}
 
@@ -318,7 +324,7 @@ final class GeneratedTable implements Table
 	public function upsertAndGet(int $direct): GeneratedRow
 	{
 		$modifications = GeneratedModifications::new();
-		$modifications->modifyDirect($direct);
+		$modifications->direct = $direct;
 		$row = $this->tableManager->upsertAndGet($this, $modifications);
 		\assert($row instanceof GeneratedRow);
 		return $row;
@@ -398,6 +404,7 @@ final class GeneratedTable implements Table
 	 * @internal
 	 * @return Type<mixed>
 	 */
+	#[\Override]
 	public function getTypeOf(string $columnName): Type
 	{
 		$column = $this->columns[$columnName] ?? throw ColumnNotFound::of($columnName, \get_class($this));

@@ -50,30 +50,35 @@ final class TestsTable implements Table
 	}
 
 
+	#[\Override]
 	public static function getSchema(): string
 	{
 		return 'public';
 	}
 
 
+	#[\Override]
 	public static function getTableName(): string
 	{
 		return 'test';
 	}
 
 
+	#[\Override]
 	public static function getPrimaryKeyClass(): string
 	{
 		return TestPrimaryKey::class;
 	}
 
 
+	#[\Override]
 	public static function getRowClass(): string
 	{
 		return TestRow::class;
 	}
 
 
+	#[\Override]
 	public static function getModificationClass(): string
 	{
 		return TestModifications::class;
@@ -83,6 +88,7 @@ final class TestsTable implements Table
 	/**
 	 * @return ColumnMetadata[]
 	 */
+	#[\Override]
 	public static function getDatabaseColumns(): array
 	{
 		return [
@@ -216,10 +222,10 @@ final class TestsTable implements Table
 	): TestModifications
 	{
 		$modifications = TestModifications::new();
-		$modifications->modifyId($id);
-		$modifications->modifyScore($score);
+		$modifications->id = $id;
+		$modifications->score = $score;
 		if (!$details instanceof DefaultOrExistingValue) {
-			$modifications->modifyDetails($details);
+			$modifications->details = $details;
 		}
 		return $modifications;
 	}
@@ -235,13 +241,13 @@ final class TestsTable implements Table
 		$primaryKey = $rowOrKey instanceof TestPrimaryKey ? $rowOrKey : TestPrimaryKey::fromRow($rowOrKey);
 		$modifications = TestModifications::update($primaryKey);
 		if (!$id instanceof DefaultOrExistingValue) {
-			$modifications->modifyId($id);
+			$modifications->id = $id;
 		}
 		if (!$score instanceof DefaultOrExistingValue) {
-			$modifications->modifyScore($score);
+			$modifications->score = $score;
 		}
 		if (!$details instanceof DefaultOrExistingValue) {
-			$modifications->modifyDetails($details);
+			$modifications->details = $details;
 		}
 		return $modifications;
 	}
@@ -257,10 +263,10 @@ final class TestsTable implements Table
 	): void
 	{
 		$modifications = TestModifications::new();
-		$modifications->modifyId($id);
-		$modifications->modifyScore($score);
+		$modifications->id = $id;
+		$modifications->score = $score;
 		if (!$details instanceof DefaultOrExistingValue) {
-			$modifications->modifyDetails($details);
+			$modifications->details = $details;
 		}
 		$this->tableManager->insert($this, $modifications);
 	}
@@ -276,10 +282,10 @@ final class TestsTable implements Table
 	): TestRow
 	{
 		$modifications = TestModifications::new();
-		$modifications->modifyId($id);
-		$modifications->modifyScore($score);
+		$modifications->id = $id;
+		$modifications->score = $score;
 		if (!$details instanceof DefaultOrExistingValue) {
-			$modifications->modifyDetails($details);
+			$modifications->details = $details;
 		}
 		$row = $this->tableManager->insertAndGet($this, $modifications);
 		\assert($row instanceof TestRow);
@@ -300,13 +306,13 @@ final class TestsTable implements Table
 		$primaryKey = $rowOrKey instanceof TestPrimaryKey ? $rowOrKey : TestPrimaryKey::fromRow($rowOrKey);
 		$modifications = TestModifications::update($primaryKey);
 		if (!$id instanceof DefaultOrExistingValue) {
-			$modifications->modifyId($id);
+			$modifications->id = $id;
 		}
 		if (!$score instanceof DefaultOrExistingValue) {
-			$modifications->modifyScore($score);
+			$modifications->score = $score;
 		}
 		if (!$details instanceof DefaultOrExistingValue) {
-			$modifications->modifyDetails($details);
+			$modifications->details = $details;
 		}
 		$this->tableManager->update($this, $modifications);
 	}
@@ -325,13 +331,13 @@ final class TestsTable implements Table
 		$primaryKey = $rowOrKey instanceof TestPrimaryKey ? $rowOrKey : TestPrimaryKey::fromRow($rowOrKey);
 		$modifications = TestModifications::update($primaryKey);
 		if (!$id instanceof DefaultOrExistingValue) {
-			$modifications->modifyId($id);
+			$modifications->id = $id;
 		}
 		if (!$score instanceof DefaultOrExistingValue) {
-			$modifications->modifyScore($score);
+			$modifications->score = $score;
 		}
 		if (!$details instanceof DefaultOrExistingValue) {
-			$modifications->modifyDetails($details);
+			$modifications->details = $details;
 		}
 		$row = $this->tableManager->updateAndGet($this, $modifications);
 		\assert($row instanceof TestRow);
@@ -351,13 +357,13 @@ final class TestsTable implements Table
 	{
 		$modifications = TestModifications::new();
 		if (!$id instanceof DefaultOrExistingValue) {
-			$modifications->modifyId($id);
+			$modifications->id = $id;
 		}
 		if (!$score instanceof DefaultOrExistingValue) {
-			$modifications->modifyScore($score);
+			$modifications->score = $score;
 		}
 		if (!$details instanceof DefaultOrExistingValue) {
-			$modifications->modifyDetails($details);
+			$modifications->details = $details;
 		}
 		$this->tableManager->updateBy($this, $conditions, $modifications);
 	}
@@ -370,10 +376,10 @@ final class TestsTable implements Table
 	): void
 	{
 		$modifications = TestModifications::new();
-		$modifications->modifyId($id);
-		$modifications->modifyScore($score);
+		$modifications->id = $id;
+		$modifications->score = $score;
 		if (!$details instanceof DefaultOrExistingValue) {
-			$modifications->modifyDetails($details);
+			$modifications->details = $details;
 		}
 		$this->tableManager->upsert($this, $modifications);
 	}
@@ -386,10 +392,10 @@ final class TestsTable implements Table
 	): TestRow
 	{
 		$modifications = TestModifications::new();
-		$modifications->modifyId($id);
-		$modifications->modifyScore($score);
+		$modifications->id = $id;
+		$modifications->score = $score;
 		if (!$details instanceof DefaultOrExistingValue) {
-			$modifications->modifyDetails($details);
+			$modifications->details = $details;
 		}
 		$row = $this->tableManager->upsertAndGet($this, $modifications);
 		\assert($row instanceof TestRow);
@@ -470,6 +476,7 @@ final class TestsTable implements Table
 	 * @internal
 	 * @return Type<mixed>
 	 */
+	#[\Override]
 	public function getTypeOf(string $columnName): Type
 	{
 		$column = $this->columns[$columnName] ?? throw ColumnNotFound::of($columnName, \get_class($this));

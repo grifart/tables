@@ -41,6 +41,7 @@ final readonly class TestRow implements Row
 	}
 
 
+	#[\Override]
 	public static function reconstitute(array $values): static
 	{
 		/** @var array{id: Uuid, score: int, details: string|null} $values */

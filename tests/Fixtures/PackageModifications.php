@@ -9,34 +9,62 @@ declare(strict_types=1);
 namespace Grifart\Tables\Tests\Fixtures;
 
 use Grifart\Tables\Modifications;
-use Grifart\Tables\ModificationsTrait;
 
 /**
  * @implements Modifications<PackagesTable>
  */
 final class PackageModifications implements Modifications
 {
-	/** @use ModificationsTrait<PackagesTable> */
-	use ModificationsTrait;
+	/** @var array<string, mixed> */
+	public private(set) array $modifications = [];
+
+	public string $name {
+		set {
+			$this->modifications['name'] = $value;
+		}
+	}
+
+	/** @var array{int, int, int} */
+	public array $version {
+		set {
+			$this->modifications['version'] = $value;
+		}
+	}
+
+	/** @var Version[] */
+	public array $previousVersions {
+		set {
+			$this->modifications['previousVersions'] = $value;
+		}
+	}
+
+
+	private function __construct(
+		public readonly ?PackagePrimaryKey $primaryKey = null,
+	) {
+	}
+
 
 	public static function update(PackagePrimaryKey $primaryKey): self
 	{
-		return self::_update($primaryKey);
+		return new self($primaryKey);
 	}
 
 
 	public static function new(): self
 	{
-		return self::_new();
+		return new self();
 	}
 
 
+	#[\Override]
 	public static function forTable(): string
 	{
 		return PackagesTable::class;
 	}
 
 
+	#[\Deprecated('Use $name property instead.')]
 	public function modifyName(string $name): void
 	{
 		$this->modifications['name'] = $name;
@@ -46,6 +74,7 @@ final class PackageModifications implements Modifications
 	/**
 	 * @param array{int, int, int} $version
 	 */
+	#[\Deprecated('Use $version property instead.')]
 	public function modifyVersion(array $version): void
 	{
 		$this->modifications['version'] = $version;
@@ -55,6 +84,7 @@ final class PackageModifications implements Modifications
 	/**
 	 * @param Version[] $previousVersions
 	 */
+	#[\Deprecated('Use $previousVersions property instead.')]
 	public function modifyPreviousVersions(array $previousVersions): void
 	{
 		$this->modifications['previousVersions'] = $previousVersions;

@@ -17,10 +17,10 @@ use function Grifart\Tables\Conditions\equalTo;
 /**
  * @implements PrimaryKey<GeneratedTable>
  */
-final class GeneratedPrimaryKey implements PrimaryKey
+final readonly class GeneratedPrimaryKey implements PrimaryKey
 {
 	private function __construct(
-		private int $id,
+		public int $id,
 	) {
 	}
 
@@ -40,12 +40,14 @@ final class GeneratedPrimaryKey implements PrimaryKey
 	/**
 	 * @return string[]
 	 */
+	#[\Override]
 	public static function getColumnNames(): array
 	{
 		return ['id'];
 	}
 
 
+	#[\Override]
 	public function getCondition(Table $table): Condition
 	{
 		return Composite::and(
@@ -54,6 +56,7 @@ final class GeneratedPrimaryKey implements PrimaryKey
 	}
 
 
+	#[\Deprecated('Use $id property instead.')]
 	public function getId(): int
 	{
 		return $this->id;

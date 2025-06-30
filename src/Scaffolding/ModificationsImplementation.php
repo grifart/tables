@@ -8,9 +8,10 @@ use Grifart\ClassScaffolder\ClassInNamespace;
 use Grifart\ClassScaffolder\Definition\ClassDefinition;
 use Grifart\Tables\ColumnMetadata;
 use Grifart\Tables\Modifications;
-use Grifart\Tables\ModificationsTrait;
+use Nette\PhpGenerator\Literal;
 use Nette\PhpGenerator\Parameter;
-use Nette\PhpGenerator\PhpLiteral;
+use Nette\PhpGenerator\PromotedParameter;
+use Nette\PhpGenerator\PropertyHookType;
 
 final class ModificationsImplementation implements Capability
 {
@@ -38,13 +39,26 @@ final class ModificationsImplementation implements Capability
 		$namespace = $draft->getNamespace();
 		$classType = $draft->getClassType();
 
-		$namespace->addUse(ModificationsTrait::class);
-		$classType->addTrait(ModificationsTrait::class, true)
-			->addComment(\sprintf('@use ModificationsTrait<%s>', $namespace->simplifyName($this->relatedTableClass)));
-
 		$namespace->addUse(Modifications::class);
 		$classType->addImplement(Modifications::class);
 		$classType->addComment(\sprintf('@implements Modifications<%s>', $namespace->simplifyName($this->relatedTableClass)));
+
+		$classType->addProperty('modifications')
+			->setVisibility('public', 'private')
+			->setType('array')
+			->addComment('@var array<string, mixed>')
+			->setValue([]);
+
+		$classType->addMethod('__construct')
+			->setVisibility('private')
+			->setParameters([
+				new PromotedParameter('primaryKey')
+					->setType($this->primaryKeyClass)
+					->setNullable()
+					->setDefaultValue(null)
+					->setVisibility('public')
+					->setReadOnly(),
+			]);
 
 		// ::update() constructor
 		$namespace->addUse($this->primaryKeyClass);
@@ -56,13 +70,13 @@ final class ModificationsImplementation implements Capability
 				(new Parameter('primaryKey'))
 					->setType($this->primaryKeyClass)
 			])
-			->setBody('return self::_update($primaryKey);');
+			->setBody('return new self($primaryKey);');
 
 		$classType->addMethod('new')
 			->setStatic()
 			->setVisibility('public')
 			->setReturnType('self')
-			->setBody('return self::_new();');
+			->setBody('return new self();');
 
 		// implement forTable method
 		$namespace->addUse($this->relatedTableClass);
@@ -71,8 +85,9 @@ final class ModificationsImplementation implements Capability
 			->setVisibility('public')
 			->setReturnType('string')
 			->setBody('return ?::class;', [
-				new PhpLiteral($namespace->simplifyName($this->relatedTableClass))
-			]);
+				new Literal($namespace->simplifyName($this->relatedTableClass))
+			])
+			->addAttribute(\Override::class);
 
 		// modify*() methods
 		foreach ($definition->getFields() as $field) {
@@ -83,32 +98,41 @@ final class ModificationsImplementation implements Capability
 				continue;
 			}
 
+			$property = $classType->addProperty($fieldName)
+				->setType($type->getTypeHint())
+				->setNullable($type->isNullable());
+
 			// add getter
 			$modifier = $classType->addMethod('modify' . \ucfirst($fieldName))
 				->setVisibility('public')
 				->addBody('?[?] = ?;', [
-					new PhpLiteral($this->modificationsStorage),
+					new Literal($this->modificationsStorage),
 					$fieldName,
-					new PhpLiteral('$' . $fieldName),
+					new Literal('$' . $fieldName),
 				])
 				->setParameters([
 					(new Parameter($fieldName))
 						->setType($type->getTypeHint())
 						->setNullable($type->isNullable())
-				]);
-			$modifier->setReturnType('void');
-
+				])
+				->setReturnType('void')
+				->addAttribute(\Deprecated::class, ['Use $' . $fieldName . ' property instead.']);
 
 			// add phpDoc type hints if necessary
 			if ($type->requiresDocComment()) {
 				$docCommentType = $type->getDocCommentType($namespace);
-
-				$modifier->addComment(\sprintf(
-					'@param %s $%s',
-					$docCommentType,
-					$fieldName,
-				));
+				$property->addComment(\sprintf('@var %s', $docCommentType));
+				$modifier->addComment(\sprintf('@param %s $%s', $docCommentType, $fieldName));
 			}
+
+			$property->addHook(PropertyHookType::Set)
+				->setBody(
+					'?[?] = $value;',
+					[
+						new Literal($this->modificationsStorage),
+						$fieldName,
+					],
+				);
 		}
 	}
 }
