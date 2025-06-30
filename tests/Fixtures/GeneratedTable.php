@@ -212,7 +212,7 @@ final class GeneratedTable implements Table
 	public function new(int $direct): GeneratedModifications
 	{
 		$modifications = GeneratedModifications::new();
-		$modifications->modifyDirect($direct);
+		$modifications->direct = $direct;
 		return $modifications;
 	}
 
@@ -225,7 +225,7 @@ final class GeneratedTable implements Table
 		$primaryKey = $rowOrKey instanceof GeneratedPrimaryKey ? $rowOrKey : GeneratedPrimaryKey::fromRow($rowOrKey);
 		$modifications = GeneratedModifications::update($primaryKey);
 		if (!$direct instanceof DefaultOrExistingValue) {
-			$modifications->modifyDirect($direct);
+			$modifications->direct = $direct;
 		}
 		return $modifications;
 	}
@@ -237,7 +237,7 @@ final class GeneratedTable implements Table
 	public function insert(int $direct): void
 	{
 		$modifications = GeneratedModifications::new();
-		$modifications->modifyDirect($direct);
+		$modifications->direct = $direct;
 		$this->tableManager->insert($this, $modifications);
 	}
 
@@ -248,7 +248,7 @@ final class GeneratedTable implements Table
 	public function insertAndGet(int $direct): GeneratedRow
 	{
 		$modifications = GeneratedModifications::new();
-		$modifications->modifyDirect($direct);
+		$modifications->direct = $direct;
 		$row = $this->tableManager->insertAndGet($this, $modifications);
 		\assert($row instanceof GeneratedRow);
 		return $row;
@@ -266,7 +266,7 @@ final class GeneratedTable implements Table
 		$primaryKey = $rowOrKey instanceof GeneratedPrimaryKey ? $rowOrKey : GeneratedPrimaryKey::fromRow($rowOrKey);
 		$modifications = GeneratedModifications::update($primaryKey);
 		if (!$direct instanceof DefaultOrExistingValue) {
-			$modifications->modifyDirect($direct);
+			$modifications->direct = $direct;
 		}
 		$this->tableManager->update($this, $modifications);
 	}
@@ -283,7 +283,7 @@ final class GeneratedTable implements Table
 		$primaryKey = $rowOrKey instanceof GeneratedPrimaryKey ? $rowOrKey : GeneratedPrimaryKey::fromRow($rowOrKey);
 		$modifications = GeneratedModifications::update($primaryKey);
 		if (!$direct instanceof DefaultOrExistingValue) {
-			$modifications->modifyDirect($direct);
+			$modifications->direct = $direct;
 		}
 		$row = $this->tableManager->updateAndGet($this, $modifications);
 		\assert($row instanceof GeneratedRow);
@@ -301,7 +301,7 @@ final class GeneratedTable implements Table
 	{
 		$modifications = GeneratedModifications::new();
 		if (!$direct instanceof DefaultOrExistingValue) {
-			$modifications->modifyDirect($direct);
+			$modifications->direct = $direct;
 		}
 		$this->tableManager->updateBy($this, $conditions, $modifications);
 	}
@@ -310,7 +310,7 @@ final class GeneratedTable implements Table
 	public function upsert(int $direct): void
 	{
 		$modifications = GeneratedModifications::new();
-		$modifications->modifyDirect($direct);
+		$modifications->direct = $direct;
 		$this->tableManager->upsert($this, $modifications);
 	}
 
@@ -318,7 +318,7 @@ final class GeneratedTable implements Table
 	public function upsertAndGet(int $direct): GeneratedRow
 	{
 		$modifications = GeneratedModifications::new();
-		$modifications->modifyDirect($direct);
+		$modifications->direct = $direct;
 		$row = $this->tableManager->upsertAndGet($this, $modifications);
 		\assert($row instanceof GeneratedRow);
 		return $row;

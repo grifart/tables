@@ -378,7 +378,7 @@ final class TableImplementation implements Capability
 				}
 
 				$method->addBody(
-					($hasDefaultValue ? "\t" : '') . '$modifications->modify' . \ucfirst($fieldName) . '(?);',
+					($hasDefaultValue ? "\t" : '') . '$modifications->' . $fieldName . ' = ?;',
 					[new Code\Literal('$' . $fieldName)],
 				);
 

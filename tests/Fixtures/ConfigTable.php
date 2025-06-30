@@ -212,9 +212,9 @@ final class ConfigTable implements Table
 	public function new(Uuid $id, string $key, string $value): ConfigModifications
 	{
 		$modifications = ConfigModifications::new();
-		$modifications->modifyId($id);
-		$modifications->modifyKey($key);
-		$modifications->modifyValue($value);
+		$modifications->id = $id;
+		$modifications->key = $key;
+		$modifications->value = $value;
 		return $modifications;
 	}
 
@@ -229,13 +229,13 @@ final class ConfigTable implements Table
 		$primaryKey = $rowOrKey instanceof ConfigPrimaryKey ? $rowOrKey : ConfigPrimaryKey::fromRow($rowOrKey);
 		$modifications = ConfigModifications::update($primaryKey);
 		if (!$id instanceof DefaultOrExistingValue) {
-			$modifications->modifyId($id);
+			$modifications->id = $id;
 		}
 		if (!$key instanceof DefaultOrExistingValue) {
-			$modifications->modifyKey($key);
+			$modifications->key = $key;
 		}
 		if (!$value instanceof DefaultOrExistingValue) {
-			$modifications->modifyValue($value);
+			$modifications->value = $value;
 		}
 		return $modifications;
 	}
@@ -247,9 +247,9 @@ final class ConfigTable implements Table
 	public function insert(Uuid $id, string $key, string $value): void
 	{
 		$modifications = ConfigModifications::new();
-		$modifications->modifyId($id);
-		$modifications->modifyKey($key);
-		$modifications->modifyValue($value);
+		$modifications->id = $id;
+		$modifications->key = $key;
+		$modifications->value = $value;
 		$this->tableManager->insert($this, $modifications);
 	}
 
@@ -260,9 +260,9 @@ final class ConfigTable implements Table
 	public function insertAndGet(Uuid $id, string $key, string $value): ConfigRow
 	{
 		$modifications = ConfigModifications::new();
-		$modifications->modifyId($id);
-		$modifications->modifyKey($key);
-		$modifications->modifyValue($value);
+		$modifications->id = $id;
+		$modifications->key = $key;
+		$modifications->value = $value;
 		$row = $this->tableManager->insertAndGet($this, $modifications);
 		\assert($row instanceof ConfigRow);
 		return $row;
@@ -282,13 +282,13 @@ final class ConfigTable implements Table
 		$primaryKey = $rowOrKey instanceof ConfigPrimaryKey ? $rowOrKey : ConfigPrimaryKey::fromRow($rowOrKey);
 		$modifications = ConfigModifications::update($primaryKey);
 		if (!$id instanceof DefaultOrExistingValue) {
-			$modifications->modifyId($id);
+			$modifications->id = $id;
 		}
 		if (!$key instanceof DefaultOrExistingValue) {
-			$modifications->modifyKey($key);
+			$modifications->key = $key;
 		}
 		if (!$value instanceof DefaultOrExistingValue) {
-			$modifications->modifyValue($value);
+			$modifications->value = $value;
 		}
 		$this->tableManager->update($this, $modifications);
 	}
@@ -307,13 +307,13 @@ final class ConfigTable implements Table
 		$primaryKey = $rowOrKey instanceof ConfigPrimaryKey ? $rowOrKey : ConfigPrimaryKey::fromRow($rowOrKey);
 		$modifications = ConfigModifications::update($primaryKey);
 		if (!$id instanceof DefaultOrExistingValue) {
-			$modifications->modifyId($id);
+			$modifications->id = $id;
 		}
 		if (!$key instanceof DefaultOrExistingValue) {
-			$modifications->modifyKey($key);
+			$modifications->key = $key;
 		}
 		if (!$value instanceof DefaultOrExistingValue) {
-			$modifications->modifyValue($value);
+			$modifications->value = $value;
 		}
 		$row = $this->tableManager->updateAndGet($this, $modifications);
 		\assert($row instanceof ConfigRow);
@@ -333,13 +333,13 @@ final class ConfigTable implements Table
 	{
 		$modifications = ConfigModifications::new();
 		if (!$id instanceof DefaultOrExistingValue) {
-			$modifications->modifyId($id);
+			$modifications->id = $id;
 		}
 		if (!$key instanceof DefaultOrExistingValue) {
-			$modifications->modifyKey($key);
+			$modifications->key = $key;
 		}
 		if (!$value instanceof DefaultOrExistingValue) {
-			$modifications->modifyValue($value);
+			$modifications->value = $value;
 		}
 		$this->tableManager->updateBy($this, $conditions, $modifications);
 	}
@@ -348,9 +348,9 @@ final class ConfigTable implements Table
 	public function upsert(Uuid $id, string $key, string $value): void
 	{
 		$modifications = ConfigModifications::new();
-		$modifications->modifyId($id);
-		$modifications->modifyKey($key);
-		$modifications->modifyValue($value);
+		$modifications->id = $id;
+		$modifications->key = $key;
+		$modifications->value = $value;
 		$this->tableManager->upsert($this, $modifications);
 	}
 
@@ -358,9 +358,9 @@ final class ConfigTable implements Table
 	public function upsertAndGet(Uuid $id, string $key, string $value): ConfigRow
 	{
 		$modifications = ConfigModifications::new();
-		$modifications->modifyId($id);
-		$modifications->modifyKey($key);
-		$modifications->modifyValue($value);
+		$modifications->id = $id;
+		$modifications->key = $key;
+		$modifications->value = $value;
 		$row = $this->tableManager->upsertAndGet($this, $modifications);
 		\assert($row instanceof ConfigRow);
 		return $row;
