@@ -6,11 +6,14 @@ namespace Grifart\Tables\Scaffolding;
 use Grifart\ClassScaffolder\Capabilities\Capability;
 use Grifart\ClassScaffolder\ClassInNamespace;
 use Grifart\ClassScaffolder\Definition\ClassDefinition;
+use Grifart\ClassScaffolder\Definition\Types\UnionType;
 use Grifart\Tables\ColumnMetadata;
+use Grifart\Tables\DefaultValue;
 use Grifart\Tables\Modifications;
 use Grifart\Tables\ModificationsTrait;
 use Nette\PhpGenerator\Parameter;
 use Nette\PhpGenerator\PhpLiteral;
+use function Grifart\ClassScaffolder\Definition\Types\resolve;
 
 final class ModificationsImplementation implements Capability
 {
@@ -83,6 +86,13 @@ final class ModificationsImplementation implements Capability
 				continue;
 			}
 
+			$isNullable = $type->isNullable();
+
+			if ($this->columnMetadata[$fieldName]->hasDefaultValue()) {
+				$namespace->addUse(DefaultValue::class);
+				$type = new UnionType($type, resolve(DefaultValue::class));
+			}
+
 			// add getter
 			$modifier = $classType->addMethod('modify' . \ucfirst($fieldName))
 				->setVisibility('public')
@@ -94,10 +104,9 @@ final class ModificationsImplementation implements Capability
 				->setParameters([
 					(new Parameter($fieldName))
 						->setType($type->getTypeHint())
-						->setNullable($type->isNullable())
+						->setNullable($isNullable)
 				]);
 			$modifier->setReturnType('void');
-
 
 			// add phpDoc type hints if necessary
 			if ($type->requiresDocComment()) {

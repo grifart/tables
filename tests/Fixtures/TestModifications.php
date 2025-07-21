@@ -8,6 +8,7 @@ declare(strict_types=1);
 
 namespace Grifart\Tables\Tests\Fixtures;
 
+use Grifart\Tables\DefaultValue;
 use Grifart\Tables\Modifications;
 use Grifart\Tables\ModificationsTrait;
 
@@ -49,7 +50,7 @@ final class TestModifications implements Modifications
 	}
 
 
-	public function modifyDetails(?string $details): void
+	public function modifyDetails(string|DefaultValue|null $details): void
 	{
 		$this->modifications['details'] = $details;
 	}

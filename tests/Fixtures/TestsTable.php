@@ -12,7 +12,7 @@ use Grifart\Tables\Column;
 use Grifart\Tables\ColumnMetadata;
 use Grifart\Tables\ColumnNotFound;
 use Grifart\Tables\Conditions\Condition;
-use Grifart\Tables\DefaultOrExistingValue;
+use Grifart\Tables\DefaultValue;
 use Grifart\Tables\Expression;
 use Grifart\Tables\GivenSearchCriteriaHaveNotMatchedAnyRows;
 use Grifart\Tables\OrderBy\OrderBy;
@@ -23,7 +23,10 @@ use Grifart\Tables\TableManager;
 use Grifart\Tables\TooManyRowsFound;
 use Grifart\Tables\Type;
 use Grifart\Tables\TypeResolver;
+use Grifart\Tables\UnchangedValue;
 use Nette\Utils\Paginator;
+use const Grifart\Tables\DefaultValue;
+use const Grifart\Tables\Unchanged;
 
 final class TestsTable implements Table
 {
@@ -185,16 +188,12 @@ final class TestsTable implements Table
 	}
 
 
-	public function new(
-		Uuid $id,
-		int $score,
-		string|DefaultOrExistingValue|null $details = \Grifart\Tables\DefaultValue,
-	): TestModifications
+	public function new(Uuid $id, int $score, string|DefaultValue|null $details = DefaultValue): TestModifications
 	{
 		$modifications = TestModifications::new();
 		$modifications->modifyId($id);
 		$modifications->modifyScore($score);
-		if (!$details instanceof DefaultOrExistingValue) {
+		if (!$details instanceof DefaultValue) {
 			$modifications->modifyDetails($details);
 		}
 		return $modifications;
@@ -203,20 +202,20 @@ final class TestsTable implements Table
 
 	public function edit(
 		TestRow|TestPrimaryKey $rowOrKey,
-		Uuid|DefaultOrExistingValue $id = \Grifart\Tables\Unchanged,
-		int|DefaultOrExistingValue $score = \Grifart\Tables\Unchanged,
-		string|DefaultOrExistingValue|null $details = \Grifart\Tables\Unchanged,
+		Uuid|UnchangedValue $id = Unchanged,
+		int|UnchangedValue $score = Unchanged,
+		string|UnchangedValue|DefaultValue|null $details = Unchanged,
 	): TestModifications
 	{
 		$primaryKey = $rowOrKey instanceof TestPrimaryKey ? $rowOrKey : TestPrimaryKey::fromRow($rowOrKey);
 		$modifications = TestModifications::update($primaryKey);
-		if (!$id instanceof DefaultOrExistingValue) {
+		if (!$id instanceof UnchangedValue) {
 			$modifications->modifyId($id);
 		}
-		if (!$score instanceof DefaultOrExistingValue) {
+		if (!$score instanceof UnchangedValue) {
 			$modifications->modifyScore($score);
 		}
-		if (!$details instanceof DefaultOrExistingValue) {
+		if (!$details instanceof UnchangedValue) {
 			$modifications->modifyDetails($details);
 		}
 		return $modifications;
@@ -226,16 +225,12 @@ final class TestsTable implements Table
 	/**
 	 * @throws RowWithGivenPrimaryKeyAlreadyExists
 	 */
-	public function insert(
-		Uuid $id,
-		int $score,
-		string|DefaultOrExistingValue|null $details = \Grifart\Tables\DefaultValue,
-	): void
+	public function insert(Uuid $id, int $score, string|DefaultValue|null $details = DefaultValue): void
 	{
 		$modifications = TestModifications::new();
 		$modifications->modifyId($id);
 		$modifications->modifyScore($score);
-		if (!$details instanceof DefaultOrExistingValue) {
+		if (!$details instanceof DefaultValue) {
 			$modifications->modifyDetails($details);
 		}
 		$this->tableManager->insert($this, $modifications);
@@ -245,16 +240,12 @@ final class TestsTable implements Table
 	/**
 	 * @throws RowWithGivenPrimaryKeyAlreadyExists
 	 */
-	public function insertAndGet(
-		Uuid $id,
-		int $score,
-		string|DefaultOrExistingValue|null $details = \Grifart\Tables\DefaultValue,
-	): TestRow
+	public function insertAndGet(Uuid $id, int $score, string|DefaultValue|null $details = DefaultValue): TestRow
 	{
 		$modifications = TestModifications::new();
 		$modifications->modifyId($id);
 		$modifications->modifyScore($score);
-		if (!$details instanceof DefaultOrExistingValue) {
+		if (!$details instanceof DefaultValue) {
 			$modifications->modifyDetails($details);
 		}
 		$row = $this->tableManager->insertAndGet($this, $modifications);
@@ -268,20 +259,20 @@ final class TestsTable implements Table
 	 */
 	public function update(
 		TestRow|TestPrimaryKey $rowOrKey,
-		Uuid|DefaultOrExistingValue $id = \Grifart\Tables\Unchanged,
-		int|DefaultOrExistingValue $score = \Grifart\Tables\Unchanged,
-		string|DefaultOrExistingValue|null $details = \Grifart\Tables\Unchanged,
+		Uuid|UnchangedValue $id = Unchanged,
+		int|UnchangedValue $score = Unchanged,
+		string|UnchangedValue|DefaultValue|null $details = Unchanged,
 	): void
 	{
 		$primaryKey = $rowOrKey instanceof TestPrimaryKey ? $rowOrKey : TestPrimaryKey::fromRow($rowOrKey);
 		$modifications = TestModifications::update($primaryKey);
-		if (!$id instanceof DefaultOrExistingValue) {
+		if (!$id instanceof UnchangedValue) {
 			$modifications->modifyId($id);
 		}
-		if (!$score instanceof DefaultOrExistingValue) {
+		if (!$score instanceof UnchangedValue) {
 			$modifications->modifyScore($score);
 		}
-		if (!$details instanceof DefaultOrExistingValue) {
+		if (!$details instanceof UnchangedValue) {
 			$modifications->modifyDetails($details);
 		}
 		$this->tableManager->update($this, $modifications);
@@ -293,20 +284,20 @@ final class TestsTable implements Table
 	 */
 	public function updateAndGet(
 		TestRow|TestPrimaryKey $rowOrKey,
-		Uuid|DefaultOrExistingValue $id = \Grifart\Tables\Unchanged,
-		int|DefaultOrExistingValue $score = \Grifart\Tables\Unchanged,
-		string|DefaultOrExistingValue|null $details = \Grifart\Tables\Unchanged,
+		Uuid|UnchangedValue $id = Unchanged,
+		int|UnchangedValue $score = Unchanged,
+		string|UnchangedValue|DefaultValue|null $details = Unchanged,
 	): TestRow
 	{
 		$primaryKey = $rowOrKey instanceof TestPrimaryKey ? $rowOrKey : TestPrimaryKey::fromRow($rowOrKey);
 		$modifications = TestModifications::update($primaryKey);
-		if (!$id instanceof DefaultOrExistingValue) {
+		if (!$id instanceof UnchangedValue) {
 			$modifications->modifyId($id);
 		}
-		if (!$score instanceof DefaultOrExistingValue) {
+		if (!$score instanceof UnchangedValue) {
 			$modifications->modifyScore($score);
 		}
-		if (!$details instanceof DefaultOrExistingValue) {
+		if (!$details instanceof UnchangedValue) {
 			$modifications->modifyDetails($details);
 		}
 		$row = $this->tableManager->updateAndGet($this, $modifications);
@@ -320,51 +311,43 @@ final class TestsTable implements Table
 	 */
 	public function updateBy(
 		Condition|array $conditions,
-		Uuid|DefaultOrExistingValue $id = \Grifart\Tables\Unchanged,
-		int|DefaultOrExistingValue $score = \Grifart\Tables\Unchanged,
-		string|DefaultOrExistingValue|null $details = \Grifart\Tables\Unchanged,
+		Uuid|UnchangedValue $id = Unchanged,
+		int|UnchangedValue $score = Unchanged,
+		string|UnchangedValue|DefaultValue|null $details = Unchanged,
 	): void
 	{
 		$modifications = TestModifications::new();
-		if (!$id instanceof DefaultOrExistingValue) {
+		if (!$id instanceof UnchangedValue) {
 			$modifications->modifyId($id);
 		}
-		if (!$score instanceof DefaultOrExistingValue) {
+		if (!$score instanceof UnchangedValue) {
 			$modifications->modifyScore($score);
 		}
-		if (!$details instanceof DefaultOrExistingValue) {
+		if (!$details instanceof UnchangedValue) {
 			$modifications->modifyDetails($details);
 		}
 		$this->tableManager->updateBy($this, $conditions, $modifications);
 	}
 
 
-	public function upsert(
-		Uuid $id,
-		int $score,
-		string|DefaultOrExistingValue|null $details = \Grifart\Tables\DefaultValue,
-	): void
+	public function upsert(Uuid $id, int $score, string|DefaultValue|null $details = DefaultValue): void
 	{
 		$modifications = TestModifications::new();
 		$modifications->modifyId($id);
 		$modifications->modifyScore($score);
-		if (!$details instanceof DefaultOrExistingValue) {
+		if (!$details instanceof DefaultValue) {
 			$modifications->modifyDetails($details);
 		}
 		$this->tableManager->upsert($this, $modifications);
 	}
 
 
-	public function upsertAndGet(
-		Uuid $id,
-		int $score,
-		string|DefaultOrExistingValue|null $details = \Grifart\Tables\DefaultValue,
-	): TestRow
+	public function upsertAndGet(Uuid $id, int $score, string|DefaultValue|null $details = DefaultValue): TestRow
 	{
 		$modifications = TestModifications::new();
 		$modifications->modifyId($id);
 		$modifications->modifyScore($score);
-		if (!$details instanceof DefaultOrExistingValue) {
+		if (!$details instanceof DefaultValue) {
 			$modifications->modifyDetails($details);
 		}
 		$row = $this->tableManager->upsertAndGet($this, $modifications);

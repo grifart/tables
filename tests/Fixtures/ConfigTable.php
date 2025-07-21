@@ -12,7 +12,7 @@ use Grifart\Tables\Column;
 use Grifart\Tables\ColumnMetadata;
 use Grifart\Tables\ColumnNotFound;
 use Grifart\Tables\Conditions\Condition;
-use Grifart\Tables\DefaultOrExistingValue;
+use Grifart\Tables\DefaultValue;
 use Grifart\Tables\Expression;
 use Grifart\Tables\GivenSearchCriteriaHaveNotMatchedAnyRows;
 use Grifart\Tables\OrderBy\OrderBy;
@@ -23,7 +23,10 @@ use Grifart\Tables\TableManager;
 use Grifart\Tables\TooManyRowsFound;
 use Grifart\Tables\Type;
 use Grifart\Tables\TypeResolver;
+use Grifart\Tables\UnchangedValue;
 use Nette\Utils\Paginator;
+use const Grifart\Tables\DefaultValue;
+use const Grifart\Tables\Unchanged;
 
 final class ConfigTable implements Table
 {
@@ -197,20 +200,20 @@ final class ConfigTable implements Table
 
 	public function edit(
 		ConfigRow|ConfigPrimaryKey $rowOrKey,
-		Uuid|DefaultOrExistingValue $id = \Grifart\Tables\Unchanged,
-		string|DefaultOrExistingValue $key = \Grifart\Tables\Unchanged,
-		string|DefaultOrExistingValue $value = \Grifart\Tables\Unchanged,
+		Uuid|UnchangedValue $id = Unchanged,
+		string|UnchangedValue $key = Unchanged,
+		string|UnchangedValue $value = Unchanged,
 	): ConfigModifications
 	{
 		$primaryKey = $rowOrKey instanceof ConfigPrimaryKey ? $rowOrKey : ConfigPrimaryKey::fromRow($rowOrKey);
 		$modifications = ConfigModifications::update($primaryKey);
-		if (!$id instanceof DefaultOrExistingValue) {
+		if (!$id instanceof UnchangedValue) {
 			$modifications->modifyId($id);
 		}
-		if (!$key instanceof DefaultOrExistingValue) {
+		if (!$key instanceof UnchangedValue) {
 			$modifications->modifyKey($key);
 		}
-		if (!$value instanceof DefaultOrExistingValue) {
+		if (!$value instanceof UnchangedValue) {
 			$modifications->modifyValue($value);
 		}
 		return $modifications;
@@ -250,20 +253,20 @@ final class ConfigTable implements Table
 	 */
 	public function update(
 		ConfigRow|ConfigPrimaryKey $rowOrKey,
-		Uuid|DefaultOrExistingValue $id = \Grifart\Tables\Unchanged,
-		string|DefaultOrExistingValue $key = \Grifart\Tables\Unchanged,
-		string|DefaultOrExistingValue $value = \Grifart\Tables\Unchanged,
+		Uuid|UnchangedValue $id = Unchanged,
+		string|UnchangedValue $key = Unchanged,
+		string|UnchangedValue $value = Unchanged,
 	): void
 	{
 		$primaryKey = $rowOrKey instanceof ConfigPrimaryKey ? $rowOrKey : ConfigPrimaryKey::fromRow($rowOrKey);
 		$modifications = ConfigModifications::update($primaryKey);
-		if (!$id instanceof DefaultOrExistingValue) {
+		if (!$id instanceof UnchangedValue) {
 			$modifications->modifyId($id);
 		}
-		if (!$key instanceof DefaultOrExistingValue) {
+		if (!$key instanceof UnchangedValue) {
 			$modifications->modifyKey($key);
 		}
-		if (!$value instanceof DefaultOrExistingValue) {
+		if (!$value instanceof UnchangedValue) {
 			$modifications->modifyValue($value);
 		}
 		$this->tableManager->update($this, $modifications);
@@ -275,20 +278,20 @@ final class ConfigTable implements Table
 	 */
 	public function updateAndGet(
 		ConfigRow|ConfigPrimaryKey $rowOrKey,
-		Uuid|DefaultOrExistingValue $id = \Grifart\Tables\Unchanged,
-		string|DefaultOrExistingValue $key = \Grifart\Tables\Unchanged,
-		string|DefaultOrExistingValue $value = \Grifart\Tables\Unchanged,
+		Uuid|UnchangedValue $id = Unchanged,
+		string|UnchangedValue $key = Unchanged,
+		string|UnchangedValue $value = Unchanged,
 	): ConfigRow
 	{
 		$primaryKey = $rowOrKey instanceof ConfigPrimaryKey ? $rowOrKey : ConfigPrimaryKey::fromRow($rowOrKey);
 		$modifications = ConfigModifications::update($primaryKey);
-		if (!$id instanceof DefaultOrExistingValue) {
+		if (!$id instanceof UnchangedValue) {
 			$modifications->modifyId($id);
 		}
-		if (!$key instanceof DefaultOrExistingValue) {
+		if (!$key instanceof UnchangedValue) {
 			$modifications->modifyKey($key);
 		}
-		if (!$value instanceof DefaultOrExistingValue) {
+		if (!$value instanceof UnchangedValue) {
 			$modifications->modifyValue($value);
 		}
 		$row = $this->tableManager->updateAndGet($this, $modifications);
@@ -302,19 +305,19 @@ final class ConfigTable implements Table
 	 */
 	public function updateBy(
 		Condition|array $conditions,
-		Uuid|DefaultOrExistingValue $id = \Grifart\Tables\Unchanged,
-		string|DefaultOrExistingValue $key = \Grifart\Tables\Unchanged,
-		string|DefaultOrExistingValue $value = \Grifart\Tables\Unchanged,
+		Uuid|UnchangedValue $id = Unchanged,
+		string|UnchangedValue $key = Unchanged,
+		string|UnchangedValue $value = Unchanged,
 	): void
 	{
 		$modifications = ConfigModifications::new();
-		if (!$id instanceof DefaultOrExistingValue) {
+		if (!$id instanceof UnchangedValue) {
 			$modifications->modifyId($id);
 		}
-		if (!$key instanceof DefaultOrExistingValue) {
+		if (!$key instanceof UnchangedValue) {
 			$modifications->modifyKey($key);
 		}
-		if (!$value instanceof DefaultOrExistingValue) {
+		if (!$value instanceof UnchangedValue) {
 			$modifications->modifyValue($value);
 		}
 		$this->tableManager->updateBy($this, $conditions, $modifications);

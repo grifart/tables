@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Grifart\Tables;
 
 use Dibi\IConnection;
+use Dibi\Literal;
 use Dibi\UniqueConstraintViolationException;
 use Grifart\Tables\Conditions\Composite;
 use Grifart\Tables\Conditions\Condition;
@@ -188,10 +189,7 @@ final class SingleConnectionTableManager implements TableManager
 			$this->connection->query(
 				'INSERT',
 				'INTO %n.%n', $table::getSchema(), $table::getTableName(),
-				mapWithKeys(
-					$changes->getModifications(),
-					static fn(string $columnName, mixed $value) => $table->getTypeOf($columnName)->toDatabase($value),
-				),
+				$this->mapModifications($table, $changes),
 			);
 		} catch (UniqueConstraintViolationException $e) {
 			throw new RowWithGivenPrimaryKeyAlreadyExists(previous: $e);
@@ -213,10 +211,7 @@ final class SingleConnectionTableManager implements TableManager
 		try {
 			$result = $this->connection->query(
 				'INSERT INTO %n.%n', $table::getSchema(), $table::getTableName(),
-				mapWithKeys(
-					$changes->getModifications(),
-					static fn(string $columnName, mixed $value) => $table->getTypeOf($columnName)->toDatabase($value),
-				),
+				$this->mapModifications($table, $changes),
 				'RETURNING *',
 			);
 		} catch (UniqueConstraintViolationException $e) {
@@ -255,10 +250,7 @@ final class SingleConnectionTableManager implements TableManager
 		$this->connection->query(
 			'UPDATE %n.%n', $table::getSchema(), $table::getTableName(),
 			'SET %a',
-			mapWithKeys(
-				$changes->getModifications(),
-				static fn(string $columnName, mixed $value) => $table->getTypeOf($columnName)->toDatabase($value),
-			),
+			$this->mapModifications($table, $changes, explicitDefaults: true),
 			'WHERE %ex', $primaryKey->getCondition($table)->toSql()->getValues(),
 		);
 		$affectedRows = $this->connection->getAffectedRows();
@@ -284,10 +276,7 @@ final class SingleConnectionTableManager implements TableManager
 		$result = $this->connection->query(
 			'UPDATE %n.%n', $table::getSchema(), $table::getTableName(),
 			'SET %a',
-			mapWithKeys(
-				$changes->getModifications(),
-				static fn(string $columnName, mixed $value) => $table->getTypeOf($columnName)->toDatabase($value),
-			),
+			$this->mapModifications($table, $changes, explicitDefaults: true),
 			'WHERE %ex', $primaryKey->getCondition($table)->toSql()->getValues(),
 			'RETURNING *',
 		);
@@ -331,10 +320,7 @@ final class SingleConnectionTableManager implements TableManager
 		$this->connection->query(
 			'UPDATE %n.%n', $table::getSchema(), $table::getTableName(),
 			'SET %a',
-			mapWithKeys(
-				$changes->getModifications(),
-				static fn(string $columnName, mixed $value) => $table->getTypeOf($columnName)->toDatabase($value),
-			),
+			$this->mapModifications($table, $changes, explicitDefaults: true),
 			'WHERE %ex', (\is_array($conditions) ? Composite::and(...$conditions) : $conditions)->toSql()->getValues(),
 		);
 	}
@@ -348,10 +334,7 @@ final class SingleConnectionTableManager implements TableManager
 	{
 		\assert($changes->getPrimaryKey() === null);
 
-		$values = mapWithKeys(
-			$changes->getModifications(),
-			static fn(string $columnName, mixed $value) => $table->getTypeOf($columnName)->toDatabase($value),
-		);
+		$values = $this->mapModifications($table, $changes);
 
 		$primaryKey = $table::getPrimaryKeyClass();
 
@@ -374,10 +357,7 @@ final class SingleConnectionTableManager implements TableManager
 	{
 		\assert($changes->getPrimaryKey() === null);
 
-		$values = mapWithKeys(
-			$changes->getModifications(),
-			static fn(string $columnName, mixed $value) => $table->getTypeOf($columnName)->toDatabase($value),
-		);
+		$values = $this->mapModifications($table, $changes);
 
 		$primaryKey = $table::getPrimaryKeyClass();
 
@@ -467,6 +447,26 @@ final class SingleConnectionTableManager implements TableManager
 			'DELETE',
 			'FROM %n.%n', $table::getSchema(), $table::getTableName(),
 			'WHERE %ex', (\is_array($conditions) ? Composite::and(...$conditions) : $conditions)->toSql()->getValues(),
+		);
+	}
+
+	/**
+	 * @template TableType of Table
+	 * @param TableType $table
+	 * @param Modifications<TableType> $modifications
+	 * @return array<string, mixed>
+	 */
+	private function mapModifications(Table $table, Modifications $modifications, bool $explicitDefaults = false): array
+	{
+		return mapWithKeys(
+			$modifications->getModifications(),
+			static function (string $columnName, mixed $value) use ($table, $explicitDefaults): mixed {
+				if ($value instanceof DefaultValue && $explicitDefaults) {
+					return new Literal('DEFAULT');
+				}
+
+				return $table->getTypeOf($columnName)->toDatabase($value);
+			},
 		);
 	}
 }
