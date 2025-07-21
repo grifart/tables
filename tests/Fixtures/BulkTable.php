@@ -12,7 +12,7 @@ use Grifart\Tables\Column;
 use Grifart\Tables\ColumnMetadata;
 use Grifart\Tables\ColumnNotFound;
 use Grifart\Tables\Conditions\Condition;
-use Grifart\Tables\DefaultOrExistingValue;
+use Grifart\Tables\DefaultValue;
 use Grifart\Tables\Expression;
 use Grifart\Tables\GivenSearchCriteriaHaveNotMatchedAnyRows;
 use Grifart\Tables\OrderBy\OrderBy;
@@ -23,7 +23,10 @@ use Grifart\Tables\TableManager;
 use Grifart\Tables\TooManyRowsFound;
 use Grifart\Tables\Type;
 use Grifart\Tables\TypeResolver;
+use Grifart\Tables\UnchangedValue;
 use Nette\Utils\Paginator;
+use const Grifart\Tables\DefaultValue;
+use const Grifart\Tables\Unchanged;
 
 final class BulkTable implements Table
 {
@@ -215,16 +218,12 @@ final class BulkTable implements Table
 	}
 
 
-	public function new(
-		Uuid $id,
-		int $value,
-		bool|DefaultOrExistingValue $flagged = \Grifart\Tables\DefaultValue,
-	): BulkModifications
+	public function new(Uuid $id, int $value, bool|DefaultValue $flagged = DefaultValue): BulkModifications
 	{
 		$modifications = BulkModifications::new();
 		$modifications->id = $id;
 		$modifications->value = $value;
-		if (!$flagged instanceof DefaultOrExistingValue) {
+		if (!$flagged instanceof DefaultValue) {
 			$modifications->flagged = $flagged;
 		}
 		return $modifications;
@@ -233,20 +232,20 @@ final class BulkTable implements Table
 
 	public function edit(
 		BulkRow|BulkPrimaryKey $rowOrKey,
-		Uuid|DefaultOrExistingValue $id = \Grifart\Tables\Unchanged,
-		int|DefaultOrExistingValue $value = \Grifart\Tables\Unchanged,
-		bool|DefaultOrExistingValue $flagged = \Grifart\Tables\Unchanged,
+		Uuid|UnchangedValue $id = Unchanged,
+		int|UnchangedValue $value = Unchanged,
+		bool|UnchangedValue|DefaultValue $flagged = Unchanged,
 	): BulkModifications
 	{
 		$primaryKey = $rowOrKey instanceof BulkPrimaryKey ? $rowOrKey : BulkPrimaryKey::fromRow($rowOrKey);
 		$modifications = BulkModifications::update($primaryKey);
-		if (!$id instanceof DefaultOrExistingValue) {
+		if (!$id instanceof UnchangedValue) {
 			$modifications->id = $id;
 		}
-		if (!$value instanceof DefaultOrExistingValue) {
+		if (!$value instanceof UnchangedValue) {
 			$modifications->value = $value;
 		}
-		if (!$flagged instanceof DefaultOrExistingValue) {
+		if (!$flagged instanceof UnchangedValue) {
 			$modifications->flagged = $flagged;
 		}
 		return $modifications;
@@ -256,16 +255,12 @@ final class BulkTable implements Table
 	/**
 	 * @throws RowWithGivenPrimaryKeyAlreadyExists
 	 */
-	public function insert(
-		Uuid $id,
-		int $value,
-		bool|DefaultOrExistingValue $flagged = \Grifart\Tables\DefaultValue,
-	): void
+	public function insert(Uuid $id, int $value, bool|DefaultValue $flagged = DefaultValue): void
 	{
 		$modifications = BulkModifications::new();
 		$modifications->id = $id;
 		$modifications->value = $value;
-		if (!$flagged instanceof DefaultOrExistingValue) {
+		if (!$flagged instanceof DefaultValue) {
 			$modifications->flagged = $flagged;
 		}
 		$this->tableManager->insert($this, $modifications);
@@ -275,16 +270,12 @@ final class BulkTable implements Table
 	/**
 	 * @throws RowWithGivenPrimaryKeyAlreadyExists
 	 */
-	public function insertAndGet(
-		Uuid $id,
-		int $value,
-		bool|DefaultOrExistingValue $flagged = \Grifart\Tables\DefaultValue,
-	): BulkRow
+	public function insertAndGet(Uuid $id, int $value, bool|DefaultValue $flagged = DefaultValue): BulkRow
 	{
 		$modifications = BulkModifications::new();
 		$modifications->id = $id;
 		$modifications->value = $value;
-		if (!$flagged instanceof DefaultOrExistingValue) {
+		if (!$flagged instanceof DefaultValue) {
 			$modifications->flagged = $flagged;
 		}
 		$row = $this->tableManager->insertAndGet($this, $modifications);
@@ -298,20 +289,20 @@ final class BulkTable implements Table
 	 */
 	public function update(
 		BulkRow|BulkPrimaryKey $rowOrKey,
-		Uuid|DefaultOrExistingValue $id = \Grifart\Tables\Unchanged,
-		int|DefaultOrExistingValue $value = \Grifart\Tables\Unchanged,
-		bool|DefaultOrExistingValue $flagged = \Grifart\Tables\Unchanged,
+		Uuid|UnchangedValue $id = Unchanged,
+		int|UnchangedValue $value = Unchanged,
+		bool|UnchangedValue|DefaultValue $flagged = Unchanged,
 	): void
 	{
 		$primaryKey = $rowOrKey instanceof BulkPrimaryKey ? $rowOrKey : BulkPrimaryKey::fromRow($rowOrKey);
 		$modifications = BulkModifications::update($primaryKey);
-		if (!$id instanceof DefaultOrExistingValue) {
+		if (!$id instanceof UnchangedValue) {
 			$modifications->id = $id;
 		}
-		if (!$value instanceof DefaultOrExistingValue) {
+		if (!$value instanceof UnchangedValue) {
 			$modifications->value = $value;
 		}
-		if (!$flagged instanceof DefaultOrExistingValue) {
+		if (!$flagged instanceof UnchangedValue) {
 			$modifications->flagged = $flagged;
 		}
 		$this->tableManager->update($this, $modifications);
@@ -323,20 +314,20 @@ final class BulkTable implements Table
 	 */
 	public function updateAndGet(
 		BulkRow|BulkPrimaryKey $rowOrKey,
-		Uuid|DefaultOrExistingValue $id = \Grifart\Tables\Unchanged,
-		int|DefaultOrExistingValue $value = \Grifart\Tables\Unchanged,
-		bool|DefaultOrExistingValue $flagged = \Grifart\Tables\Unchanged,
+		Uuid|UnchangedValue $id = Unchanged,
+		int|UnchangedValue $value = Unchanged,
+		bool|UnchangedValue|DefaultValue $flagged = Unchanged,
 	): BulkRow
 	{
 		$primaryKey = $rowOrKey instanceof BulkPrimaryKey ? $rowOrKey : BulkPrimaryKey::fromRow($rowOrKey);
 		$modifications = BulkModifications::update($primaryKey);
-		if (!$id instanceof DefaultOrExistingValue) {
+		if (!$id instanceof UnchangedValue) {
 			$modifications->id = $id;
 		}
-		if (!$value instanceof DefaultOrExistingValue) {
+		if (!$value instanceof UnchangedValue) {
 			$modifications->value = $value;
 		}
-		if (!$flagged instanceof DefaultOrExistingValue) {
+		if (!$flagged instanceof UnchangedValue) {
 			$modifications->flagged = $flagged;
 		}
 		$row = $this->tableManager->updateAndGet($this, $modifications);
@@ -350,51 +341,43 @@ final class BulkTable implements Table
 	 */
 	public function updateBy(
 		Condition|array $conditions,
-		Uuid|DefaultOrExistingValue $id = \Grifart\Tables\Unchanged,
-		int|DefaultOrExistingValue $value = \Grifart\Tables\Unchanged,
-		bool|DefaultOrExistingValue $flagged = \Grifart\Tables\Unchanged,
+		Uuid|UnchangedValue $id = Unchanged,
+		int|UnchangedValue $value = Unchanged,
+		bool|UnchangedValue|DefaultValue $flagged = Unchanged,
 	): void
 	{
 		$modifications = BulkModifications::new();
-		if (!$id instanceof DefaultOrExistingValue) {
+		if (!$id instanceof UnchangedValue) {
 			$modifications->id = $id;
 		}
-		if (!$value instanceof DefaultOrExistingValue) {
+		if (!$value instanceof UnchangedValue) {
 			$modifications->value = $value;
 		}
-		if (!$flagged instanceof DefaultOrExistingValue) {
+		if (!$flagged instanceof UnchangedValue) {
 			$modifications->flagged = $flagged;
 		}
 		$this->tableManager->updateBy($this, $conditions, $modifications);
 	}
 
 
-	public function upsert(
-		Uuid $id,
-		int $value,
-		bool|DefaultOrExistingValue $flagged = \Grifart\Tables\DefaultValue,
-	): void
+	public function upsert(Uuid $id, int $value, bool|DefaultValue $flagged = DefaultValue): void
 	{
 		$modifications = BulkModifications::new();
 		$modifications->id = $id;
 		$modifications->value = $value;
-		if (!$flagged instanceof DefaultOrExistingValue) {
+		if (!$flagged instanceof DefaultValue) {
 			$modifications->flagged = $flagged;
 		}
 		$this->tableManager->upsert($this, $modifications);
 	}
 
 
-	public function upsertAndGet(
-		Uuid $id,
-		int $value,
-		bool|DefaultOrExistingValue $flagged = \Grifart\Tables\DefaultValue,
-	): BulkRow
+	public function upsertAndGet(Uuid $id, int $value, bool|DefaultValue $flagged = DefaultValue): BulkRow
 	{
 		$modifications = BulkModifications::new();
 		$modifications->id = $id;
 		$modifications->value = $value;
-		if (!$flagged instanceof DefaultOrExistingValue) {
+		if (!$flagged instanceof DefaultValue) {
 			$modifications->flagged = $flagged;
 		}
 		$row = $this->tableManager->upsertAndGet($this, $modifications);

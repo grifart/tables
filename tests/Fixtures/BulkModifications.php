@@ -8,6 +8,7 @@ declare(strict_types=1);
 
 namespace Grifart\Tables\Tests\Fixtures;
 
+use Grifart\Tables\DefaultValue;
 use Grifart\Tables\Modifications;
 
 /**
@@ -30,7 +31,7 @@ final class BulkModifications implements Modifications
 		}
 	}
 
-	public bool $flagged {
+	public bool|DefaultValue $flagged {
 		set {
 			$this->modifications['flagged'] = $value;
 		}
@@ -77,7 +78,7 @@ final class BulkModifications implements Modifications
 
 
 	#[\Deprecated('Use $flagged property instead.')]
-	public function modifyFlagged(bool $flagged): void
+	public function modifyFlagged(bool|DefaultValue $flagged): void
 	{
 		$this->modifications['flagged'] = $flagged;
 	}

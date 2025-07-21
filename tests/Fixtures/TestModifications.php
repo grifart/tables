@@ -8,6 +8,7 @@ declare(strict_types=1);
 
 namespace Grifart\Tables\Tests\Fixtures;
 
+use Grifart\Tables\DefaultValue;
 use Grifart\Tables\Modifications;
 
 /**
@@ -30,7 +31,7 @@ final class TestModifications implements Modifications
 		}
 	}
 
-	public ?string $details {
+	public string|DefaultValue|null $details {
 		set {
 			$this->modifications['details'] = $value;
 		}
@@ -77,7 +78,7 @@ final class TestModifications implements Modifications
 
 
 	#[\Deprecated('Use $details property instead.')]
-	public function modifyDetails(?string $details): void
+	public function modifyDetails(string|DefaultValue|null $details): void
 	{
 		$this->modifications['details'] = $details;
 	}

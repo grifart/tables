@@ -12,7 +12,7 @@ use Grifart\Tables\Column;
 use Grifart\Tables\ColumnMetadata;
 use Grifart\Tables\ColumnNotFound;
 use Grifart\Tables\Conditions\Condition;
-use Grifart\Tables\DefaultOrExistingValue;
+use Grifart\Tables\DefaultValue;
 use Grifart\Tables\Expression;
 use Grifart\Tables\GivenSearchCriteriaHaveNotMatchedAnyRows;
 use Grifart\Tables\OrderBy\OrderBy;
@@ -23,7 +23,10 @@ use Grifart\Tables\TableManager;
 use Grifart\Tables\TooManyRowsFound;
 use Grifart\Tables\Type;
 use Grifart\Tables\TypeResolver;
+use Grifart\Tables\UnchangedValue;
 use Nette\Utils\Paginator;
+use const Grifart\Tables\DefaultValue;
+use const Grifart\Tables\Unchanged;
 
 final class PackagesTable implements Table
 {
@@ -230,25 +233,25 @@ final class PackagesTable implements Table
 
 
 	/**
-	 * @param array{int, int, int}|DefaultOrExistingValue $version
-	 * @param Version[]|DefaultOrExistingValue $previousVersions
+	 * @param array{int, int, int}|UnchangedValue $version
+	 * @param Version[]|UnchangedValue $previousVersions
 	 */
 	public function edit(
 		PackageRow|PackagePrimaryKey $rowOrKey,
-		string|DefaultOrExistingValue $name = \Grifart\Tables\Unchanged,
-		array|DefaultOrExistingValue $version = \Grifart\Tables\Unchanged,
-		array|DefaultOrExistingValue $previousVersions = \Grifart\Tables\Unchanged,
+		string|UnchangedValue $name = Unchanged,
+		array|UnchangedValue $version = Unchanged,
+		array|UnchangedValue $previousVersions = Unchanged,
 	): PackageModifications
 	{
 		$primaryKey = $rowOrKey instanceof PackagePrimaryKey ? $rowOrKey : PackagePrimaryKey::fromRow($rowOrKey);
 		$modifications = PackageModifications::update($primaryKey);
-		if (!$name instanceof DefaultOrExistingValue) {
+		if (!$name instanceof UnchangedValue) {
 			$modifications->name = $name;
 		}
-		if (!$version instanceof DefaultOrExistingValue) {
+		if (!$version instanceof UnchangedValue) {
 			$modifications->version = $version;
 		}
-		if (!$previousVersions instanceof DefaultOrExistingValue) {
+		if (!$previousVersions instanceof UnchangedValue) {
 			$modifications->previousVersions = $previousVersions;
 		}
 		return $modifications;
@@ -289,25 +292,25 @@ final class PackagesTable implements Table
 
 	/**
 	 * @throws GivenSearchCriteriaHaveNotMatchedAnyRows
-	 * @param array{int, int, int}|DefaultOrExistingValue $version
-	 * @param Version[]|DefaultOrExistingValue $previousVersions
+	 * @param array{int, int, int}|UnchangedValue $version
+	 * @param Version[]|UnchangedValue $previousVersions
 	 */
 	public function update(
 		PackageRow|PackagePrimaryKey $rowOrKey,
-		string|DefaultOrExistingValue $name = \Grifart\Tables\Unchanged,
-		array|DefaultOrExistingValue $version = \Grifart\Tables\Unchanged,
-		array|DefaultOrExistingValue $previousVersions = \Grifart\Tables\Unchanged,
+		string|UnchangedValue $name = Unchanged,
+		array|UnchangedValue $version = Unchanged,
+		array|UnchangedValue $previousVersions = Unchanged,
 	): void
 	{
 		$primaryKey = $rowOrKey instanceof PackagePrimaryKey ? $rowOrKey : PackagePrimaryKey::fromRow($rowOrKey);
 		$modifications = PackageModifications::update($primaryKey);
-		if (!$name instanceof DefaultOrExistingValue) {
+		if (!$name instanceof UnchangedValue) {
 			$modifications->name = $name;
 		}
-		if (!$version instanceof DefaultOrExistingValue) {
+		if (!$version instanceof UnchangedValue) {
 			$modifications->version = $version;
 		}
-		if (!$previousVersions instanceof DefaultOrExistingValue) {
+		if (!$previousVersions instanceof UnchangedValue) {
 			$modifications->previousVersions = $previousVersions;
 		}
 		$this->tableManager->update($this, $modifications);
@@ -316,25 +319,25 @@ final class PackagesTable implements Table
 
 	/**
 	 * @throws GivenSearchCriteriaHaveNotMatchedAnyRows
-	 * @param array{int, int, int}|DefaultOrExistingValue $version
-	 * @param Version[]|DefaultOrExistingValue $previousVersions
+	 * @param array{int, int, int}|UnchangedValue $version
+	 * @param Version[]|UnchangedValue $previousVersions
 	 */
 	public function updateAndGet(
 		PackageRow|PackagePrimaryKey $rowOrKey,
-		string|DefaultOrExistingValue $name = \Grifart\Tables\Unchanged,
-		array|DefaultOrExistingValue $version = \Grifart\Tables\Unchanged,
-		array|DefaultOrExistingValue $previousVersions = \Grifart\Tables\Unchanged,
+		string|UnchangedValue $name = Unchanged,
+		array|UnchangedValue $version = Unchanged,
+		array|UnchangedValue $previousVersions = Unchanged,
 	): PackageRow
 	{
 		$primaryKey = $rowOrKey instanceof PackagePrimaryKey ? $rowOrKey : PackagePrimaryKey::fromRow($rowOrKey);
 		$modifications = PackageModifications::update($primaryKey);
-		if (!$name instanceof DefaultOrExistingValue) {
+		if (!$name instanceof UnchangedValue) {
 			$modifications->name = $name;
 		}
-		if (!$version instanceof DefaultOrExistingValue) {
+		if (!$version instanceof UnchangedValue) {
 			$modifications->version = $version;
 		}
-		if (!$previousVersions instanceof DefaultOrExistingValue) {
+		if (!$previousVersions instanceof UnchangedValue) {
 			$modifications->previousVersions = $previousVersions;
 		}
 		$row = $this->tableManager->updateAndGet($this, $modifications);
@@ -345,24 +348,24 @@ final class PackagesTable implements Table
 
 	/**
 	 * @param Condition|Condition[] $conditions
-	 * @param array{int, int, int}|DefaultOrExistingValue $version
-	 * @param Version[]|DefaultOrExistingValue $previousVersions
+	 * @param array{int, int, int}|UnchangedValue $version
+	 * @param Version[]|UnchangedValue $previousVersions
 	 */
 	public function updateBy(
 		Condition|array $conditions,
-		string|DefaultOrExistingValue $name = \Grifart\Tables\Unchanged,
-		array|DefaultOrExistingValue $version = \Grifart\Tables\Unchanged,
-		array|DefaultOrExistingValue $previousVersions = \Grifart\Tables\Unchanged,
+		string|UnchangedValue $name = Unchanged,
+		array|UnchangedValue $version = Unchanged,
+		array|UnchangedValue $previousVersions = Unchanged,
 	): void
 	{
 		$modifications = PackageModifications::new();
-		if (!$name instanceof DefaultOrExistingValue) {
+		if (!$name instanceof UnchangedValue) {
 			$modifications->name = $name;
 		}
-		if (!$version instanceof DefaultOrExistingValue) {
+		if (!$version instanceof UnchangedValue) {
 			$modifications->version = $version;
 		}
-		if (!$previousVersions instanceof DefaultOrExistingValue) {
+		if (!$previousVersions instanceof UnchangedValue) {
 			$modifications->previousVersions = $previousVersions;
 		}
 		$this->tableManager->updateBy($this, $conditions, $modifications);
