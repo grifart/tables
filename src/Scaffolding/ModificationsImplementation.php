@@ -6,12 +6,15 @@ namespace Grifart\Tables\Scaffolding;
 use Grifart\ClassScaffolder\Capabilities\Capability;
 use Grifart\ClassScaffolder\ClassInNamespace;
 use Grifart\ClassScaffolder\Definition\ClassDefinition;
+use Grifart\ClassScaffolder\Definition\Types\UnionType;
 use Grifart\Tables\ColumnMetadata;
+use Grifart\Tables\DefaultValue;
 use Grifart\Tables\Modifications;
 use Nette\PhpGenerator\Literal;
 use Nette\PhpGenerator\Parameter;
 use Nette\PhpGenerator\PromotedParameter;
 use Nette\PhpGenerator\PropertyHookType;
+use function Grifart\ClassScaffolder\Definition\Types\resolve;
 
 final class ModificationsImplementation implements Capability
 {
@@ -98,9 +101,16 @@ final class ModificationsImplementation implements Capability
 				continue;
 			}
 
+			$isNullable = $type->isNullable();
+
+			if ($this->columnMetadata[$fieldName]->hasDefaultValue()) {
+				$namespace->addUse(DefaultValue::class);
+				$type = new UnionType($type, resolve(DefaultValue::class));
+			}
+
 			$property = $classType->addProperty($fieldName)
 				->setType($type->getTypeHint())
-				->setNullable($type->isNullable());
+				->setNullable($isNullable);
 
 			// add getter
 			$modifier = $classType->addMethod('modify' . \ucfirst($fieldName))
@@ -113,7 +123,7 @@ final class ModificationsImplementation implements Capability
 				->setParameters([
 					(new Parameter($fieldName))
 						->setType($type->getTypeHint())
-						->setNullable($type->isNullable())
+						->setNullable($isNullable)
 				])
 				->setReturnType('void')
 				->addAttribute(\Deprecated::class, ['Use $' . $fieldName . ' property instead.']);

@@ -16,6 +16,7 @@ use Grifart\Tables\Types\BooleanType;
 use Grifart\Tables\Types\IntType;
 use Nette\Utils\Paginator;
 use Tester\Assert;
+use const Grifart\Tables\DefaultValue;
 use function Grifart\Tables\Conditions\equalTo;
 use function Grifart\Tables\Conditions\greaterThanOrEqualTo;
 use function Grifart\Tables\Conditions\lesserThanOrEqualTo;
@@ -175,3 +176,8 @@ $table->save($edit);
 $row = $table->get(TestPrimaryKey::from($newId));
 Assert::same(-999_999, $row->score);
 Assert::same('test', $row->details);
+
+// update with default
+
+$row = $table->updateAndGet(TestPrimaryKey::from($newId), details: DefaultValue);
+Assert::same(null, $row->details);

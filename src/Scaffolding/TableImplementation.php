@@ -14,7 +14,7 @@ use Grifart\Tables\Column;
 use Grifart\Tables\ColumnMetadata;
 use Grifart\Tables\ColumnNotFound;
 use Grifart\Tables\Conditions\Condition;
-use Grifart\Tables\DefaultOrExistingValue;
+use Grifart\Tables\DefaultValue;
 use Grifart\Tables\Expression;
 use Grifart\Tables\GivenSearchCriteriaHaveNotMatchedAnyRows;
 use Grifart\Tables\RowNotFound;
@@ -25,6 +25,7 @@ use Grifart\Tables\TableManager;
 use Grifart\Tables\TooManyRowsFound;
 use Grifart\Tables\Type;
 use Grifart\Tables\TypeResolver;
+use Grifart\Tables\UnchangedValue;
 use Nette\PhpGenerator as Code;
 use Nette\Utils\Paginator;
 use function Grifart\ClassScaffolder\Definition\Types\resolve;
@@ -331,7 +332,7 @@ final class TableImplementation implements Capability
 		foreach ($methods as $method) {
 			foreach ($columns as $columnMetadata) {
 				$isEditMethod = in_array($method, [$updateMethod, $updateAndGetMethod, $updateByMethod, $editMethod], true);
-				$hasDefaultValue = $columnMetadata->hasDefaultValue() || $isEditMethod;
+				$hasDefaultValue = $columnMetadata->hasDefaultValue();
 
 				$isGenerated = $columnMetadata->isGenerated();
 				if ($isGenerated) {
@@ -342,9 +343,24 @@ final class TableImplementation implements Capability
 				$fieldType = $this->columnPhpTypes[$fieldName];
 				$isNullable = $fieldType->isNullable();
 
-				if ($hasDefaultValue && $fieldType->getTypeHint() !== 'mixed') {
-					$namespace->addUse(DefaultOrExistingValue::class);
-					$fieldType = new UnionType($fieldType, resolve(DefaultOrExistingValue::class));
+				$namespace->addUse(DefaultValue::class);
+				$namespace->addUse('Grifart\Tables\DefaultValue', of: $namespace::NameConstant);
+
+				$namespace->addUse(UnchangedValue::class);
+				$namespace->addUse('Grifart\Tables\Unchanged', of: $namespace::NameConstant);
+
+				if (($hasDefaultValue || $isEditMethod) && $fieldType->getTypeHint() !== 'mixed') {
+					$types = [$fieldType];
+
+					if ($isEditMethod) {
+						$types[] = resolve(UnchangedValue::class);
+					}
+
+					if ($hasDefaultValue) {
+						$types[] = resolve(DefaultValue::class);
+					}
+
+					$fieldType = new UnionType(...$types);
 				}
 
 
@@ -352,7 +368,7 @@ final class TableImplementation implements Capability
 					->setType($fieldType->getTypeHint())
 					->setNullable($isNullable);
 
-				if ($hasDefaultValue) {
+				if ($hasDefaultValue || $isEditMethod) {
 					$parameter->setDefaultValue(
 						new Code\Literal(
 							$namespace->simplifyName(
@@ -371,19 +387,22 @@ final class TableImplementation implements Capability
 					));
 				}
 
-				if ($hasDefaultValue) {
+				if ($hasDefaultValue || $isEditMethod) {
 					$method->addBody(
 						'if (!? instanceof ?) {',
-						[new Code\Literal('$' . $fieldName), new Code\Literal($namespace->simplifyName(DefaultOrExistingValue::class))],
+						[
+							new Code\Literal('$' . $fieldName),
+							new Code\Literal($namespace->simplifyName($isEditMethod ? UnchangedValue::class : DefaultValue::class)),
+						],
 					);
 				}
 
 				$method->addBody(
-					($hasDefaultValue ? "\t" : '') . '$modifications->' . $fieldName . ' = ?;',
+					(($hasDefaultValue || $isEditMethod) ? "\t" : '') . '$modifications->' . $fieldName . ' = ?;',
 					[new Code\Literal('$' . $fieldName)],
 				);
 
-				if ($hasDefaultValue) {
+				if ($hasDefaultValue || $isEditMethod) {
 					$method->addBody('}');
 				}
 			}

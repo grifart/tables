@@ -12,7 +12,7 @@ use Grifart\Tables\Column;
 use Grifart\Tables\ColumnMetadata;
 use Grifart\Tables\ColumnNotFound;
 use Grifart\Tables\Conditions\Condition;
-use Grifart\Tables\DefaultOrExistingValue;
+use Grifart\Tables\DefaultValue;
 use Grifart\Tables\Expression;
 use Grifart\Tables\GivenSearchCriteriaHaveNotMatchedAnyRows;
 use Grifart\Tables\OrderBy\OrderBy;
@@ -23,7 +23,10 @@ use Grifart\Tables\TableManager;
 use Grifart\Tables\TooManyRowsFound;
 use Grifart\Tables\Type;
 use Grifart\Tables\TypeResolver;
+use Grifart\Tables\UnchangedValue;
 use Nette\Utils\Paginator;
+use const Grifart\Tables\DefaultValue;
+use const Grifart\Tables\Unchanged;
 
 final class GeneratedTable implements Table
 {
@@ -225,12 +228,12 @@ final class GeneratedTable implements Table
 
 	public function edit(
 		GeneratedRow|GeneratedPrimaryKey $rowOrKey,
-		int|DefaultOrExistingValue $direct = \Grifart\Tables\Unchanged,
+		int|UnchangedValue $direct = Unchanged,
 	): GeneratedModifications
 	{
 		$primaryKey = $rowOrKey instanceof GeneratedPrimaryKey ? $rowOrKey : GeneratedPrimaryKey::fromRow($rowOrKey);
 		$modifications = GeneratedModifications::update($primaryKey);
-		if (!$direct instanceof DefaultOrExistingValue) {
+		if (!$direct instanceof UnchangedValue) {
 			$modifications->direct = $direct;
 		}
 		return $modifications;
@@ -264,14 +267,11 @@ final class GeneratedTable implements Table
 	/**
 	 * @throws GivenSearchCriteriaHaveNotMatchedAnyRows
 	 */
-	public function update(
-		GeneratedRow|GeneratedPrimaryKey $rowOrKey,
-		int|DefaultOrExistingValue $direct = \Grifart\Tables\Unchanged,
-	): void
+	public function update(GeneratedRow|GeneratedPrimaryKey $rowOrKey, int|UnchangedValue $direct = Unchanged): void
 	{
 		$primaryKey = $rowOrKey instanceof GeneratedPrimaryKey ? $rowOrKey : GeneratedPrimaryKey::fromRow($rowOrKey);
 		$modifications = GeneratedModifications::update($primaryKey);
-		if (!$direct instanceof DefaultOrExistingValue) {
+		if (!$direct instanceof UnchangedValue) {
 			$modifications->direct = $direct;
 		}
 		$this->tableManager->update($this, $modifications);
@@ -283,12 +283,12 @@ final class GeneratedTable implements Table
 	 */
 	public function updateAndGet(
 		GeneratedRow|GeneratedPrimaryKey $rowOrKey,
-		int|DefaultOrExistingValue $direct = \Grifart\Tables\Unchanged,
+		int|UnchangedValue $direct = Unchanged,
 	): GeneratedRow
 	{
 		$primaryKey = $rowOrKey instanceof GeneratedPrimaryKey ? $rowOrKey : GeneratedPrimaryKey::fromRow($rowOrKey);
 		$modifications = GeneratedModifications::update($primaryKey);
-		if (!$direct instanceof DefaultOrExistingValue) {
+		if (!$direct instanceof UnchangedValue) {
 			$modifications->direct = $direct;
 		}
 		$row = $this->tableManager->updateAndGet($this, $modifications);
@@ -300,13 +300,10 @@ final class GeneratedTable implements Table
 	/**
 	 * @param Condition|Condition[] $conditions
 	 */
-	public function updateBy(
-		Condition|array $conditions,
-		int|DefaultOrExistingValue $direct = \Grifart\Tables\Unchanged,
-	): void
+	public function updateBy(Condition|array $conditions, int|UnchangedValue $direct = Unchanged): void
 	{
 		$modifications = GeneratedModifications::new();
-		if (!$direct instanceof DefaultOrExistingValue) {
+		if (!$direct instanceof UnchangedValue) {
 			$modifications->direct = $direct;
 		}
 		$this->tableManager->updateBy($this, $conditions, $modifications);
