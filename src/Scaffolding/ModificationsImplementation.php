@@ -88,7 +88,7 @@ final class ModificationsImplementation implements Capability
 
 			$isNullable = $type->isNullable();
 
-			if ($this->columnMetadata[$fieldName]->hasDefaultValue()) {
+			if ($this->columnMetadata[$fieldName]->hasDefaultValue() && $type->getTypeHint() !== 'mixed') {
 				$namespace->addUse(DefaultValue::class);
 				$type = new UnionType($type, resolve(DefaultValue::class));
 			}
