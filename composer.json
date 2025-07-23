@@ -37,7 +37,8 @@
 		"nette/tester": "^2.5",
 		"nikic/php-parser": "^5.4",
 		"phpstan/phpstan": "^2.0",
-		"ramsey/uuid": "^4.7"
+		"ramsey/uuid": "^4.7",
+		"rector/rector": "^2.1"
 	},
 	"suggest": {
 		"brick/date-time": "if you want to use date-time types",
