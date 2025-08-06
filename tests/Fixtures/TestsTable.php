@@ -218,6 +218,7 @@ final class TestsTable implements Table
 	}
 
 
+	#[\NoDiscard]
 	public function new(Uuid $id, int $score, string|DefaultValue|null $details = DefaultValue): TestModifications
 	{
 		$modifications = TestModifications::new();
@@ -230,6 +231,7 @@ final class TestsTable implements Table
 	}
 
 
+	#[\NoDiscard]
 	public function edit(
 		TestRow|TestPrimaryKey $rowOrKey,
 		Uuid|UnchangedValue $id = Unchanged,

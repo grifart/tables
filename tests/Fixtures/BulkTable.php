@@ -218,6 +218,7 @@ final class BulkTable implements Table
 	}
 
 
+	#[\NoDiscard]
 	public function new(Uuid $id, int $value, bool|DefaultValue $flagged = DefaultValue): BulkModifications
 	{
 		$modifications = BulkModifications::new();
@@ -230,6 +231,7 @@ final class BulkTable implements Table
 	}
 
 
+	#[\NoDiscard]
 	public function edit(
 		BulkRow|BulkPrimaryKey $rowOrKey,
 		Uuid|UnchangedValue $id = Unchanged,

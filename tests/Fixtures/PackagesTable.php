@@ -222,6 +222,7 @@ final class PackagesTable implements Table
 	 * @param array{int, int, int} $version
 	 * @param Version[] $previousVersions
 	 */
+	#[\NoDiscard]
 	public function new(string $name, array $version, array $previousVersions): PackageModifications
 	{
 		$modifications = PackageModifications::new();
@@ -236,6 +237,7 @@ final class PackagesTable implements Table
 	 * @param array{int, int, int}|UnchangedValue $version
 	 * @param Version[]|UnchangedValue $previousVersions
 	 */
+	#[\NoDiscard]
 	public function edit(
 		PackageRow|PackagePrimaryKey $rowOrKey,
 		string|UnchangedValue $name = Unchanged,

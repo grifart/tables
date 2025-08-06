@@ -408,8 +408,8 @@ final class TableImplementation implements Capability
 			}
 		}
 
-		$newMethod->addBody('return $modifications;');
-		$editMethod->addBody('return $modifications;');
+		$newMethod->addBody('return $modifications;')->addAttribute(\NoDiscard::class);
+		$editMethod->addBody('return $modifications;')->addAttribute(\NoDiscard::class);
 
 		$insertMethod
 			->addBody('$this->tableManager->insert($this, $modifications);');

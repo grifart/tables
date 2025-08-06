@@ -218,6 +218,7 @@ final class GeneratedTable implements Table
 	}
 
 
+	#[\NoDiscard]
 	public function new(int $direct): GeneratedModifications
 	{
 		$modifications = GeneratedModifications::new();
@@ -226,6 +227,7 @@ final class GeneratedTable implements Table
 	}
 
 
+	#[\NoDiscard]
 	public function edit(
 		GeneratedRow|GeneratedPrimaryKey $rowOrKey,
 		int|UnchangedValue $direct = Unchanged,
