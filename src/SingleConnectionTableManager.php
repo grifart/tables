@@ -75,7 +75,7 @@ final class SingleConnectionTableManager implements TableManager
 	public function findBy(Table $table, Condition|array $conditions, array $orderBy = [], ?Paginator $paginator = null): array
 	{
 		$result = $this->connection->query(
-			'SELECT *',
+			'SELECT %n', map($table::getDatabaseColumns(), static fn(ColumnMetadata $column) => $column->getName()),
 			'FROM %n.%n', $table::getSchema(), $table::getTableName(),
 			'WHERE %ex', (\is_array($conditions) ? Composite::and(...$conditions) : $conditions)->toSql()->getValues(),
 			'ORDER BY %by', \count($orderBy) > 0
@@ -135,7 +135,7 @@ final class SingleConnectionTableManager implements TableManager
 	public function findOneBy(Table $table, Condition|array $conditions, array $orderBy = [], bool $required = true, bool $unique = true): ?Row
 	{
 		$result = $this->connection->query(
-			'SELECT *',
+			'SELECT %n', map($table::getDatabaseColumns(), static fn(ColumnMetadata $column) => $column->getName()),
 			'FROM %n.%n', $table::getSchema(), $table::getTableName(),
 			'WHERE %ex', (\is_array($conditions) ? Composite::and(...$conditions) : $conditions)->toSql()->getValues(),
 			'ORDER BY %by', \count($orderBy) > 0
