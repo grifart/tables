@@ -149,9 +149,9 @@ $rows = $table->findBy([
 
 This package provides a `Composite` condition that lets you compose the most complex trees of boolean logic together, and a set of most common conditions such as equality, comparison, and null-checks. For a complete list, look into the [`Conditions/functions.php`](../src/Conditions/functions.php) file.
 
-In addition to these, you can also write your own conditions by implementing the `Condition` interface. It defines the sole method `toSql()` which is expected to return an array compatible with [Dibi](https://github.com/dg/dibi).
+In addition to these, you can also write your own conditions by implementing the `Condition` interface. It defines the sole method `toSql()` which is expected to return a [Dibi](https://github.com/dg/dibi) expression.
 
-Take a look at how a `LIKE` condition could be implemented. It maps to a `LIKE` database operation with two operands, a sub-expression (more on that below), and a pattern mapped to a database text:
+Take a look at how a `LIKE` condition could be implemented. It maps to a `LIKE` database operation with two operands – a sub-expression (more on that below), and a pattern mapped to a database text:
 
 ```php
 use Grifart\Tables\Expression;
@@ -204,7 +204,7 @@ $rows = $table->findBy([
 
 #### Expressions
 
-Expressions are an abstraction over database expressions. All table columns are expressions and as you've seen, the generated `ArticlesTable` exposes each of them via an aptly named method.
+Expressions are an abstraction over database expressions. All table columns are expressions and as you've seen, the generated `ArticlesTable` exposes each of them via an aptly named property.
 
 You can also create custom expressions that map to various database functions and operations. You just need to implement the `Expression` interface which requires you to specify the SQL representation of the expression, and also its type (used for formatting values in conditions):
 
@@ -260,10 +260,12 @@ $rows = $table->findBy(
 );
 ```
 
-You can also use the `expr()` function to create such expression:
+#### Anonymous expressions
+
+You can also use the `expr()` function to create such expression in place:
 
 ```php
-$year = fn(Expression $expr) => expr(IntType::integer(), "EXTRACT ('year' FROM ?)", $expr->toSql());
+$year = fn(Expression $expr) => expr(IntType::integer(), "EXTRACT ('year' FROM ?)", $expr);
 $rows = $table->findBy(
     $year($table->createdAt)->is(equalTo(2021)),
 );
@@ -271,7 +273,7 @@ $rows = $table->findBy(
 
 #### Ordering
 
-To specify the desired order of records, you can provide a list of sorting criteria. This uses the same expression mechanism as filtering. You can use the `Expression`'s shorthand methods `ascending()` and `descending()`:
+To specify the desired order of records, you can provide a list of sorting criteria. This uses the same expression mechanism as filtering. You can use the `ExpressionWithShorthands`'s methods `ascending()` and `descending()`:
 
 ```php
 $rows = $table->getAll(orderBy: [
@@ -327,6 +329,17 @@ There is also an `$table->updateAndGet()` variant of the method which returns th
 
 ```php
 $updatedArticle = $table->updateAndGet($articleRow, /* ... */);
+```
+
+#### Set default value
+
+You can revert a column to its default value:
+
+```php
+$table->update(
+    ArticlePrimaryKey::from($articleId),
+    deletedAt: \Grifart\Tables\DefaultValue,
+);
 ```
 
 #### Bulk update
@@ -412,10 +425,10 @@ $changeSet = $table->edit(
 )
 ```
 
-The change set can further be updated by calling its `modify*()` methods, and eventually saved using the `$table->save()` method:
+The change set can further be updated, and eventually saved using the `$table->save()` method:
 
 ```php
-$changeSet->modifyPublished(false);
+$changeSet->published = false;
 $table->save($changeSet);
 ```
 
