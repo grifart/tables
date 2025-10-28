@@ -228,7 +228,7 @@ final class SingleConnectionTableManager implements TableManager
 			$result = $this->connection->query(
 				'INSERT INTO %n.%n', $table::getSchema(), $table::getTableName(),
 				$this->mapModifications($table, $changes),
-				'RETURNING *',
+				'RETURNING %n', map($table::getDatabaseColumns(), static fn(ColumnMetadata $column) => $column->getName()),
 			);
 		} catch (UniqueConstraintViolationException $e) {
 			throw new RowWithGivenPrimaryKeyAlreadyExists(previous: $e);
@@ -294,7 +294,7 @@ final class SingleConnectionTableManager implements TableManager
 			'SET %a',
 			$this->mapModifications($table, $changes, explicitDefaults: true),
 			'WHERE %ex', $primaryKey->getCondition($table)->toSql()->getValues(),
-			'RETURNING *',
+			'RETURNING %n', map($table::getDatabaseColumns(), static fn(ColumnMetadata $column) => $column->getName()),
 		);
 
 		$affectedRows = $this->connection->getAffectedRows();
@@ -382,7 +382,7 @@ final class SingleConnectionTableManager implements TableManager
 			$values,
 			'ON CONFLICT (%n)', $primaryKey::getColumnNames(),
 			'DO UPDATE SET %a', $values,
-			'RETURNING *',
+			'RETURNING %n', map($table::getDatabaseColumns(), static fn(ColumnMetadata $column) => $column->getName()),
 		);
 
 		\assert($this->connection->getAffectedRows() === 1);
@@ -430,7 +430,7 @@ final class SingleConnectionTableManager implements TableManager
 			'DELETE',
 			'FROM %n.%n', $table::getSchema(), $table::getTableName(),
 			'WHERE %ex', $primaryKey->getCondition($table)->toSql()->getValues(),
-			'RETURNING *',
+			'RETURNING %n', map($table::getDatabaseColumns(), static fn(ColumnMetadata $column) => $column->getName()),
 		);
 
 		\assert($this->connection->getAffectedRows() === 1);
