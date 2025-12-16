@@ -218,6 +218,7 @@ final class ConfigTable implements Table
 	}
 
 
+	#[\NoDiscard]
 	public function new(Uuid $id, string $key, string $value): ConfigModifications
 	{
 		$modifications = ConfigModifications::new();
@@ -228,6 +229,7 @@ final class ConfigTable implements Table
 	}
 
 
+	#[\NoDiscard]
 	public function edit(
 		ConfigRow|ConfigPrimaryKey $rowOrKey,
 		Uuid|UnchangedValue $id = Unchanged,
