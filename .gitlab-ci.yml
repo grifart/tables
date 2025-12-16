@@ -2,25 +2,27 @@ stages:
   - install
   - test
 
-install:
+.install:
   stage: install
-  image: grifart/php8.4-with-all-modules-and-various-tools
   interruptible: true
-  script:
-    - composer install
+  script: composer install --ansi --no-interaction --prefer-dist
   artifacts:
     paths:
       - vendor/
     expire_in: 1 day
 
-tests:
-  stage: test
+install.php84:
+  extends: .install
   image: grifart/php8.4-with-all-modules-and-various-tools
+
+install.php85:
+  extends: .install
+  image: grifart/php8.5-with-all-modules-and-various-tools
+
+
+.test:
+  stage: test
   interruptible: true
-  dependencies:
-    - install
-  services:
-    - postgres:16-alpine
   variables:
     POSTGRES_DB: tables
     POSTGRES_USER: postgres
@@ -31,11 +33,23 @@ tests:
   script:
     - composer run test
 
+test.php84:
+  extends: .test
+  image: grifart/php8.4-with-all-modules-and-various-tools
+  dependencies: [ install.php84 ]
+  services:
+    - postgres:16-alpine
+
+test.php85:
+  extends: .test
+  image: grifart/php8.5-with-all-modules-and-various-tools
+  dependencies: [ install.php85 ]
+  services:
+    - postgres:18-alpine
+
 phpstan:
   stage: test
-  image: grifart/php8.4-with-all-modules-and-various-tools
+  image: grifart/php8.5-with-all-modules-and-various-tools
   interruptible: true
-  dependencies:
-    - install
-  script:
-    - composer run phpstan
+  dependencies: [ install.php85 ]
+  script: composer run phpstan
