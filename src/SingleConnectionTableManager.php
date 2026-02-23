@@ -101,7 +101,6 @@ final class SingleConnectionTableManager implements TableManager
 		$rowClass = $table::getRowClass();
 		$modelRows = [];
 		foreach ($dibiRows as $dibiRow) {
-			\assert($dibiRow instanceof \Dibi\Row);
 			$modelRows[] = $rowClass::reconstitute(
 				mapWithKeys(
 					$dibiRow->toArray(),
